@@ -1,0 +1,23 @@
+#-----------------------------------------------------------
+# Vivado v2022.2 (64-bit)
+# SW Build 3671981 on Fri Oct 14 05:00:03 MDT 2022
+# IP Build 3669848 on Fri Oct 14 08:30:02 MDT 2022
+# Start of session at: Sat Oct 24 17:17:06 2026
+# Process ID: 23636
+# Current directory: C:/Users/adityal2/Desktop/ece385
+# Command line: vivado.exe -mode batch -source common/make_proj.tcl -tclargs yopapa
+# Log file: C:/Users/adityal2/Desktop/ece385/vivado.log
+# Journal file: C:/Users/adityal2/Desktop/ece385\vivado.jou
+# Running On: ECEB-3022-16, OS: Windows, CPU Frequency: 3000 MHz, CPU Physical cores: 6, Host memory: 33554 MB
+#-----------------------------------------------------------
+source common/make_proj.tcl
+# if {$argc < 1} { error "usage requires flag: -tclargs <proj_name>" }
+# set proj_name		[lindex $argv 0]
+# set design_source_dir	C:/Users/adityal2/Desktop/ece385/$proj_name
+# set vivado_proj_dir    	C:/Users/adityal2/Desktop/ece385/vivado/$proj_name
+# set part 		xc7s50csga324-1
+# create_project $proj_name $vivado_proj_dir -part $part -force
+create_project: Time (s): cpu = 00:00:04 ; elapsed = 00:00:05 . Memory (MB): peak = 1003.184 ; gain = 118.297
+# add_files [ glob $design_source_dir/rtl/*.sv ]
+# update_compile_order -fileset sources_1
+INFO: [Common 17-206] Exiting Vivado at Sat Oct 24 17:17:17 2026...
