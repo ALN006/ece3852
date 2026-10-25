@@ -6,8 +6,14 @@ XDC := $(PROJ)/constraints.xdc
 
 .PHONY: proj clean
 
-proj: common/make_proj.tcl $(RTL) $(XDC)
+proj: $(XPR)
+	
+$(XPR): common/make_proj.tcl
 	$(VIVADO) -mode batch -source common/make_proj.tcl -tclargs $(PROJ)
+
+rebuild:
+	$(MAKE) clean PROJ=$(PROJ)
+	$(MAKE) proj PROJ=$(PROJ)
 
 clean:
 	rm -rf vivado/$(PROJ)

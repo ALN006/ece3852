@@ -1,23 +1,26 @@
 #-----------------------------------------------------------
-# Vivado v2022.2 (64-bit)
-# SW Build 3671981 on Fri Oct 14 05:00:03 MDT 2022
-# IP Build 3669848 on Fri Oct 14 08:30:02 MDT 2022
-# Start of session at: Sat Oct 24 17:17:06 2026
-# Process ID: 23636
-# Current directory: C:/Users/adityal2/Desktop/ece385
-# Command line: vivado.exe -mode batch -source common/make_proj.tcl -tclargs yopapa
-# Log file: C:/Users/adityal2/Desktop/ece385/vivado.log
-# Journal file: C:/Users/adityal2/Desktop/ece385\vivado.jou
-# Running On: ECEB-3022-16, OS: Windows, CPU Frequency: 3000 MHz, CPU Physical cores: 6, Host memory: 33554 MB
+# Vivado v2023.1 (64-bit)
+# SW Build 3865809 on Sun May  7 15:04:56 MDT 2023
+# IP Build 3864474 on Sun May  7 20:36:21 MDT 2023
+# SharedData Build 3865790 on Sun May 07 13:33:03 MDT 2023
+# Start of session at: Sat Oct 24 23:44:41 2026
+# Process ID: 309166
+# Current directory: /home/adityal2/ece3852
+# Command line: vivado -mode batch -source common/make_proj.tcl -tclargs yopapa
+# Log file: /home/adityal2/ece3852/vivado.log
+# Journal file: /home/adityal2/ece3852/vivado.jou
+# Running On: linux-ssh-01.ews.illinois.edu, OS: Linux, CPU Frequency: 2095.077 MHz, CPU Physical cores: 12, Host memory: 24893 MB
 #-----------------------------------------------------------
 source common/make_proj.tcl
 # if {$argc < 1} { error "usage requires flag: -tclargs <proj_name>" }
 # set proj_name		[lindex $argv 0]
-# set design_source_dir	C:/Users/adityal2/Desktop/ece385/$proj_name
-# set vivado_proj_dir    	C:/Users/adityal2/Desktop/ece385/vivado/$proj_name
+# set root		[file normalize [file join [file dirname [info script]] ..]]
+# set design_source_dir	$root/$proj_name
+# set vivado_proj_dir    	$root/vivado/$proj_name
 # set part 		xc7s50csga324-1
 # create_project $proj_name $vivado_proj_dir -part $part -force
-create_project: Time (s): cpu = 00:00:04 ; elapsed = 00:00:05 . Memory (MB): peak = 1003.184 ; gain = 118.297
+create_project: Time (s): cpu = 00:00:09 ; elapsed = 00:00:10 . Memory (MB): peak = 2628.332 ; gain = 114.992 ; free physical = 8401 ; free virtual = 25860
 # add_files [ glob $design_source_dir/rtl/*.sv ]
+# add_files -fileset constrs_1 $design_source_dir/constraints.xdc
 # update_compile_order -fileset sources_1
-INFO: [Common 17-206] Exiting Vivado at Sat Oct 24 17:17:17 2026...
+INFO: [Common 17-206] Exiting Vivado at Sat Oct 24 23:45:03 2026...
