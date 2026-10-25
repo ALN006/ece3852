@@ -3,10 +3,10 @@
 # SW Build 3865809 on Sun May  7 15:04:56 MDT 2023
 # IP Build 3864474 on Sun May  7 20:36:21 MDT 2023
 # SharedData Build 3865790 on Sun May 07 13:33:03 MDT 2023
-# Start of session at: Sat Oct 24 23:44:41 2026
-# Process ID: 309166
+# Start of session at: Sun Oct 25 03:03:13 2026
+# Process ID: 349141
 # Current directory: /home/adityal2/ece3852
-# Command line: vivado -mode batch -source common/make_proj.tcl -tclargs yopapa
+# Command line: vivado -mode batch -source common/make_proj.tcl -tclargs yopapa mb
 # Log file: /home/adityal2/ece3852/vivado.log
 # Journal file: /home/adityal2/ece3852/vivado.jou
 # Running On: linux-ssh-01.ews.illinois.edu, OS: Linux, CPU Frequency: 2095.077 MHz, CPU Physical cores: 12, Host memory: 24893 MB

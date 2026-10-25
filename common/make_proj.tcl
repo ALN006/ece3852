@@ -7,6 +7,12 @@ set vivado_proj_dir    	$root/vivado/$proj_name
 set part 		xc7s50csga324-1
 
 create_project $proj_name $vivado_proj_dir -part $part -force
+
+# optional MicroBlaze block design: -tclargs <proj> mb
+if {$argc > 1 && [lindex $argv 1] eq "mb"} {
+    source $root/common/mb_system.tcl
+}
+
 add_files [ glob $design_source_dir/rtl/*.sv ]
 add_files -fileset constrs_1 $design_source_dir/constraints.xdc
 update_compile_order -fileset sources_1
