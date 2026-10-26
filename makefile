@@ -1,4 +1,5 @@
 VIVADO ?= C:/Xilinx/Vivado/2022.2/bin/vivado.bat
+IP ?= hdmi_text_controller
 
 ifeq ($(PROJ),) 
 $(error usage: make proj|rebuild|clean PROJ=<project_name>) 
@@ -9,6 +10,9 @@ RTL := $(wildcard $(PROJ)/rtl/*.sv)
 XDC := $(PROJ)/constraints.xdc
 
 .PHONY: proj clean
+
+ip:
+	$(VIVADO) -mode batch -source common/pack_ip.tcl -tclargs $(PROJ) $(IP)
 
 proj: $(XPR)
 	

@@ -1,110 +1,99 @@
 #-----------------------------------------------------------
-# Vivado v2022.2 (64-bit)
-# SW Build 3671981 on Fri Oct 14 05:00:03 MDT 2022
-# IP Build 3669848 on Fri Oct 14 08:30:02 MDT 2022
-# Start of session at: Sun Oct 25 19:24:14 2026
-# Process ID: 276
-# Current directory: C:/Users/nicho/OneDrive/Desktop/ece3852
-# Command line: vivado.exe -mode batch -source common/make_proj.tcl -tclargs yopapa mb
-# Log file: C:/Users/nicho/OneDrive/Desktop/ece3852/vivado.log
-# Journal file: C:/Users/nicho/OneDrive/Desktop/ece3852\vivado.jou
-# Running On: hp-laptop, OS: Windows, CPU Frequency: 1996 MHz, CPU Physical cores: 16, Host memory: 16127 MB
+# Vivado v2023.1 (64-bit)
+# SW Build 3865809 on Sun May  7 15:04:56 MDT 2023
+# IP Build 3864474 on Sun May  7 20:36:21 MDT 2023
+# SharedData Build 3865790 on Sun May 07 13:33:03 MDT 2023
+# Start of session at: Mon Oct 26 03:00:01 2026
+# Process ID: 376005
+# Current directory: /home/adityal2/ece3852
+# Command line: vivado -mode batch -source common/pack_ip.tcl -tclargs lab7 hdmi_text_controller
+# Log file: /home/adityal2/ece3852/vivado.log
+# Journal file: /home/adityal2/ece3852/vivado.jou
+# Running On: linux-ssh-04.ews.illinois.edu, OS: Linux, CPU Frequency: 2095.078 MHz, CPU Physical cores: 12, Host memory: 24893 MB
 #-----------------------------------------------------------
-source common/make_proj.tcl
-# if {$argc < 1} { error "usage requires flag: -tclargs <proj_name>" }
-# set proj_name		[lindex $argv 0]
-# set root		[file normalize [file join [file dirname [info script]] ..]]
-# set design_source_dir	$root/$proj_name
-# set vivado_proj_dir    	$root/vivado/$proj_name
-# set part 		xc7s50csga324-1
-# create_project $proj_name $vivado_proj_dir -part $part -force
-# if {$argc > 1 && [lindex $argv 1] eq "mb"} {
-#     source $root/common/mb_system.tcl
-# }
-## foreach id {{BD 5-700} {filemgmt 56-443} {IP_Flow 19-4994}} {
-##     set_msg_config -id $id -severity WARNING -new_severity INFO
-## }
-## set bd_name	mb_block
-## set local_mem	128KB
-## set cpu_name	microblaze_0
-## set uart_name	axi_uartlite_0
-## create_bd_design $bd_name
-Wrote  : <C:\Users\nicho\OneDrive\Desktop\ece3852\vivado\yopapa\yopapa.srcs\sources_1\bd\mb_block\mb_block.bd> 
-## create_bd_cell -type ip -vlnv xilinx.com:ip:microblaze $cpu_name
-## apply_bd_automation -rule xilinx.com:bd_rule:microblaze -config \
-##        	[ list axi_intc 1 axi_periph Enabled cache None clk {New Clocking Wizard} cores 1 debug_module {Debug Only} ecc None local_mem $local_mem preset Microcontroller ] \
-## 	[ get_bd_cells $cpu_name ]
-INFO: [BD 5-700] No address spaces matched 'get_bd_addr_spaces /microblaze_0'
-## puts "\n\n ALNs address space sanity check (should see a /$cpu_name/Data and /$cpu_name/Instruction): [ get_bd_addr_spaces /$cpu_name/* ] \n\n"
+source common/pack_ip.tcl
+# if {$argc < 2} { error "usage: -tclargs <proj_name> <ip_name>" }
+# set proj_name [lindex $argv 0]
+# set ip_name   [lindex $argv 1]
+# set root    [file normalize [file join [file dirname [info script]] ..]]
+# set ip_src  $root/$proj_name/ip/$ip_name
+# set ip_dir  $root/vivado/ip_repo/${ip_name}_1_0
+# set tmp_dir $root/vivado/ip_tmp/$ip_name
+# set part    xc7s50csga324-1
+# puts "\n\n ALNs tcl var info:"
 
 
- ALNs address space sanity check (should see a /microblaze_0/Data and /microblaze_0/Instruction): /microblaze_0/Data /microblaze_0/Instruction 
-
-
-## delete_bd_objs [get_bd_nets ${cpu_name}_intr] [get_bd_cells ${cpu_name}_xlconcat]
-## set_property CONFIG.PRIM_SOURCE Single_ended_clock_capable_pin [get_bd_cells clk_wiz_1]
-## create_bd_cell -type ip -vlnv xilinx.com:ip:axi_uartlite $uart_name
-## set_property CONFIG.C_BAUDRATE 115200 [ get_bd_cells $uart_name ]
-## apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config \
-## 	[list Clk_master {/clk_wiz_1/clk_out1 (100 MHz)} Clk_slave Auto Clk_xbar {/clk_wiz_1/clk_out1 (100 MHz)} Master "/$cpu_name (Periph)" Slave /$uart_name/S_AXI \
-## 	ddr_seg Auto intc_ip /${cpu_name}_axi_periph master_apm 0] \
-## 	[get_bd_intf_pins $uart_name/S_AXI]
-Slave segment '/axi_uartlite_0/S_AXI/Reg' is being assigned into address space '/microblaze_0/Data' at <0x4060_0000 [ 64K ]>.
-## connect_bd_net [get_bd_pins $uart_name/interrupt] [get_bd_pins ${cpu_name}_axi_intc/intr] 
-## set clk_port    clk_100MHz
-## set reset_port  reset_rtl_0
-## set uart_port   uart_rtl_0
-## create_bd_intf_port -mode Master -vlnv xilinx.com:interface:uart_rtl:1.0 $uart_port
-## connect_bd_intf_net [get_bd_intf_ports $uart_port] [get_bd_intf_pins $uart_name/UART]
-## create_bd_port -dir I -type clk -freq_hz 100000000 $clk_port
-## connect_bd_net [get_bd_ports $clk_port] [get_bd_pins clk_wiz_1/clk_in1]
-## create_bd_port -dir I -type rst $reset_port
-## set_property CONFIG.POLARITY ACTIVE_LOW [get_bd_ports $reset_port]
-## connect_bd_net [get_bd_ports $reset_port] [get_bd_pins rst_clk_wiz_1_100M/ext_reset_in]
-## connect_bd_net [ get_bd_pins clk_wiz_1/reset ] [ get_bd_pins mdm_1/Debug_SYS_Rst ]
-## puts "\n\n ALNs reset sanity check (must be ACTIVE LOW): [get_property CONFIG.POLARITY [get_bd_pins rst_clk_wiz_1_100M/ext_reset_in]] \n\n"
-
-
- ALNs reset sanity check (must be ACTIVE LOW): ACTIVE_LOW 
-
-
-## validate_bd_design
-INFO: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
-INFO: [xilinx.com:ip:axi_intc:4.1-1] /microblaze_0_axi_intc: The AXI INTC core has been configured to operate with synchronous clocks.
-INFO: [xilinx.com:ip:clk_wiz:6.0-1] /clk_wiz_1 clk_wiz propagate
-## generate_target all [get_files ${bd_name}.bd]
-INFO: [BD 41-1662] The design 'mb_block.bd' is already validated. Therefore parameter propagation will not be re-run.
-INFO: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
-INFO: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
-Wrote  : <C:\Users\nicho\OneDrive\Desktop\ece3852\vivado\yopapa\yopapa.srcs\sources_1\bd\mb_block\mb_block.bd> 
-Verilog Output written to : C:/Users/nicho/OneDrive/Desktop/ece3852/vivado/yopapa/yopapa.gen/sources_1/bd/mb_block/synth/mb_block.v
-Verilog Output written to : C:/Users/nicho/OneDrive/Desktop/ece3852/vivado/yopapa/yopapa.gen/sources_1/bd/mb_block/sim/mb_block.v
-Verilog Output written to : C:/Users/nicho/OneDrive/Desktop/ece3852/vivado/yopapa/yopapa.gen/sources_1/bd/mb_block/hdl/mb_block_wrapper.v
-INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0 .
-INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_local_memory/dlmb_v10 .
-INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_local_memory/ilmb_v10 .
-INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_local_memory/dlmb_bram_if_cntlr .
-INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_local_memory/ilmb_bram_if_cntlr .
-INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_local_memory/lmb_bram .
-INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_axi_periph/xbar .
-INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_axi_intc .
-INFO: [Device 21-403] Loading part xc7s50csga324-1
-INFO: [BD 41-1029] Generation completed for the IP Integrator block mdm_1 .
-INFO: [BD 41-1029] Generation completed for the IP Integrator block clk_wiz_1 .
-INFO: [BD 41-1029] Generation completed for the IP Integrator block rst_clk_wiz_1_100M .
-INFO: [IP_Flow 19-4994] Overwriting existing constraint file 'c:/Users/nicho/OneDrive/Desktop/ece3852/vivado/yopapa/yopapa.gen/sources_1/bd/mb_block/ip/mb_block_axi_uartlite_0_0/mb_block_axi_uartlite_0_0_ooc.xdc'
-INFO: [BD 41-1029] Generation completed for the IP Integrator block axi_uartlite_0 .
-Exporting to file C:/Users/nicho/OneDrive/Desktop/ece3852/vivado/yopapa/yopapa.gen/sources_1/bd/mb_block/hw_handoff/mb_block.hwh
-Generated Hardware Definition File C:/Users/nicho/OneDrive/Desktop/ece3852/vivado/yopapa/yopapa.gen/sources_1/bd/mb_block/synth/mb_block.hwdef
-generate_target: Time (s): cpu = 00:00:04 ; elapsed = 00:00:06 . Memory (MB): peak = 942.520 ; gain = 274.051
-## puts "\n\n ALNs info block design info: $bd_name ports: [get_bd_ports] [get_bd_intf_ports] \n\n"
-
-
- ALNs info block design info: mb_block ports: /clk_100MHz /reset_rtl_0 /uart_rtl_0_rxd /uart_rtl_0_txd /uart_rtl_0 
-
-
-## save_bd_design
-# add_files [ glob $design_source_dir/rtl/*.sv ]
-# add_files -fileset constrs_1 $design_source_dir/constraints.xdc
+ ALNs tcl var info:
+# foreach v {root ip_src ip_dir tmp_dir} { puts "  $v = [set $v]  " }
+  root = /home/adityal2/ece3852  
+  ip_src = /home/adityal2/ece3852/lab7/ip/hdmi_text_controller  
+  ip_dir = /home/adityal2/ece3852/vivado/ip_repo/hdmi_text_controller_1_0  
+  tmp_dir = /home/adityal2/ece3852/vivado/ip_tmp/hdmi_text_controller  
+# create_project -force ip_pack $tmp_dir -part $part
+create_project: Time (s): cpu = 00:00:08 ; elapsed = 00:00:10 . Memory (MB): peak = 2628.184 ; gain = 113.992 ; free physical = 472 ; free virtual = 23183
+# add_files [glob $ip_src/src/*.sv]
+# set_property top ${ip_name}_v1_0 [current_fileset]
 # update_compile_order -fileset sources_1
-INFO: [Common 17-206] Exiting Vivado at Sun Oct 25 19:24:36 2026...
+# file delete -force $ip_dir
+# ipx::package_project -root_dir $ip_dir -vendor user.org -library user \
+#     -taxonomy /UserIP -import_files -set_current true
+WARNING: [IP_Flow 19-3833] Unreferenced file from the top module is not packaged: '/home/adityal2/ece3852/lab7/ip/hdmi_text_controller/src/VGA_controller.sv'.
+WARNING: [IP_Flow 19-3833] Unreferenced file from the top module is not packaged: '/home/adityal2/ece3852/lab7/ip/hdmi_text_controller/src/font_rom.sv'.
+WARNING: [IP_Flow 19-5101] Packaging a component with a SystemVerilog top file is not fully supported. Please refer to UG1118 'Creating and Packaging Custom IP'.
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/software/xilinx-2023.1/Vivado/2023.1/data/ip'.
+INFO: [IP_Flow 19-5107] Inferred bus interface 'axi' of definition 'xilinx.com:interface:aximm:1.0' (from Xilinx Repository).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'axi_aresetn' of definition 'xilinx.com:signal:reset:1.0' (from Xilinx Repository).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'axi_aclk' of definition 'xilinx.com:signal:clock:1.0' (from Xilinx Repository).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'hdmi_clk_n' of definition 'xilinx.com:signal:clock:1.0' (from Xilinx Repository).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'hdmi_clk_p' of definition 'xilinx.com:signal:clock:1.0' (from Xilinx Repository).
+INFO: [IP_Flow 19-4728] Bus Interface 'axi_aresetn': Added interface parameter 'POLARITY' with value 'ACTIVE_LOW'.
+INFO: [IP_Flow 19-4728] Bus Interface 'axi_aclk': Added interface parameter 'ASSOCIATED_BUSIF' with value 'axi'.
+INFO: [IP_Flow 19-4728] Bus Interface 'axi_aclk': Added interface parameter 'ASSOCIATED_RESET' with value 'axi_aresetn'.
+WARNING: [IP_Flow 19-11770] Clock interface 'axi_aclk' has no FREQ_HZ parameter.
+WARNING: [IP_Flow 19-5661] Bus Interface 'hdmi_clk_n' does not have any bus interfaces associated with it.
+WARNING: [IP_Flow 19-4751] Bus Interface 'hdmi_clk_n': FREQ_HZ bus parameter is missing for output clock interface.
+WARNING: [IP_Flow 19-5661] Bus Interface 'hdmi_clk_p' does not have any bus interfaces associated with it.
+WARNING: [IP_Flow 19-4751] Bus Interface 'hdmi_clk_p': FREQ_HZ bus parameter is missing for output clock interface.
+INFO: [IP_Flow 19-2181] Payment Required is not set for this core.
+INFO: [IP_Flow 19-2187] The Product Guide file is missing.
+# set ip_ref	[ipx::current_core]
+# set_property name    $ip_name $ip_ref
+# set_property version 1.0      $ip_ref
+# ipx::remove_bus_interface hdmi_clk_n $ip_ref
+# ipx::remove_bus_interface hdmi_clk_p $ip_ref
+# set hdmi_if_name HDMI
+# ipx::add_bus_interface $hdmi_if_name $ip_ref
+# set hdmi_if_ref [ipx::get_bus_interfaces $hdmi_if_name -of_objects $ip_ref]
+# set_property abstraction_type_vlnv xilinx.com:interface:hdmi_rtl:1.0 $hdmi_if_ref
+# set_property bus_type_vlnv         xilinx.com:interface:hdmi:1.0     $hdmi_if_ref
+# set_property interface_mode        master                            $hdmi_if_ref
+# foreach {logical physical} {
+#     TMDS_CLK_P  hdmi_clk_p
+#     TMDS_CLK_N  hdmi_clk_n
+#     TMDS_DATA_P hdmi_tx_p
+#     TMDS_DATA_N hdmi_tx_n
+# } {
+#     ipx::add_port_map $logical $hdmi_if_ref
+#     set_property physical_name $physical [ipx::get_port_maps $logical -of_objects $hdmi_if_ref]
+# }
+# foreach pm [ipx::get_port_maps -of_objects $hdmi_if_ref] {
+#     puts "  port map: [get_property logical_name $pm] -> [get_property physical_name $pm]"
+# }
+  port map: TMDS_CLK_P -> hdmi_clk_p
+  port map: TMDS_CLK_N -> hdmi_clk_n
+  port map: TMDS_DATA_P -> hdmi_tx_p
+  port map: TMDS_DATA_N -> hdmi_tx_n
+# puts "\n\n ALNs ip gen summary:\n  vendor:library:name:version :       [get_property vlnv $ip_ref] \n  interfaces: [get_property name [ipx::get_bus_interfaces -of_objects $ip_ref]] \n  ports:      [get_property name [ipx::get_ports -of_objects $ip_ref]]\n\n"
+
+
+ ALNs ip gen summary:
+  vendor:library:name:version :       user.org:user:hdmi_text_controller:1.0 
+  interfaces: axi axi_aresetn axi_aclk HDMI 
+  ports:      hdmi_clk_n hdmi_clk_p hdmi_tx_n hdmi_tx_p axi_aclk axi_aresetn axi_awaddr axi_awprot axi_awvalid axi_awready axi_wdata axi_wstrb axi_wvalid axi_wready axi_bresp axi_bvalid axi_bready axi_araddr axi_arprot axi_arvalid axi_arready axi_rdata axi_rresp axi_rvalid axi_rready
+
+
+# ipx::save_core $ip_ref
+# close_project
+INFO: [Common 17-206] Exiting Vivado at Mon Oct 26 03:00:24 2026...
