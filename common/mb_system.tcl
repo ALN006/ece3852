@@ -53,6 +53,9 @@ create_bd_port -dir I -type rst $reset_port
 set_property CONFIG.POLARITY ACTIVE_LOW [get_bd_ports $reset_port]
 connect_bd_net [get_bd_ports $reset_port] [get_bd_pins rst_clk_wiz_1_100M/ext_reset_in]
 
+# clk_wiz_1/reset conection to mdm_1/Debug_SYS_Rst
+connect_bd_net [ get_bd_pins clk_wiz_1/reset ] [ get_bd_pins mdm_1/Debug_SYS_Rst ]
+
 puts "\n\n ALNs reset sanity check (must be ACTIVE LOW): [get_property CONFIG.POLARITY [get_bd_pins rst_clk_wiz_1_100M/ext_reset_in]] \n\n"
 
 validate_bd_design

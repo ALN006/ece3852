@@ -4,7 +4,7 @@
     "xci_name": "mb_block_microblaze_0_axi_periph_0",
     "cell_name": "microblaze_0_axi_periph",
     "component_reference": "xilinx.com:ip:axi_interconnect:2.1",
-    "ip_revision": "29",
+    "ip_revision": "28",
     "gen_directory": "../../../../../../yopapa.gen/sources_1/bd/mb_block/ip/mb_block_microblaze_0_axi_periph_0",
     "parameters": {
       "component_parameters": {
@@ -335,16 +335,18 @@
         "SIMULATOR_LANGUAGE": [ { "value": "MIXED" } ],
         "SPEEDGRADE": [ { "value": "-1" } ],
         "STATIC_POWER": [ { "value": "" } ],
-        "TEMPERATURE_GRADE": [ { "value": "" } ]
+        "TEMPERATURE_GRADE": [ { "value": "" } ],
+        "USE_RDI_CUSTOMIZATION": [ { "value": "TRUE" } ],
+        "USE_RDI_GENERATION": [ { "value": "TRUE" } ]
       },
       "runtime_parameters": {
         "IPCONTEXT": [ { "value": "IP_Integrator_AppCore" } ],
-        "IPREVISION": [ { "value": "29" } ],
+        "IPREVISION": [ { "value": "28" } ],
         "MANAGED": [ { "value": "TRUE" } ],
         "OUTPUTDIR": [ { "value": "../../../../../../yopapa.gen/sources_1/bd/mb_block/ip/mb_block_microblaze_0_axi_periph_0" } ],
         "SELECTEDSIMMODEL": [ { "value": "" } ],
         "SHAREDDIR": [ { "value": "../../ipshared" } ],
-        "SWVERSION": [ { "value": "2023.1" } ],
+        "SWVERSION": [ { "value": "2022.2" } ],
         "SYNTHESISFLOW": [ { "value": "GLOBAL" } ]
       }
     }

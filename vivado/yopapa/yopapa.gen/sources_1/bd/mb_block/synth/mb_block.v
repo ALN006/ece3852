@@ -1,9 +1,8 @@
 //Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
-//Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
 //--------------------------------------------------------------------------------
-//Tool Version: Vivado v.2023.1 (lin64) Build 3865809 Sun May  7 15:04:56 MDT 2023
-//Date        : Sun Oct 25 03:04:05 2026
-//Host        : linux-ssh-01.ews.illinois.edu running 64-bit Red Hat Enterprise Linux 9.8 (Plow)
+//Tool Version: Vivado v.2022.2 (win64) Build 3671981 Fri Oct 14 05:00:03 MDT 2022
+//Date        : Sun Oct 25 19:24:31 2026
+//Host        : hp-laptop running 64-bit major release  (build 9200)
 //Command     : generate_target mb_block.bd
 //Design      : mb_block
 //Purpose     : IP block netlist
@@ -412,7 +411,7 @@ module mb_block
        (.clk_in1(clk_100MHz_1),
         .clk_out1(microblaze_0_Clk),
         .locked(clk_wiz_1_locked),
-        .reset(1'b0));
+        .reset(mdm_1_debug_sys_rst));
   mb_block_mdm_1_0 mdm_1
        (.Dbg_Capture_0(microblaze_0_debug_CAPTURE),
         .Dbg_Clk_0(microblaze_0_debug_CLK),

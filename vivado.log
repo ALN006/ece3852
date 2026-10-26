@@ -1,15 +1,14 @@
 #-----------------------------------------------------------
-# Vivado v2023.1 (64-bit)
-# SW Build 3865809 on Sun May  7 15:04:56 MDT 2023
-# IP Build 3864474 on Sun May  7 20:36:21 MDT 2023
-# SharedData Build 3865790 on Sun May 07 13:33:03 MDT 2023
-# Start of session at: Sun Oct 25 03:03:13 2026
-# Process ID: 349141
-# Current directory: /home/adityal2/ece3852
-# Command line: vivado -mode batch -source common/make_proj.tcl -tclargs yopapa mb
-# Log file: /home/adityal2/ece3852/vivado.log
-# Journal file: /home/adityal2/ece3852/vivado.jou
-# Running On: linux-ssh-01.ews.illinois.edu, OS: Linux, CPU Frequency: 2095.077 MHz, CPU Physical cores: 12, Host memory: 24893 MB
+# Vivado v2022.2 (64-bit)
+# SW Build 3671981 on Fri Oct 14 05:00:03 MDT 2022
+# IP Build 3669848 on Fri Oct 14 08:30:02 MDT 2022
+# Start of session at: Sun Oct 25 19:24:14 2026
+# Process ID: 276
+# Current directory: C:/Users/nicho/OneDrive/Desktop/ece3852
+# Command line: vivado.exe -mode batch -source common/make_proj.tcl -tclargs yopapa mb
+# Log file: C:/Users/nicho/OneDrive/Desktop/ece3852/vivado.log
+# Journal file: C:/Users/nicho/OneDrive/Desktop/ece3852\vivado.jou
+# Running On: hp-laptop, OS: Windows, CPU Frequency: 1996 MHz, CPU Physical cores: 16, Host memory: 16127 MB
 #-----------------------------------------------------------
 source common/make_proj.tcl
 # if {$argc < 1} { error "usage requires flag: -tclargs <proj_name>" }
@@ -19,7 +18,6 @@ source common/make_proj.tcl
 # set vivado_proj_dir    	$root/vivado/$proj_name
 # set part 		xc7s50csga324-1
 # create_project $proj_name $vivado_proj_dir -part $part -force
-create_project: Time (s): cpu = 00:00:09 ; elapsed = 00:00:10 . Memory (MB): peak = 2628.188 ; gain = 114.992 ; free physical = 7467 ; free virtual = 26695
 # if {$argc > 1 && [lindex $argv 1] eq "mb"} {
 #     source $root/common/mb_system.tcl
 # }
@@ -31,15 +29,12 @@ create_project: Time (s): cpu = 00:00:09 ; elapsed = 00:00:10 . Memory (MB): pea
 ## set cpu_name	microblaze_0
 ## set uart_name	axi_uartlite_0
 ## create_bd_design $bd_name
-Wrote  : </home/adityal2/ece3852/vivado/yopapa/yopapa.srcs/sources_1/bd/mb_block/mb_block.bd> 
+Wrote  : <C:\Users\nicho\OneDrive\Desktop\ece3852\vivado\yopapa\yopapa.srcs\sources_1\bd\mb_block\mb_block.bd> 
 ## create_bd_cell -type ip -vlnv xilinx.com:ip:microblaze $cpu_name
 ## apply_bd_automation -rule xilinx.com:bd_rule:microblaze -config \
 ##        	[ list axi_intc 1 axi_periph Enabled cache None clk {New Clocking Wizard} cores 1 debug_module {Debug Only} ecc None local_mem $local_mem preset Microcontroller ] \
 ## 	[ get_bd_cells $cpu_name ]
-INFO: [Device 21-403] Loading part xc7s50csga324-1
-create_bd_cell: Time (s): cpu = 00:00:04 ; elapsed = 00:00:06 . Memory (MB): peak = 3156.766 ; gain = 314.000 ; free physical = 7066 ; free virtual = 26294
 INFO: [BD 5-700] No address spaces matched 'get_bd_addr_spaces /microblaze_0'
-apply_bd_automation: Time (s): cpu = 00:00:21 ; elapsed = 00:00:27 . Memory (MB): peak = 3159.734 ; gain = 404.234 ; free physical = 7060 ; free virtual = 26289
 ## puts "\n\n ALNs address space sanity check (should see a /$cpu_name/Data and /$cpu_name/Instruction): [ get_bd_addr_spaces /$cpu_name/* ] \n\n"
 
 
@@ -66,6 +61,7 @@ Slave segment '/axi_uartlite_0/S_AXI/Reg' is being assigned into address space '
 ## create_bd_port -dir I -type rst $reset_port
 ## set_property CONFIG.POLARITY ACTIVE_LOW [get_bd_ports $reset_port]
 ## connect_bd_net [get_bd_ports $reset_port] [get_bd_pins rst_clk_wiz_1_100M/ext_reset_in]
+## connect_bd_net [ get_bd_pins clk_wiz_1/reset ] [ get_bd_pins mdm_1/Debug_SYS_Rst ]
 ## puts "\n\n ALNs reset sanity check (must be ACTIVE LOW): [get_property CONFIG.POLARITY [get_bd_pins rst_clk_wiz_1_100M/ext_reset_in]] \n\n"
 
 
@@ -80,10 +76,10 @@ INFO: [xilinx.com:ip:clk_wiz:6.0-1] /clk_wiz_1 clk_wiz propagate
 INFO: [BD 41-1662] The design 'mb_block.bd' is already validated. Therefore parameter propagation will not be re-run.
 INFO: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
 INFO: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
-Wrote  : </home/adityal2/ece3852/vivado/yopapa/yopapa.srcs/sources_1/bd/mb_block/mb_block.bd> 
-Verilog Output written to : /home/adityal2/ece3852/vivado/yopapa/yopapa.gen/sources_1/bd/mb_block/synth/mb_block.v
-Verilog Output written to : /home/adityal2/ece3852/vivado/yopapa/yopapa.gen/sources_1/bd/mb_block/sim/mb_block.v
-Verilog Output written to : /home/adityal2/ece3852/vivado/yopapa/yopapa.gen/sources_1/bd/mb_block/hdl/mb_block_wrapper.v
+Wrote  : <C:\Users\nicho\OneDrive\Desktop\ece3852\vivado\yopapa\yopapa.srcs\sources_1\bd\mb_block\mb_block.bd> 
+Verilog Output written to : C:/Users/nicho/OneDrive/Desktop/ece3852/vivado/yopapa/yopapa.gen/sources_1/bd/mb_block/synth/mb_block.v
+Verilog Output written to : C:/Users/nicho/OneDrive/Desktop/ece3852/vivado/yopapa/yopapa.gen/sources_1/bd/mb_block/sim/mb_block.v
+Verilog Output written to : C:/Users/nicho/OneDrive/Desktop/ece3852/vivado/yopapa/yopapa.gen/sources_1/bd/mb_block/hdl/mb_block_wrapper.v
 INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0 .
 INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_local_memory/dlmb_v10 .
 INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_local_memory/ilmb_v10 .
@@ -92,13 +88,15 @@ INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0
 INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_local_memory/lmb_bram .
 INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_axi_periph/xbar .
 INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_axi_intc .
+INFO: [Device 21-403] Loading part xc7s50csga324-1
 INFO: [BD 41-1029] Generation completed for the IP Integrator block mdm_1 .
 INFO: [BD 41-1029] Generation completed for the IP Integrator block clk_wiz_1 .
 INFO: [BD 41-1029] Generation completed for the IP Integrator block rst_clk_wiz_1_100M .
-INFO: [IP_Flow 19-4994] Overwriting existing constraint file '/home/adityal2/ece3852/vivado/yopapa/yopapa.gen/sources_1/bd/mb_block/ip/mb_block_axi_uartlite_0_0/mb_block_axi_uartlite_0_0_ooc.xdc'
+INFO: [IP_Flow 19-4994] Overwriting existing constraint file 'c:/Users/nicho/OneDrive/Desktop/ece3852/vivado/yopapa/yopapa.gen/sources_1/bd/mb_block/ip/mb_block_axi_uartlite_0_0/mb_block_axi_uartlite_0_0_ooc.xdc'
 INFO: [BD 41-1029] Generation completed for the IP Integrator block axi_uartlite_0 .
-Exporting to file /home/adityal2/ece3852/vivado/yopapa/yopapa.gen/sources_1/bd/mb_block/hw_handoff/mb_block.hwh
-Generated Hardware Definition File /home/adityal2/ece3852/vivado/yopapa/yopapa.gen/sources_1/bd/mb_block/synth/mb_block.hwdef
+Exporting to file C:/Users/nicho/OneDrive/Desktop/ece3852/vivado/yopapa/yopapa.gen/sources_1/bd/mb_block/hw_handoff/mb_block.hwh
+Generated Hardware Definition File C:/Users/nicho/OneDrive/Desktop/ece3852/vivado/yopapa/yopapa.gen/sources_1/bd/mb_block/synth/mb_block.hwdef
+generate_target: Time (s): cpu = 00:00:04 ; elapsed = 00:00:06 . Memory (MB): peak = 942.520 ; gain = 274.051
 ## puts "\n\n ALNs info block design info: $bd_name ports: [get_bd_ports] [get_bd_intf_ports] \n\n"
 
 
@@ -109,4 +107,4 @@ Generated Hardware Definition File /home/adityal2/ece3852/vivado/yopapa/yopapa.g
 # add_files [ glob $design_source_dir/rtl/*.sv ]
 # add_files -fileset constrs_1 $design_source_dir/constraints.xdc
 # update_compile_order -fileset sources_1
-INFO: [Common 17-206] Exiting Vivado at Sun Oct 25 03:04:12 2026...
+INFO: [Common 17-206] Exiting Vivado at Sun Oct 25 19:24:36 2026...

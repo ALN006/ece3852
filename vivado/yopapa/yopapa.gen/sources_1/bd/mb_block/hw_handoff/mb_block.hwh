@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-<EDKSYSTEM EDWVERSION="1.2" TIMESTAMP="Sun Oct 25 03:04:09 2026" VIVADOVERSION="2023.1">
+<EDKSYSTEM EDWVERSION="1.2" TIMESTAMP="Sun Oct 25 19:24:34 2026" VIVADOVERSION="2022.2">
 
   <SYSTEMINFO ARCH="spartan7" DEVICE="7s50" NAME="mb_block" PACKAGE="csga324" SPEEDGRADE="-1"/>
 
@@ -36,7 +36,7 @@
   </EXTERNALINTERFACES>
 
   <MODULES>
-    <MODULE COREREVISION="32" FULLNAME="/axi_uartlite_0" HWVERSION="2.0" INSTANCE="axi_uartlite_0" IPTYPE="PERIPHERAL" IS_ENABLE="1" MODCLASS="PERIPHERAL" MODTYPE="axi_uartlite" VLNV="xilinx.com:ip:axi_uartlite:2.0">
+    <MODULE COREREVISION="31" FULLNAME="/axi_uartlite_0" HWVERSION="2.0" INSTANCE="axi_uartlite_0" IPTYPE="PERIPHERAL" IS_ENABLE="1" MODCLASS="PERIPHERAL" MODTYPE="axi_uartlite" VLNV="xilinx.com:ip:axi_uartlite:2.0">
       <DOCUMENTS>
         <DOCUMENT SOURCE="http://www.xilinx.com/cgi-bin/docs/ipdoc?c=axi_uartlite;v=v2_0;d=pg142-axi-uartlite.pdf"/>
       </DOCUMENTS>
@@ -407,7 +407,7 @@
         </BUSINTERFACE>
       </BUSINTERFACES>
     </MODULE>
-    <MODULE COREREVISION="12" FULLNAME="/clk_wiz_1" HWVERSION="6.0" INSTANCE="clk_wiz_1" IPTYPE="PERIPHERAL" IS_ENABLE="1" MODCLASS="PERIPHERAL" MODTYPE="clk_wiz" VLNV="xilinx.com:ip:clk_wiz:6.0">
+    <MODULE COREREVISION="11" FULLNAME="/clk_wiz_1" HWVERSION="6.0" INSTANCE="clk_wiz_1" IPTYPE="PERIPHERAL" IS_ENABLE="1" MODCLASS="PERIPHERAL" MODTYPE="clk_wiz" VLNV="xilinx.com:ip:clk_wiz:6.0">
       <DOCUMENTS>
         <DOCUMENT SOURCE="http://www.xilinx.com/cgi-bin/docs/ipdoc?c=clk_wiz;v=v6_0;d=pg065-clk-wiz.pdf"/>
       </DOCUMENTS>
@@ -987,7 +987,11 @@
         <PARAMETER NAME="EDK_IPTYPE" VALUE="PERIPHERAL"/>
       </PARAMETERS>
       <PORTS>
-        <PORT DIR="I" NAME="reset" POLARITY="ACTIVE_HIGH" SIGIS="rst"/>
+        <PORT DIR="I" NAME="reset" POLARITY="ACTIVE_HIGH" SIGIS="rst" SIGNAME="mdm_1_Debug_SYS_Rst">
+          <CONNECTIONS>
+            <CONNECTION INSTANCE="mdm_1" PORT="Debug_SYS_Rst"/>
+          </CONNECTIONS>
+        </PORT>
         <PORT CLKFREQUENCY="100000000" DIR="O" NAME="clk_out1" SIGIS="clk" SIGNAME="clk_wiz_1_clk_out1">
           <CONNECTIONS>
             <CONNECTION INSTANCE="microblaze_0" PORT="Clk"/>
@@ -1018,7 +1022,7 @@
       </PORTS>
       <BUSINTERFACES/>
     </MODULE>
-    <MODULE COREREVISION="24" FULLNAME="/mdm_1" HWVERSION="3.2" INSTANCE="mdm_1" IPTYPE="PERIPHERAL" IS_ENABLE="1" MODCLASS="DEBUG" MODTYPE="mdm" VLNV="xilinx.com:ip:mdm:3.2">
+    <MODULE COREREVISION="23" FULLNAME="/mdm_1" HWVERSION="3.2" INSTANCE="mdm_1" IPTYPE="PERIPHERAL" IS_ENABLE="1" MODCLASS="DEBUG" MODTYPE="mdm" VLNV="xilinx.com:ip:mdm:3.2">
       <DOCUMENTS>
         <DOCUMENT SOURCE="http://www.xilinx.com/cgi-bin/docs/ipdoc?c=mdm;v=v3_2;d=pg115-mdm.pdf"/>
       </DOCUMENTS>
@@ -1068,6 +1072,7 @@
         <PORT DIR="O" NAME="Debug_SYS_Rst" POLARITY="ACTIVE_HIGH" SIGIS="rst" SIGNAME="mdm_1_Debug_SYS_Rst">
           <CONNECTIONS>
             <CONNECTION INSTANCE="rst_clk_wiz_1_100M" PORT="mb_debug_sys_rst"/>
+            <CONNECTION INSTANCE="clk_wiz_1" PORT="reset"/>
           </CONNECTIONS>
         </PORT>
         <PORT DIR="O" NAME="Dbg_Clk_0" SIGIS="clk" SIGNAME="mdm_1_Dbg_Clk_0">
@@ -1136,7 +1141,7 @@
         <PERIPHERAL INSTANCE="microblaze_0"/>
       </PERIPHERALS>
     </MODULE>
-    <MODULE COREREVISION="11" FULLNAME="/microblaze_0" HWVERSION="11.0" INSTANCE="microblaze_0" IPTYPE="PROCESSOR" IS_ENABLE="1" MODCLASS="PROCESSOR" MODTYPE="microblaze" PROCTYPE="microblaze" VLNV="xilinx.com:ip:microblaze:11.0">
+    <MODULE COREREVISION="10" FULLNAME="/microblaze_0" HWVERSION="11.0" INSTANCE="microblaze_0" IPTYPE="PROCESSOR" IS_ENABLE="1" MODCLASS="PROCESSOR" MODTYPE="microblaze" PROCTYPE="microblaze" VLNV="xilinx.com:ip:microblaze:11.0">
       <DOCUMENTS>
         <DOCUMENT SOURCE="http://www.xilinx.com/cgi-bin/docs/rdoc?v=latest;d=ug984-vivado-microblaze-ref.pdf"/>
       </DOCUMENTS>
@@ -1155,7 +1160,6 @@
         <PARAMETER NAME="C_LOCKSTEP_MASTER" VALUE="0"/>
         <PARAMETER NAME="C_TEMPORAL_DEPTH" VALUE="0"/>
         <PARAMETER NAME="C_FAMILY" VALUE="spartan7"/>
-        <PARAMETER NAME="C_PART" VALUE="xc7s50csga324-1"/>
         <PARAMETER NAME="C_DATA_SIZE" VALUE="32"/>
         <PARAMETER NAME="C_LMB_DATA_SIZE" VALUE="32"/>
         <PARAMETER NAME="C_INSTR_SIZE" VALUE="32"/>
@@ -3484,7 +3488,7 @@
         </BUSINTERFACE>
       </BUSINTERFACES>
     </MODULE>
-    <MODULE COREREVISION="29" FULLNAME="/microblaze_0_axi_periph" HWVERSION="2.1" INSTANCE="microblaze_0_axi_periph" IPTYPE="BUS" IS_ENABLE="1" MODCLASS="BUS" MODTYPE="axi_interconnect" VLNV="xilinx.com:ip:axi_interconnect:2.1">
+    <MODULE COREREVISION="28" FULLNAME="/microblaze_0_axi_periph" HWVERSION="2.1" INSTANCE="microblaze_0_axi_periph" IPTYPE="BUS" IS_ENABLE="1" MODCLASS="BUS" MODTYPE="axi_interconnect" VLNV="xilinx.com:ip:axi_interconnect:2.1">
       <DOCUMENTS>
         <DOCUMENT SOURCE="http://www.xilinx.com/cgi-bin/docs/ipdoc?c=axi_interconnect;v=v2_1;d=pg059-axi-interconnect.pdf"/>
       </DOCUMENTS>
@@ -4281,7 +4285,7 @@
         </BUSINTERFACE>
       </BUSINTERFACES>
     </MODULE>
-    <MODULE COREREVISION="22" FULLNAME="/microblaze_0_local_memory/dlmb_bram_if_cntlr" HWVERSION="4.0" INSTANCE="microblaze_0_local_memory_dlmb_bram_if_cntlr" IPTYPE="PERIPHERAL" IS_ENABLE="1" MODCLASS="MEMORY_CNTLR" MODTYPE="lmb_bram_if_cntlr" VLNV="xilinx.com:ip:lmb_bram_if_cntlr:4.0">
+    <MODULE COREREVISION="21" FULLNAME="/microblaze_0_local_memory/dlmb_bram_if_cntlr" HWVERSION="4.0" INSTANCE="microblaze_0_local_memory_dlmb_bram_if_cntlr" IPTYPE="PERIPHERAL" IS_ENABLE="1" MODCLASS="MEMORY_CNTLR" MODTYPE="lmb_bram_if_cntlr" VLNV="xilinx.com:ip:lmb_bram_if_cntlr:4.0">
       <DOCUMENTS>
         <DOCUMENT SOURCE="http://www.xilinx.com/cgi-bin/docs/ipdoc?c=lmb_bram_if_cntlr;v=v4_0;d=pg112-lmb-bram-if-cntlr.pdf"/>
       </DOCUMENTS>
@@ -4295,14 +4299,9 @@
         <PARAMETER NAME="C_MASK1" VALUE="0x0000000000800000"/>
         <PARAMETER NAME="C_MASK2" VALUE="0x0000000000800000"/>
         <PARAMETER NAME="C_MASK3" VALUE="0x0000000000800000"/>
-        <PARAMETER NAME="C_MASK4" VALUE="0x0000000000800000"/>
-        <PARAMETER NAME="C_MASK5" VALUE="0x0000000000800000"/>
-        <PARAMETER NAME="C_MASK6" VALUE="0x0000000000800000"/>
-        <PARAMETER NAME="C_MASK7" VALUE="0x0000000000800000"/>
         <PARAMETER NAME="C_LMB_AWIDTH" VALUE="32"/>
         <PARAMETER NAME="C_LMB_DWIDTH" VALUE="32"/>
         <PARAMETER NAME="C_LMB_PROTOCOL" VALUE="0"/>
-        <PARAMETER NAME="C_ARBITRATION" VALUE="0"/>
         <PARAMETER NAME="C_ECC" VALUE="0"/>
         <PARAMETER NAME="C_INTERCONNECT" VALUE="0"/>
         <PARAMETER NAME="C_FAULT_INJECT" VALUE="0"/>
@@ -4644,7 +4643,7 @@
         </BUSINTERFACE>
       </BUSINTERFACES>
     </MODULE>
-    <MODULE COREREVISION="22" FULLNAME="/microblaze_0_local_memory/ilmb_bram_if_cntlr" HWVERSION="4.0" INSTANCE="microblaze_0_local_memory_ilmb_bram_if_cntlr" IPTYPE="PERIPHERAL" IS_ENABLE="1" MODCLASS="MEMORY_CNTLR" MODTYPE="lmb_bram_if_cntlr" VLNV="xilinx.com:ip:lmb_bram_if_cntlr:4.0">
+    <MODULE COREREVISION="21" FULLNAME="/microblaze_0_local_memory/ilmb_bram_if_cntlr" HWVERSION="4.0" INSTANCE="microblaze_0_local_memory_ilmb_bram_if_cntlr" IPTYPE="PERIPHERAL" IS_ENABLE="1" MODCLASS="MEMORY_CNTLR" MODTYPE="lmb_bram_if_cntlr" VLNV="xilinx.com:ip:lmb_bram_if_cntlr:4.0">
       <DOCUMENTS>
         <DOCUMENT SOURCE="http://www.xilinx.com/cgi-bin/docs/ipdoc?c=lmb_bram_if_cntlr;v=v4_0;d=pg112-lmb-bram-if-cntlr.pdf"/>
       </DOCUMENTS>
@@ -4655,14 +4654,9 @@
         <PARAMETER NAME="C_MASK1" VALUE="0x0000000000800000"/>
         <PARAMETER NAME="C_MASK2" VALUE="0x0000000000800000"/>
         <PARAMETER NAME="C_MASK3" VALUE="0x0000000000800000"/>
-        <PARAMETER NAME="C_MASK4" VALUE="0x0000000000800000"/>
-        <PARAMETER NAME="C_MASK5" VALUE="0x0000000000800000"/>
-        <PARAMETER NAME="C_MASK6" VALUE="0x0000000000800000"/>
-        <PARAMETER NAME="C_MASK7" VALUE="0x0000000000800000"/>
         <PARAMETER NAME="C_LMB_AWIDTH" VALUE="32"/>
         <PARAMETER NAME="C_LMB_DWIDTH" VALUE="32"/>
         <PARAMETER NAME="C_LMB_PROTOCOL" VALUE="0"/>
-        <PARAMETER NAME="C_ARBITRATION" VALUE="0"/>
         <PARAMETER NAME="C_ECC" VALUE="0"/>
         <PARAMETER NAME="C_INTERCONNECT" VALUE="0"/>
         <PARAMETER NAME="C_FAULT_INJECT" VALUE="0"/>
@@ -4992,7 +4986,7 @@
         </BUSINTERFACE>
       </BUSINTERFACES>
     </MODULE>
-    <MODULE COREREVISION="6" FULLNAME="/microblaze_0_local_memory/lmb_bram" HWVERSION="8.4" INSTANCE="microblaze_0_local_memory_lmb_bram" IPTYPE="PERIPHERAL" IS_ENABLE="1" MODCLASS="MEMORY" MODTYPE="blk_mem_gen" VLNV="xilinx.com:ip:blk_mem_gen:8.4">
+    <MODULE COREREVISION="5" FULLNAME="/microblaze_0_local_memory/lmb_bram" HWVERSION="8.4" INSTANCE="microblaze_0_local_memory_lmb_bram" IPTYPE="PERIPHERAL" IS_ENABLE="1" MODCLASS="MEMORY" MODTYPE="blk_mem_gen" VLNV="xilinx.com:ip:blk_mem_gen:8.4">
       <DOCUMENTS>
         <DOCUMENT SOURCE="http://www.xilinx.com/cgi-bin/docs/ipdoc?c=blk_mem_gen;v=v8_4;d=pg058-blk-mem-gen.pdf"/>
       </DOCUMENTS>

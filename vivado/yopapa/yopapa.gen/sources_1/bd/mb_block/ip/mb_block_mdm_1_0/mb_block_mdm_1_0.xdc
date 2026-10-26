@@ -1,5 +1,5 @@
 # file: mb_block_mdm_1_0.xdc
-# (c) Copyright 2013-2023 Xilinx, Inc. All rights reserved.
+# (c) Copyright 2013-2022 Xilinx, Inc. All rights reserved.
 # 
 # This file contains confidential and proprietary information
 # of Xilinx, Inc. and is protected under U.S. and

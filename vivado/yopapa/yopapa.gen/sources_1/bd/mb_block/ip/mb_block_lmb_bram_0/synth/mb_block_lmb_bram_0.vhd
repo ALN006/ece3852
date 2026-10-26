@@ -1,21 +1,21 @@
--- (c) Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
--- (c) Copyright 2022-2026 Advanced Micro Devices, Inc. All rights reserved.
+-- (c) Copyright 1995-2026 Xilinx, Inc. All rights reserved.
 -- 
 -- This file contains confidential and proprietary information
--- of AMD and is protected under U.S. and international copyright
--- and other intellectual property laws.
+-- of Xilinx, Inc. and is protected under U.S. and
+-- international copyright and other intellectual property
+-- laws.
 -- 
 -- DISCLAIMER
 -- This disclaimer is not a license and does not grant any
 -- rights to the materials distributed herewith. Except as
 -- otherwise provided in a valid license issued to you by
--- AMD, and to the maximum extent permitted by applicable
+-- Xilinx, and to the maximum extent permitted by applicable
 -- law: (1) THESE MATERIALS ARE MADE AVAILABLE "AS IS" AND
 -- WITH ALL FAULTS, AND XILINX HEREBY DISCLAIMS ALL WARRANTIES
 -- AND CONDITIONS, EXPRESS, IMPLIED, OR STATUTORY, INCLUDING
 -- BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, NON-
 -- INFRINGEMENT, OR FITNESS FOR ANY PARTICULAR PURPOSE; and
--- (2) AMD shall not be liable (whether in contract or tort,
+-- (2) Xilinx shall not be liable (whether in contract or tort,
 -- including negligence, or under any other theory of
 -- liability) for any loss or damage of any kind or nature
 -- related to, arising under or in connection with these
@@ -24,11 +24,11 @@
 -- (including loss of data, profits, goodwill, or any type of
 -- loss or damage suffered as a result of any action brought
 -- by a third party) even if such damage or loss was
--- reasonably foreseeable or AMD had been advised of the
+-- reasonably foreseeable or Xilinx had been advised of the
 -- possibility of the same.
 -- 
 -- CRITICAL APPLICATIONS
--- AMD products are not designed or intended to be fail-
+-- Xilinx products are not designed or intended to be fail-
 -- safe, or for use in any application requiring fail-safe
 -- performance, such as life-support or safety devices or
 -- systems, Class III medical devices, nuclear facilities,
@@ -37,7 +37,7 @@
 -- injury, or severe property or environmental damage
 -- (individually and collectively, "Critical
 -- Applications"). Customer assumes the sole risk and
--- liability of any use of AMD products in Critical
+-- liability of any use of Xilinx products in Critical
 -- Applications, subject only to applicable laws and
 -- regulations governing limitations on product liability.
 -- 
@@ -47,14 +47,14 @@
 -- DO NOT MODIFY THIS FILE.
 
 -- IP VLNV: xilinx.com:ip:blk_mem_gen:8.4
--- IP Revision: 6
+-- IP Revision: 5
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 USE ieee.numeric_std.ALL;
 
-LIBRARY blk_mem_gen_v8_4_6;
-USE blk_mem_gen_v8_4_6.blk_mem_gen_v8_4_6;
+LIBRARY blk_mem_gen_v8_4_5;
+USE blk_mem_gen_v8_4_5.blk_mem_gen_v8_4_5;
 
 ENTITY mb_block_lmb_bram_0 IS
   PORT (
@@ -80,7 +80,7 @@ END mb_block_lmb_bram_0;
 ARCHITECTURE mb_block_lmb_bram_0_arch OF mb_block_lmb_bram_0 IS
   ATTRIBUTE DowngradeIPIdentifiedWarnings : STRING;
   ATTRIBUTE DowngradeIPIdentifiedWarnings OF mb_block_lmb_bram_0_arch: ARCHITECTURE IS "yes";
-  COMPONENT blk_mem_gen_v8_4_6 IS
+  COMPONENT blk_mem_gen_v8_4_5 IS
     GENERIC (
       C_FAMILY : STRING;
       C_XDEVICEFAMILY : STRING;
@@ -223,13 +223,13 @@ ARCHITECTURE mb_block_lmb_bram_0_arch OF mb_block_lmb_bram_0 IS
       s_axi_dbiterr : OUT STD_LOGIC;
       s_axi_rdaddrecc : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
     );
-  END COMPONENT blk_mem_gen_v8_4_6;
+  END COMPONENT blk_mem_gen_v8_4_5;
   ATTRIBUTE X_CORE_INFO : STRING;
-  ATTRIBUTE X_CORE_INFO OF mb_block_lmb_bram_0_arch: ARCHITECTURE IS "blk_mem_gen_v8_4_6,Vivado 2023.1";
+  ATTRIBUTE X_CORE_INFO OF mb_block_lmb_bram_0_arch: ARCHITECTURE IS "blk_mem_gen_v8_4_5,Vivado 2022.2";
   ATTRIBUTE CHECK_LICENSE_TYPE : STRING;
-  ATTRIBUTE CHECK_LICENSE_TYPE OF mb_block_lmb_bram_0_arch : ARCHITECTURE IS "mb_block_lmb_bram_0,blk_mem_gen_v8_4_6,{}";
+  ATTRIBUTE CHECK_LICENSE_TYPE OF mb_block_lmb_bram_0_arch : ARCHITECTURE IS "mb_block_lmb_bram_0,blk_mem_gen_v8_4_5,{}";
   ATTRIBUTE CORE_GENERATION_INFO : STRING;
-  ATTRIBUTE CORE_GENERATION_INFO OF mb_block_lmb_bram_0_arch: ARCHITECTURE IS "mb_block_lmb_bram_0,blk_mem_gen_v8_4_6,{x_ipProduct=Vivado 2023.1,x_ipVendor=xilinx.com,x_ipLibrary=ip,x_ipName=blk_mem_gen,x_ipVersion=8.4,x_ipCoreRevision=6,x_ipLanguage=VERILOG,x_ipSimLanguage=MIXED,C_FAMILY=spartan7,C_XDEVICEFAMILY=spartan7,C_ELABORATION_DIR=./,C_INTERFACE_TYPE=0,C_AXI_TYPE=1,C_AXI_SLAVE_TYPE=0,C_USE_BRAM_BLOCK=1,C_ENABLE_32BIT_ADDRESS=1,C_CTRL_ECC_ALGO=NONE,C_HAS_AXI_ID=0,C_AXI_ID_WIDTH=4,C_MEM_TYPE=2,C_BYTE_SIZE=8,C_ALGORITHM=1,C_PRIM_TYPE=1,C_LOAD_INIT_FILE=0,C_INIT_FILE_" & 
+  ATTRIBUTE CORE_GENERATION_INFO OF mb_block_lmb_bram_0_arch: ARCHITECTURE IS "mb_block_lmb_bram_0,blk_mem_gen_v8_4_5,{x_ipProduct=Vivado 2022.2,x_ipVendor=xilinx.com,x_ipLibrary=ip,x_ipName=blk_mem_gen,x_ipVersion=8.4,x_ipCoreRevision=5,x_ipLanguage=VERILOG,x_ipSimLanguage=MIXED,C_FAMILY=spartan7,C_XDEVICEFAMILY=spartan7,C_ELABORATION_DIR=./,C_INTERFACE_TYPE=0,C_AXI_TYPE=1,C_AXI_SLAVE_TYPE=0,C_USE_BRAM_BLOCK=1,C_ENABLE_32BIT_ADDRESS=1,C_CTRL_ECC_ALGO=NONE,C_HAS_AXI_ID=0,C_AXI_ID_WIDTH=4,C_MEM_TYPE=2,C_BYTE_SIZE=8,C_ALGORITHM=1,C_PRIM_TYPE=1,C_LOAD_INIT_FILE=0,C_INIT_FILE_" & 
 "NAME=no_coe_file_loaded,C_INIT_FILE=mb_block_lmb_bram_0.mem,C_USE_DEFAULT_DATA=0,C_DEFAULT_DATA=0,C_HAS_RSTA=1,C_RST_PRIORITY_A=CE,C_RSTRAM_A=0,C_INITA_VAL=0,C_HAS_ENA=1,C_HAS_REGCEA=0,C_USE_BYTE_WEA=1,C_WEA_WIDTH=4,C_WRITE_MODE_A=WRITE_FIRST,C_WRITE_WIDTH_A=32,C_READ_WIDTH_A=32,C_WRITE_DEPTH_A=32768,C_READ_DEPTH_A=32768,C_ADDRA_WIDTH=32,C_HAS_RSTB=1,C_RST_PRIORITY_B=CE,C_RSTRAM_B=0,C_INITB_VAL=0,C_HAS_ENB=1,C_HAS_REGCEB=0,C_USE_BYTE_WEB=1,C_WEB_WIDTH=4,C_WRITE_MODE_B=WRITE_FIRST,C_WRITE_WIDTH_B" & 
 "=32,C_READ_WIDTH_B=32,C_WRITE_DEPTH_B=32768,C_READ_DEPTH_B=32768,C_ADDRB_WIDTH=32,C_HAS_MEM_OUTPUT_REGS_A=0,C_HAS_MEM_OUTPUT_REGS_B=0,C_HAS_MUX_OUTPUT_REGS_A=0,C_HAS_MUX_OUTPUT_REGS_B=0,C_MUX_PIPELINE_STAGES=0,C_HAS_SOFTECC_INPUT_REGS_A=0,C_HAS_SOFTECC_OUTPUT_REGS_B=0,C_USE_SOFTECC=0,C_USE_ECC=0,C_EN_ECC_PIPE=0,C_READ_LATENCY_A=1,C_READ_LATENCY_B=1,C_HAS_INJECTERR=0,C_SIM_COLLISION_CHECK=ALL,C_COMMON_CLK=0,C_DISABLE_WARN_BHV_COLL=0,C_EN_SLEEP_PIN=0,C_USE_URAM=0,C_EN_RDADDRA_CHG=0,C_EN_RDADDRB_CH" & 
 "G=0,C_EN_DEEPSLEEP_PIN=0,C_EN_SHUTDOWN_PIN=0,C_EN_SAFETY_CKT=1,C_DISABLE_WARN_BHV_RANGE=0,C_COUNT_36K_BRAM=32,C_COUNT_18K_BRAM=0,C_EST_POWER_SUMMARY=Estimated Power for IP     _     20.388 mW}";
@@ -252,7 +252,7 @@ ARCHITECTURE mb_block_lmb_bram_0_arch OF mb_block_lmb_bram_0 IS
   ATTRIBUTE X_INTERFACE_INFO OF wea: SIGNAL IS "xilinx.com:interface:bram:1.0 BRAM_PORTA WE";
   ATTRIBUTE X_INTERFACE_INFO OF web: SIGNAL IS "xilinx.com:interface:bram:1.0 BRAM_PORTB WE";
 BEGIN
-  U0 : blk_mem_gen_v8_4_6
+  U0 : blk_mem_gen_v8_4_5
     GENERIC MAP (
       C_FAMILY => "spartan7",
       C_XDEVICEFAMILY => "spartan7",
