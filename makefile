@@ -9,7 +9,10 @@ XPR := vivado/$(PROJ)/$(PROJ).xpr
 RTL := $(wildcard $(PROJ)/rtl/*.sv)
 XDC := $(PROJ)/constraints.xdc
 
-.PHONY: proj clean
+.PHONY: print_tcl_var_info proj clean
+
+print_tcl_var_info:
+	$(VIVADO) -mode batch -source common/constants.tcl -tclargs $(PROJ)
 
 ip:
 	$(VIVADO) -mode batch -source common/pack_ip.tcl -tclargs $(PROJ) $(IP)

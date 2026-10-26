@@ -3,97 +3,211 @@
 # SW Build 3865809 on Sun May  7 15:04:56 MDT 2023
 # IP Build 3864474 on Sun May  7 20:36:21 MDT 2023
 # SharedData Build 3865790 on Sun May 07 13:33:03 MDT 2023
-# Start of session at: Mon Oct 26 03:00:01 2026
-# Process ID: 376005
+# Start of session at: Mon Oct 26 14:52:35 2026
+# Process ID: 178918
 # Current directory: /home/adityal2/ece3852
-# Command line: vivado -mode batch -source common/pack_ip.tcl -tclargs lab7 hdmi_text_controller
+# Command line: vivado -mode batch -source common/build.tcl -tclargs lab7
 # Log file: /home/adityal2/ece3852/vivado.log
 # Journal file: /home/adityal2/ece3852/vivado.jou
-# Running On: linux-ssh-04.ews.illinois.edu, OS: Linux, CPU Frequency: 2095.078 MHz, CPU Physical cores: 12, Host memory: 24893 MB
+# Running On: linux-ssh-09.ews.illinois.edu, OS: Linux, CPU Frequency: 2095.078 MHz, CPU Physical cores: 12, Host memory: 24893 MB
 #-----------------------------------------------------------
-source common/pack_ip.tcl
-# if {$argc < 2} { error "usage: -tclargs <proj_name> <ip_name>" }
-# set proj_name [lindex $argv 0]
-# set ip_name   [lindex $argv 1]
-# set root    [file normalize [file join [file dirname [info script]] ..]]
-# set ip_src  $root/$proj_name/ip/$ip_name
-# set ip_dir  $root/vivado/ip_repo/${ip_name}_1_0
-# set tmp_dir $root/vivado/ip_tmp/$ip_name
-# set part    xc7s50csga324-1
-# puts "\n\n ALNs tcl var info:"
+source common/build.tcl
+# set common_dir [file dirname [file normalize [info script]]]
+# source $common_dir/environ.tcl
+## namespace eval cfg {
+## 
+##     # ---- from the command line ---- 
+##     if {$::argc < 1} {
+##         error "usage: vivado -mode batch -source common/build.tcl -tclargs <proj_name>"
+##     }
+##     variable proj_name [lindex $::argv 0]
+## 
+##     # ---- paths (derived from this file's location) ----
+##     variable root            [file normalize [file join [file dirname [info script]] ..]]
+##     variable design_src_dir  $root/$proj_name
+##     variable vivado_proj_dir $root/vivado/$proj_name
+##     variable ip_dir          $root/vivado/ip_repo
+##     variable ip_tmp_dir      $root/vivado/ip_tmp
+## 
+##     # ---- target hardware ----
+##     variable part            xc7s50csga324-1
+## 
+##     proc dump {} {
+##         puts "\n ALNs common tcl var config info:"
+##         foreach v [lsort [info vars ::cfg::*]] {
+##             puts [format "  %-16s = %s" [namespace tail $v] [set $v]]
+##         }
+##         puts ""
+##     }
+## }
+# source $common_dir/proj.tcl
+## namespace eval proj {
+##     proc create {name dir part ip_repo} {
+##         file mkdir $ip_repo
+##         create_project -force $name $dir -part $part
+##         set_property ip_repo_paths $ip_repo [current_project]
+##         update_ip_catalog -rebuild
+##     }
+## 
+##     proc open_existing {xpr} {
+##         if {[llength [get_projects -quiet]] == 0} {
+##             open_project $xpr
+##         }
+##     }
+## }
+# source $common_dir/bd.tcl
+## namespace eval bd {
+## 
+##     # names the microblaze automation creates; kept in one place
+##     variable clk_wiz  clk_wiz_1
+##     variable rst_gen  rst_clk_wiz_1_100M
+##     variable mdm      mdm_1
+## 
+##     proc create {bd_name} {
+##         if {[llength [get_projects -quiet]] == 0} { error "bd::create needs an open project" }
+##         create_bd_design $bd_name
+##     }
+## 
+##     # connect an AXI slave pin to the cpu's peripheral port through the interconnect
+##     proc wire_axi {cpu slave_pin} {
+##         apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config \
+##           [list Clk_master "/$bd::clk_wiz/clk_out1 (100 MHz)" Clk_slave Auto \
+##                 Clk_xbar "/$bd::clk_wiz/clk_out1 (100 MHz)" \
+##                 Master "/$cpu (Periph)" Slave /$slave_pin \
+##                 ddr_seg Auto intc_ip /${cpu}_axi_periph master_apm 0] \
+##           [get_bd_intf_pins $slave_pin]
+##     }
+## 
+##     # MicroBlaze + UART + external ports.
+##     # opts keys: cpu uart local_mem baud clk_port reset_port uart_port
+##     proc add_mb_system {opts} {
+##         dict with opts {}
+## 
+##         # ---- MicroBlaze ----
+##         create_bd_cell -type ip -vlnv xilinx.com:ip:microblaze $cpu
+## 
+##         apply_bd_automation -rule xilinx.com:bd_rule:microblaze -config \
+##           [list axi_intc 1 axi_periph Enabled cache None clk {New Clocking Wizard} \
+##                 cores 1 debug_module {Debug Only} ecc None local_mem $local_mem \
+##                 preset Microcontroller] \
+##           [get_bd_cells $cpu]
+## 
+##         puts "\n ALNs address space sanity check (want /$cpu/Data and /$cpu/Instruction): [get_bd_addr_spaces /$cpu/*] \n"
+## 
+##         # the automation adds an xlconcat we don't want; the UART interrupt goes straight to the intc
+##         delete_bd_objs [get_bd_nets ${cpu}_intr] [get_bd_cells ${cpu}_xlconcat]
+## 
+##         set_property CONFIG.PRIM_SOURCE Single_ended_clock_capable_pin [get_bd_cells $bd::clk_wiz]
+## 
+##         # debug module's system reset drives the clocking wizard reset
+##         connect_bd_net [get_bd_pins $bd::clk_wiz/reset] [get_bd_pins $bd::mdm/Debug_SYS_Rst]
+## 
+##         # ---- UART Lite ----
+##         create_bd_cell -type ip -vlnv xilinx.com:ip:axi_uartlite $uart
+##         set_property CONFIG.C_BAUDRATE $baud [get_bd_cells $uart]
+##         wire_axi $cpu $uart/S_AXI
+##         connect_bd_net [get_bd_pins $uart/interrupt] [get_bd_pins ${cpu}_axi_intc/intr]
+## 
+##         # ---- external ports ----
+##         # UART pins
+##         create_bd_intf_port -mode Master -vlnv xilinx.com:interface:uart_rtl:1.0 $uart_port
+##         connect_bd_intf_net [get_bd_intf_ports $uart_port] [get_bd_intf_pins $uart/UART]
+## 
+##         # 100 MHz board clock into the clocking wizard
+##         create_bd_port -dir I -type clk -freq_hz 100000000 $clk_port
+##         connect_bd_net [get_bd_ports $clk_port] [get_bd_pins $bd::clk_wiz/clk_in1]
+## 
+##         # reset button, active low inside the block design
+##         create_bd_port -dir I -type rst $reset_port
+##         set_property CONFIG.POLARITY ACTIVE_LOW [get_bd_ports $reset_port]
+##         connect_bd_net [get_bd_ports $reset_port] [get_bd_pins $bd::rst_gen/ext_reset_in]
+## 
+##         puts "\n ALNs reset polarity sanity check (must be ACTIVE_LOW): [get_property CONFIG.POLARITY [get_bd_pins $bd::rst_gen/ext_reset_in]] \n"
+##     }
+## 
+##     # validate, save first, then generate output products
+##     proc finalize {bd_name} {
+##         validate_bd_design
+##         save_bd_design
+##         generate_target all [get_files ${bd_name}.bd]
+##     }
+## }
+# source $common_dir/util.tcl
+## namespace eval util {
+##     # known-benign messages: still printed, but as INFO instead of WARNING
+##     proc demote_msgs {ids} {
+##         foreach id $ids {
+##             set_msg_config -id $id -severity WARNING -new_severity INFO
+##         }
+##     }
+## }
+# cfg::dump
 
+ ALNs common tcl var config info:
+  design_src_dir   = /home/adityal2/ece3852/lab7
+  ip_dir           = /home/adityal2/ece3852/vivado/ip_repo
+  ip_tmp_dir       = /home/adityal2/ece3852/vivado/ip_tmp
+  part             = xc7s50csga324-1
+  proj_name        = lab7
+  root             = /home/adityal2/ece3852
+  vivado_proj_dir  = /home/adityal2/ece3852/vivado/lab7
 
- ALNs tcl var info:
-# foreach v {root ip_src ip_dir tmp_dir} { puts "  $v = [set $v]  " }
-  root = /home/adityal2/ece3852  
-  ip_src = /home/adityal2/ece3852/lab7/ip/hdmi_text_controller  
-  ip_dir = /home/adityal2/ece3852/vivado/ip_repo/hdmi_text_controller_1_0  
-  tmp_dir = /home/adityal2/ece3852/vivado/ip_tmp/hdmi_text_controller  
-# create_project -force ip_pack $tmp_dir -part $part
-create_project: Time (s): cpu = 00:00:08 ; elapsed = 00:00:10 . Memory (MB): peak = 2628.184 ; gain = 113.992 ; free physical = 472 ; free virtual = 23183
-# add_files [glob $ip_src/src/*.sv]
-# set_property top ${ip_name}_v1_0 [current_fileset]
-# update_compile_order -fileset sources_1
-# file delete -force $ip_dir
-# ipx::package_project -root_dir $ip_dir -vendor user.org -library user \
-#     -taxonomy /UserIP -import_files -set_current true
-WARNING: [IP_Flow 19-3833] Unreferenced file from the top module is not packaged: '/home/adityal2/ece3852/lab7/ip/hdmi_text_controller/src/VGA_controller.sv'.
-WARNING: [IP_Flow 19-3833] Unreferenced file from the top module is not packaged: '/home/adityal2/ece3852/lab7/ip/hdmi_text_controller/src/font_rom.sv'.
-WARNING: [IP_Flow 19-5101] Packaging a component with a SystemVerilog top file is not fully supported. Please refer to UG1118 'Creating and Packaging Custom IP'.
+# util::demote_msgs {{BD 5-700} {filemgmt 56-443} {IP_Flow 19-4994}}
+# proj::create $cfg::proj_name $cfg::vivado_proj_dir $cfg::part $cfg::ip_dir
+create_project: Time (s): cpu = 00:00:09 ; elapsed = 00:00:10 . Memory (MB): peak = 2628.215 ; gain = 113.992 ; free physical = 7151 ; free virtual = 25578
 INFO: [IP_Flow 19-234] Refreshing IP repositories
-INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/adityal2/ece3852/vivado/ip_repo'.
 INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/software/xilinx-2023.1/Vivado/2023.1/data/ip'.
-INFO: [IP_Flow 19-5107] Inferred bus interface 'axi' of definition 'xilinx.com:interface:aximm:1.0' (from Xilinx Repository).
-INFO: [IP_Flow 19-5107] Inferred bus interface 'axi_aresetn' of definition 'xilinx.com:signal:reset:1.0' (from Xilinx Repository).
-INFO: [IP_Flow 19-5107] Inferred bus interface 'axi_aclk' of definition 'xilinx.com:signal:clock:1.0' (from Xilinx Repository).
-INFO: [IP_Flow 19-5107] Inferred bus interface 'hdmi_clk_n' of definition 'xilinx.com:signal:clock:1.0' (from Xilinx Repository).
-INFO: [IP_Flow 19-5107] Inferred bus interface 'hdmi_clk_p' of definition 'xilinx.com:signal:clock:1.0' (from Xilinx Repository).
-INFO: [IP_Flow 19-4728] Bus Interface 'axi_aresetn': Added interface parameter 'POLARITY' with value 'ACTIVE_LOW'.
-INFO: [IP_Flow 19-4728] Bus Interface 'axi_aclk': Added interface parameter 'ASSOCIATED_BUSIF' with value 'axi'.
-INFO: [IP_Flow 19-4728] Bus Interface 'axi_aclk': Added interface parameter 'ASSOCIATED_RESET' with value 'axi_aresetn'.
-WARNING: [IP_Flow 19-11770] Clock interface 'axi_aclk' has no FREQ_HZ parameter.
-WARNING: [IP_Flow 19-5661] Bus Interface 'hdmi_clk_n' does not have any bus interfaces associated with it.
-WARNING: [IP_Flow 19-4751] Bus Interface 'hdmi_clk_n': FREQ_HZ bus parameter is missing for output clock interface.
-WARNING: [IP_Flow 19-5661] Bus Interface 'hdmi_clk_p' does not have any bus interfaces associated with it.
-WARNING: [IP_Flow 19-4751] Bus Interface 'hdmi_clk_p': FREQ_HZ bus parameter is missing for output clock interface.
-INFO: [IP_Flow 19-2181] Payment Required is not set for this core.
-INFO: [IP_Flow 19-2187] The Product Guide file is missing.
-# set ip_ref	[ipx::current_core]
-# set_property name    $ip_name $ip_ref
-# set_property version 1.0      $ip_ref
-# ipx::remove_bus_interface hdmi_clk_n $ip_ref
-# ipx::remove_bus_interface hdmi_clk_p $ip_ref
-# set hdmi_if_name HDMI
-# ipx::add_bus_interface $hdmi_if_name $ip_ref
-# set hdmi_if_ref [ipx::get_bus_interfaces $hdmi_if_name -of_objects $ip_ref]
-# set_property abstraction_type_vlnv xilinx.com:interface:hdmi_rtl:1.0 $hdmi_if_ref
-# set_property bus_type_vlnv         xilinx.com:interface:hdmi:1.0     $hdmi_if_ref
-# set_property interface_mode        master                            $hdmi_if_ref
-# foreach {logical physical} {
-#     TMDS_CLK_P  hdmi_clk_p
-#     TMDS_CLK_N  hdmi_clk_n
-#     TMDS_DATA_P hdmi_tx_p
-#     TMDS_DATA_N hdmi_tx_n
-# } {
-#     ipx::add_port_map $logical $hdmi_if_ref
-#     set_property physical_name $physical [ipx::get_port_maps $logical -of_objects $hdmi_if_ref]
-# }
-# foreach pm [ipx::get_port_maps -of_objects $hdmi_if_ref] {
-#     puts "  port map: [get_property logical_name $pm] -> [get_property physical_name $pm]"
-# }
-  port map: TMDS_CLK_P -> hdmi_clk_p
-  port map: TMDS_CLK_N -> hdmi_clk_n
-  port map: TMDS_DATA_P -> hdmi_tx_p
-  port map: TMDS_DATA_N -> hdmi_tx_n
-# puts "\n\n ALNs ip gen summary:\n  vendor:library:name:version :       [get_property vlnv $ip_ref] \n  interfaces: [get_property name [ipx::get_bus_interfaces -of_objects $ip_ref]] \n  ports:      [get_property name [ipx::get_ports -of_objects $ip_ref]]\n\n"
+# bd::create mb_block
+Wrote  : </home/adityal2/ece3852/vivado/lab7/lab7.srcs/sources_1/bd/mb_block/mb_block.bd> 
+# bd::add_mb_system [dict create \
+#     cpu         microblaze_0 \
+#     uart        axi_uartlite_0 \
+#     local_mem   128KB \
+#     baud        115200 \
+#     clk_port    clk_100MHz \
+#     reset_port  reset_rtl_0 \
+#     uart_port   uart_rtl_0]
+INFO: [Device 21-403] Loading part xc7s50csga324-1
+create_bd_cell: Time (s): cpu = 00:00:04 ; elapsed = 00:00:06 . Memory (MB): peak = 3156.863 ; gain = 306.969 ; free physical = 6657 ; free virtual = 25085
+INFO: [BD 5-700] No address spaces matched 'get_bd_addr_spaces /microblaze_0'
+apply_bd_automation: Time (s): cpu = 00:00:21 ; elapsed = 00:00:27 . Memory (MB): peak = 3156.863 ; gain = 402.305 ; free physical = 6657 ; free virtual = 25085
 
+ ALNs address space sanity check (want /microblaze_0/Data and /microblaze_0/Instruction): /microblaze_0/Data /microblaze_0/Instruction 
 
- ALNs ip gen summary:
-  vendor:library:name:version :       user.org:user:hdmi_text_controller:1.0 
-  interfaces: axi axi_aresetn axi_aclk HDMI 
-  ports:      hdmi_clk_n hdmi_clk_p hdmi_tx_n hdmi_tx_p axi_aclk axi_aresetn axi_awaddr axi_awprot axi_awvalid axi_awready axi_wdata axi_wstrb axi_wvalid axi_wready axi_bresp axi_bvalid axi_bready axi_araddr axi_arprot axi_arvalid axi_arready axi_rdata axi_rresp axi_rvalid axi_rready
+Slave segment '/axi_uartlite_0/S_AXI/Reg' is being assigned into address space '/microblaze_0/Data' at <0x4060_0000 [ 64K ]>.
 
+ ALNs reset polarity sanity check (must be ACTIVE_LOW): ACTIVE_LOW 
 
-# ipx::save_core $ip_ref
-# close_project
-INFO: [Common 17-206] Exiting Vivado at Mon Oct 26 03:00:24 2026...
+# bd::finalize mb_block
+INFO: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
+INFO: [xilinx.com:ip:axi_intc:4.1-1] /microblaze_0_axi_intc: The AXI INTC core has been configured to operate with synchronous clocks.
+INFO: [xilinx.com:ip:clk_wiz:6.0-1] /clk_wiz_1 clk_wiz propagate
+Wrote  : </home/adityal2/ece3852/vivado/lab7/lab7.srcs/sources_1/bd/mb_block/mb_block.bd> 
+INFO: [BD 41-1662] The design 'mb_block.bd' is already validated. Therefore parameter propagation will not be re-run.
+INFO: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
+INFO: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
+Verilog Output written to : /home/adityal2/ece3852/vivado/lab7/lab7.gen/sources_1/bd/mb_block/synth/mb_block.v
+Verilog Output written to : /home/adityal2/ece3852/vivado/lab7/lab7.gen/sources_1/bd/mb_block/sim/mb_block.v
+Verilog Output written to : /home/adityal2/ece3852/vivado/lab7/lab7.gen/sources_1/bd/mb_block/hdl/mb_block_wrapper.v
+INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_local_memory/dlmb_v10 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_local_memory/ilmb_v10 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_local_memory/dlmb_bram_if_cntlr .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_local_memory/ilmb_bram_if_cntlr .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_local_memory/lmb_bram .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_axi_periph/xbar .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_axi_intc .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block mdm_1 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block clk_wiz_1 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block rst_clk_wiz_1_100M .
+INFO: [IP_Flow 19-4994] Overwriting existing constraint file '/home/adityal2/ece3852/vivado/lab7/lab7.gen/sources_1/bd/mb_block/ip/mb_block_axi_uartlite_0_0/mb_block_axi_uartlite_0_0_ooc.xdc'
+INFO: [BD 41-1029] Generation completed for the IP Integrator block axi_uartlite_0 .
+Exporting to file /home/adityal2/ece3852/vivado/lab7/lab7.gen/sources_1/bd/mb_block/hw_handoff/mb_block.hwh
+WARNING: [HDF 64-28] Could not delete directory /home/adityal2/ece3852/.Xil/Vivado-178918-linux-ssh-09.ews.illinois.edu/mb_block.hwdef
+Generated Hardware Definition File /home/adityal2/ece3852/vivado/lab7/lab7.gen/sources_1/bd/mb_block/synth/mb_block.hwdef
+# puts "\n ALNs bd_info: cells: [get_bd_cells] \n"
+
+ ALNs bd_info: cells: /axi_uartlite_0 /clk_wiz_1 /mdm_1 /microblaze_0 /microblaze_0_axi_intc /microblaze_0_axi_periph /microblaze_0_local_memory /rst_clk_wiz_1_100M 
+
+INFO: [Common 17-206] Exiting Vivado at Mon Oct 26 14:53:32 2026...
