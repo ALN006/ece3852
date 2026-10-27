@@ -165,6 +165,7 @@ namespace eval ip {
         ipx::check_integrity $core
         ipx::save_core $core
     }
+<<<<<<< HEAD
 
     proc build_dir {ip_dir} {
         set spec_file [file join $ip_dir ip_spec.tcl]
@@ -251,3 +252,7 @@ namespace eval ip {
 proc pack_ip {proj_name {target_ip ""}} {
     return [ip::pack $proj_name $target_ip]
 }
+=======
+}
+
+>>>>>>> cb661fda3c815add44122896a954d93327282313

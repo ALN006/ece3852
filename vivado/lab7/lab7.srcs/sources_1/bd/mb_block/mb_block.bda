@@ -260,6 +260,24 @@
                 "SV": "xilinx.com:ip:axi_intc:4.1",
                 "TM": "data",
                 "TU": "register"
+            },
+            "V7": {
+                "VT": "AC",
+                "BA": "0x44A00000",
+                "HA": "0x44A0FFFF",
+                "BP": "C_AXI_BASEADDR",
+                "HP": "C_AXI_HIGHADDR",
+                "MA": "Data",
+                "MX": "/microblaze_0",
+                "MI": "M_AXI_DP",
+                "MS": "SEG_hdmi_text_controller_0_AXI_reg",
+                "MV": "xilinx.com:ip:microblaze:11.0",
+                "SX": "/hdmi_text_controller_0",
+                "SI": "AXI",
+                "SS": "AXI_reg",
+                "SV": "xilinx.com:user:hdmi_text_controller:1.0",
+                "TM": "data",
+                "TU": "register"
             }
         },
         "edges": [
@@ -288,6 +306,11 @@
             },
             {
                 "src": "V6",
+                "trg": "V2",
+                "EH": "2"
+            },
+            {
+                "src": "V7",
                 "trg": "V2",
                 "EH": "2"
             }
