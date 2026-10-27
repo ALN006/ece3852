@@ -1,0 +1,386 @@
+#-----------------------------------------------------------
+# Vivado v2023.1 (64-bit)
+# SW Build 3865809 on Sun May  7 15:04:56 MDT 2023
+# IP Build 3864474 on Sun May  7 20:36:21 MDT 2023
+# SharedData Build 3865790 on Sun May 07 13:33:03 MDT 2023
+# Start of session at: Mon Oct 26 22:11:49 2026
+# Process ID: 567966
+# Current directory: /home/adityal2/ece3852
+# Command line: vivado -mode batch -source common/build.tcl -tclargs lab7
+# Log file: /home/adityal2/ece3852/vivado.log
+# Journal file: /home/adityal2/ece3852/vivado.jou
+# Running On: linux-ssh-04.ews.illinois.edu, OS: Linux, CPU Frequency: 2095.078 MHz, CPU Physical cores: 12, Host memory: 24893 MB
+#-----------------------------------------------------------
+source common/build.tcl
+# set common_dir [file dirname [file normalize [info script]]]
+# source $common_dir/environ.tcl
+## namespace eval cfg {
+## 
+##     # ---- from the command line ---- 
+##     if {$::argc < 1} {
+##         error "usage: vivado -mode batch -source common/build.tcl -tclargs <proj_name>"
+##     }
+##     variable proj_name [lindex $::argv 0]
+## 
+##     # ---- paths (derived from this file's location) ----
+##     variable root            [file normalize [file join [file dirname [info script]] ..]]
+##     variable design_src_dir  $root/$proj_name
+##     variable vivado_proj_dir $root/vivado/$proj_name
+##     variable ip_dir          $root/vivado/ip_repo
+##     variable ip_tmp_dir      $root/vivado/ip_tmp
+## 
+##     # ---- target hardware ----
+##     variable part            xc7s50csga324-1
+## 
+##     proc dump {} {
+##         puts "\n ALNs common tcl var config info:"
+##         foreach v [lsort [info vars ::cfg::*]] {
+##             puts [format "  %-16s = %s" [namespace tail $v] [set $v]]
+##         }
+##         puts ""
+##     }
+## }
+# source $common_dir/proj.tcl
+## namespace eval proj {
+##     proc create {name dir part ip_repo} {
+##         file mkdir $ip_repo
+##         create_project -force $name $dir -part $part
+##         set_property ip_repo_paths $ip_repo [current_project]
+##         update_ip_catalog -rebuild
+##     }
+## 
+##     proc open_existing {xpr} {
+##         if {[llength [get_projects -quiet]] == 0} {
+##             open_project $xpr
+##         }
+##     }
+## }
+# source $common_dir/bd.tcl
+## namespace eval bd {
+## 
+##     # names the microblaze automation creates; kept in one place
+##     variable clk_wiz  clk_wiz_1
+##     variable rst_gen  rst_clk_wiz_1_100M
+##     variable mdm      mdm_1
+## 
+##     proc create {bd_name} {
+##         if {[llength [get_projects -quiet]] == 0} { error "bd::create needs an open project" }
+##         create_bd_design $bd_name
+##     }
+## 
+##     # connect an AXI slave pin to the cpu's peripheral port through the interconnect
+##     proc wire_axi {cpu slave_pin} {
+##         apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config \
+##           [list Clk_master "/$bd::clk_wiz/clk_out1 (100 MHz)" Clk_slave Auto \
+##                 Clk_xbar "/$bd::clk_wiz/clk_out1 (100 MHz)" \
+##                 Master "/$cpu (Periph)" Slave /$slave_pin \
+##                 ddr_seg Auto intc_ip /${cpu}_axi_periph master_apm 0] \
+##           [get_bd_intf_pins $slave_pin]
+##     }
+## 
+##     # MicroBlaze + UART + external ports.
+##     # opts keys: cpu uart local_mem baud clk_port reset_port uart_port
+##     proc add_mb_system {opts} {
+##         dict with opts {}
+## 
+##         # ---- MicroBlaze ----
+##         create_bd_cell -type ip -vlnv xilinx.com:ip:microblaze $cpu
+## 
+##         apply_bd_automation -rule xilinx.com:bd_rule:microblaze -config \
+##           [list axi_intc 1 axi_periph Enabled cache None clk {New Clocking Wizard} \
+##                 cores 1 debug_module {Debug Only} ecc None local_mem $local_mem \
+##                 preset Microcontroller] \
+##           [get_bd_cells $cpu]
+## 
+##         puts "\n ALNs address space sanity check (want /$cpu/Data and /$cpu/Instruction): [get_bd_addr_spaces /$cpu/*] \n"
+## 
+##         # the automation adds an xlconcat we don't want; the UART interrupt goes straight to the intc
+##         delete_bd_objs [get_bd_nets ${cpu}_intr] [get_bd_cells ${cpu}_xlconcat]
+## 
+##         set_property CONFIG.PRIM_SOURCE Single_ended_clock_capable_pin [get_bd_cells $bd::clk_wiz]
+## 
+##         # debug module's system reset drives the clocking wizard reset
+##         connect_bd_net [get_bd_pins $bd::clk_wiz/reset] [get_bd_pins $bd::mdm/Debug_SYS_Rst]
+## 
+##         # ---- UART Lite ----
+##         create_bd_cell -type ip -vlnv xilinx.com:ip:axi_uartlite $uart
+##         set_property CONFIG.C_BAUDRATE $baud [get_bd_cells $uart]
+##         wire_axi $cpu $uart/S_AXI
+##         connect_bd_net [get_bd_pins $uart/interrupt] [get_bd_pins ${cpu}_axi_intc/intr]
+## 
+##         # ---- external ports ----
+##         # UART pins
+##         create_bd_intf_port -mode Master -vlnv xilinx.com:interface:uart_rtl:1.0 $uart_port
+##         connect_bd_intf_net [get_bd_intf_ports $uart_port] [get_bd_intf_pins $uart/UART]
+## 
+##         # 100 MHz board clock into the clocking wizard
+##         create_bd_port -dir I -type clk -freq_hz 100000000 $clk_port
+##         connect_bd_net [get_bd_ports $clk_port] [get_bd_pins $bd::clk_wiz/clk_in1]
+## 
+##         # reset button, active low inside the block design
+##         create_bd_port -dir I -type rst $reset_port
+##         set_property CONFIG.POLARITY ACTIVE_LOW [get_bd_ports $reset_port]
+##         connect_bd_net [get_bd_ports $reset_port] [get_bd_pins $bd::rst_gen/ext_reset_in]
+## 
+##         puts "\n ALNs reset polarity sanity check (must be ACTIVE_LOW): [get_property CONFIG.POLARITY [get_bd_pins $bd::rst_gen/ext_reset_in]] \n"
+##     }
+## 
+##     # validate, save first, then generate output products
+##     proc finalize {bd_name} {
+##         validate_bd_design
+##         save_bd_design
+##         generate_target all [get_files ${bd_name}.bd]
+##     }
+##     # Instantiate a packaged AXI slave IP and wire it to the cpu's peripheral bus.
+##     proc add_axi_ip {cpu vlnv cell} {
+##         create_bd_cell -type ip -vlnv $vlnv $cell
+##         wire_axi $cpu $cell/AXI
+##     }
+## 
+##     # Export an interface pin of a cell as an external BD port.
+##     proc export_intf {pin port_name} {
+##         make_bd_intf_pins_external -name $port_name [get_bd_intf_pins $pin]
+##     }
+## }
+# source $common_dir/util.tcl
+## namespace eval util {
+##     # for  known-benign messages: still printed, but as INFO instead of WARNING
+##     proc demote_msgs {ids} {
+##         foreach id $ids {
+##             set_msg_config -id $id -severity WARNING -new_severity INFO
+##         }
+##     }
+##     proc close_all_open_projects {} {
+##         foreach p [get_projects -quiet] {
+##             current_project $p
+##             close_project
+##         }
+##     }
+## }
+# source $common_dir/ip.tcl
+## namespace eval ip {
+## 
+##     # folder name Vivado uses for a packaged IP, e.g. hdmi_text_controller_1_0
+##     proc dir_name {name ver} {
+##         return ${name}_[string map {. _} $ver]
+##     }
+## 
+##     # Generate the AXI-Lite template (HDL + driver + bd.tcl). Returns the IP root folder.
+##     proc generate_stock_axi_lite_peripheral {name ver ip_repo tmp_dir part} {
+##         set ip_root $ip_repo/[dir_name $name $ver]
+## 
+## 	#straight up delete an old stuff
+##         file delete -force $ip_root $tmp_dir
+## 	file mkdir  $tmp_dir
+## 
+##         # create_peripheral needs an open project; this one is throwaway
+##         create_project -force tmp_ip_gen_prj $tmp_dir/tmp_ip_gen_prj -part $part
+## 
+## 	#creates ip_root and lands there
+##         create_peripheral xilinx.com user $name $ver -dir $ip_repo
+##         set ip_ref [ipx::find_open_core xilinx.com:user:$name:$ver]
+## 
+##         add_peripheral_interface AXI -interface_mode slave -axi_type lite $ip_ref
+## 
+## 	#genrate some useful files
+##         generate_peripheral -driver $ip_ref
+##         write_peripheral $ip_ref
+## 	
+## 	close_project
+##         return $ip_root
+##     }
+## 
+##     # Open the IP in an edit project and make it current.
+##     proc open_edit {name ip_root tmp_dir part} {
+## 	#the spawning here is jank, look here first if things break
+## 	create_project -force tmp_ip_edit_prj_host $tmp_dir/tmp_ip_edit_prj_host -part $part
+##         ipx::edit_ip_in_project -name tmp_ip_edit_prj -upgrade true -directory $tmp_dir $ip_root/component.xml
+##         current_project tmp_ip_edit_prj
+##     }
+##     # Swap template Verilog for our SystemVerilog in the edit PROJECT (not yet the packaged IP).
+##     proc swap_sources {name ver ip_root src_dir} {
+##         remove_files [get_files */hdl/*.v]
+##         file delete -force $ip_root/hdl
+## 
+##         file mkdir $ip_root/src
+##         foreach f [glob $src_dir/*.sv] { file copy -force $f $ip_root/src }
+##         add_files -norecurse [glob $ip_root/src/*.sv]
+## 
+## 	set_property top ${name}_v[string map {. _} $ver] [current_fileset]
+##         update_compile_order -fileset sources_1
+##         ipx::merge_project_changes files [ipx::current_core]
+## 	ipx::merge_project_changes ports [ipx::current_core]
+##     }
+##     # Bundle the TMDS ports into a master HDMI interface.
+##     # map = {logical_port physical_port ...}. Requires ports to be merged already.
+##     proc add_hdmi_interface {{map {TMDS_DATA_P hdmi_tx_p  TMDS_DATA_N hdmi_tx_n
+##                                    TMDS_CLK_P  hdmi_clk_p TMDS_CLK_N  hdmi_clk_n}}} {
+##         set core [ipx::current_core]
+## 
+##         # 1. every physical port must exist in the IP
+##         foreach {logical physical} $map {
+##             if {[llength [ipx::get_ports $physical -of_objects $core]] == 0} {
+##                 error "ip::add_hdmi_interface: port '$physical' not in the IP (merge ports first)"
+##             }
+##         }
+## 
+##         # 2. remove interfaces Vivado inferred from the *_clk_* names; HDMI owns those ports
+##         set physicals [dict values $map]
+##         foreach bi [ipx::get_bus_interfaces -of_objects $core] {
+##             set n [get_property name $bi]
+##             if {$n in $physicals} { ipx::remove_bus_interface $n $core }
+##         }
+## 
+##         # 3. add the HDMI interface and map each logical port to its physical one
+##         ipx::add_bus_interface HDMI $core
+##         set hdmi [ipx::get_bus_interfaces HDMI -of_objects $core]
+##         set_property abstraction_type_vlnv xilinx.com:interface:hdmi_rtl:2.0 $hdmi
+##         set_property bus_type_vlnv         xilinx.com:interface:hdmi:2.0      $hdmi
+##         set_property interface_mode        master                             $hdmi
+##         set_property description           {HDMI output port}                 $hdmi
+## 
+##         foreach {logical physical} $map {
+##             ipx::add_port_map $logical $hdmi
+##             set_property physical_name $physical [ipx::get_port_maps $logical -of_objects $hdmi]
+##         }
+##     }
+##     # Overwrite the template driver sources with ours and drop the autogenerated selftest.
+##     # Requires the edit project to be current.
+##     proc import_driver {name ip_root drv_src_dir} {
+##         set drv [lindex [glob $ip_root/drivers/*/src] 0]
+## 
+##         foreach f {Makefile hdmi_text_controller.c hdmi_text_controller.h} {
+##             file copy -force $drv_src_dir/$f $drv/$f
+##         }
+## 
+##         # take the selftest out of the driver file group, then off disk
+##         set rel [string range $drv [expr {[string length $ip_root] + 1}] end]
+##         ipx::remove_file $rel/${name}_selftest.c \
+##             [ipx::get_file_groups xilinx_softwaredriver -of_objects [ipx::current_core]]
+##         file delete -force $drv/${name}_selftest.c
+##     }
+##     # Finalize the packaged IP and write it to disk. Run after all other edits.
+##     proc repackage {rev} {
+##         set core [ipx::current_core]
+##         set_property core_revision $rev $core
+##         ipx::update_source_project_archive -component $core
+##         ipx::create_xgui_files $core
+##         ipx::update_checksums $core
+##         ipx::check_integrity $core
+##         ipx::save_core $core
+##     }
+## }
+# cfg::dump
+
+ ALNs common tcl var config info:
+  design_src_dir   = /home/adityal2/ece3852/lab7
+  ip_dir           = /home/adityal2/ece3852/vivado/ip_repo
+  ip_tmp_dir       = /home/adityal2/ece3852/vivado/ip_tmp
+  part             = xc7s50csga324-1
+  proj_name        = lab7
+  root             = /home/adityal2/ece3852
+  vivado_proj_dir  = /home/adityal2/ece3852/vivado/lab7
+
+# util::demote_msgs {{BD 5-700} {filemgmt 56-443} {IP_Flow 19-4994}}
+# set ip_name hdmi_text_controller
+# set ip_ver  1.0
+create_project: Time (s): cpu = 00:00:09 ; elapsed = 00:00:10 . Memory (MB): peak = 2628.461 ; gain = 114.992 ; free physical = 1332 ; free virtual = 9531
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/software/xilinx-2023.1/Vivado/2023.1/data/ip'.
+# set ip_root [ip::generate_stock_axi_lite_peripheral $ip_name $ip_ver $cfg::ip_dir $cfg::ip_tmp_dir $cfg::part]
+# ip::open_edit $ip_name $ip_root $cfg::ip_tmp_dir $cfg::part
+INFO: [IP_Flow 19-795] Syncing license key meta-data
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/software/xilinx-2023.1/Vivado/2023.1/data/ip'.
+# ip::swap_sources $ip_name $ip_ver $ip_root $cfg::design_src_dir/ip/$ip_name/src
+WARNING: [IP_Flow 19-3833] Unreferenced file from the top module is not packaged: '/home/adityal2/ece3852/vivado/ip_repo/hdmi_text_controller_1_0/src/VGA_controller.sv'.
+WARNING: [IP_Flow 19-3833] Unreferenced file from the top module is not packaged: '/home/adityal2/ece3852/vivado/ip_repo/hdmi_text_controller_1_0/src/font_rom.sv'.
+WARNING: [IP_Flow 19-5109] File Group 'xilinx_verilogsynthesis (Verilog Synthesis)': File '/home/adityal2/ece3852/vivado/ip_repo/hdmi_text_controller_1_0/hdl/hdmi_text_controller_v1_0_AXI.v' does not exist in the project sources. It has been removed from the packaged IP. If still required, please add this file to the project, merge sources and re-package.
+WARNING: [IP_Flow 19-5109] File Group 'xilinx_verilogsynthesis (Verilog Synthesis)': File '/home/adityal2/ece3852/vivado/ip_repo/hdmi_text_controller_1_0/hdl/hdmi_text_controller_v1_0.v' does not exist in the project sources. It has been removed from the packaged IP. If still required, please add this file to the project, merge sources and re-package.
+WARNING: [IP_Flow 19-5109] File Group 'xilinx_verilogbehavioralsimulation (Verilog Simulation)': File '/home/adityal2/ece3852/vivado/ip_repo/hdmi_text_controller_1_0/hdl/hdmi_text_controller_v1_0_AXI.v' does not exist in the project sources. It has been removed from the packaged IP. If still required, please add this file to the project, merge sources and re-package.
+WARNING: [IP_Flow 19-5109] File Group 'xilinx_verilogbehavioralsimulation (Verilog Simulation)': File '/home/adityal2/ece3852/vivado/ip_repo/hdmi_text_controller_1_0/hdl/hdmi_text_controller_v1_0.v' does not exist in the project sources. It has been removed from the packaged IP. If still required, please add this file to the project, merge sources and re-package.
+WARNING: [IP_Flow 19-3833] Unreferenced file from the top module is not packaged: '/home/adityal2/ece3852/vivado/ip_repo/hdmi_text_controller_1_0/src/VGA_controller.sv'.
+WARNING: [IP_Flow 19-3833] Unreferenced file from the top module is not packaged: '/home/adityal2/ece3852/vivado/ip_repo/hdmi_text_controller_1_0/src/font_rom.sv'.
+WARNING: [IP_Flow 19-5101] Packaging a component with a SystemVerilog top file is not fully supported. Please refer to UG1118 'Creating and Packaging Custom IP'.
+INFO: [IP_Flow 19-5107] Inferred bus interface 'hdmi_clk_n' of definition 'xilinx.com:signal:clock:1.0' (from Xilinx Repository).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'hdmi_clk_p' of definition 'xilinx.com:signal:clock:1.0' (from Xilinx Repository).
+INFO: [IP_Flow 19-3166] Bus Interface 'AXI': References existing memory map 'AXI'.
+# ip::add_hdmi_interface
+# ip::import_driver $ip_name $ip_root $cfg::design_src_dir/ip/$ip_name/drivers
+# ip::repackage 1
+WARNING: [IP_Flow 19-11770] Clock interface 'AXI_CLK' has no FREQ_HZ parameter.
+WARNING: [IP_Flow 19-1965] Bus Interface 'HDMI': A port map to the required logical port "DDC_SCL_I" of the bus abstraction "xilinx.com:interface:hdmi_rtl:2.0" is missing.
+WARNING: [IP_Flow 19-1965] Bus Interface 'HDMI': A port map to the required logical port "DDC_SCL_O" of the bus abstraction "xilinx.com:interface:hdmi_rtl:2.0" is missing.
+WARNING: [IP_Flow 19-1965] Bus Interface 'HDMI': A port map to the required logical port "DDC_SCL_T" of the bus abstraction "xilinx.com:interface:hdmi_rtl:2.0" is missing.
+WARNING: [IP_Flow 19-1965] Bus Interface 'HDMI': A port map to the required logical port "DDC_SDA_I" of the bus abstraction "xilinx.com:interface:hdmi_rtl:2.0" is missing.
+WARNING: [IP_Flow 19-1965] Bus Interface 'HDMI': A port map to the required logical port "DDC_SDA_O" of the bus abstraction "xilinx.com:interface:hdmi_rtl:2.0" is missing.
+WARNING: [IP_Flow 19-1965] Bus Interface 'HDMI': A port map to the required logical port "DDC_SDA_T" of the bus abstraction "xilinx.com:interface:hdmi_rtl:2.0" is missing.
+WARNING: [IP_Flow 19-1965] Bus Interface 'HDMI': A port map to the required logical port "CABLE_CONNECT" of the bus abstraction "xilinx.com:interface:hdmi_rtl:2.0" is missing.
+WARNING: [IP_Flow 19-1965] Bus Interface 'HDMI': A port map to the required logical port "HPD" of the bus abstraction "xilinx.com:interface:hdmi_rtl:2.0" is missing.
+INFO: [IP_Flow 19-2181] Payment Required is not set for this core.
+INFO: [IP_Flow 19-2187] The Product Guide file is missing.
+INFO: [Ipptcl 7-1486] check_integrity: Integrity check passed.
+# util::close_all_open_projects
+# proj::create $cfg::proj_name $cfg::vivado_proj_dir $cfg::part $cfg::ip_dir
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/adityal2/ece3852/vivado/ip_repo'.
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/software/xilinx-2023.1/Vivado/2023.1/data/ip'.
+# bd::create mb_block
+Wrote  : </home/adityal2/ece3852/vivado/lab7/lab7.srcs/sources_1/bd/mb_block/mb_block.bd> 
+# bd::add_mb_system [dict create \
+#     cpu         microblaze_0 \
+#     uart        axi_uartlite_0 \
+#     local_mem   128KB \
+#     baud        115200 \
+#     clk_port    clk_100MHz \
+#     reset_port  reset_rtl_0 \
+#     uart_port   uart_rtl_0]
+INFO: [Device 21-403] Loading part xc7s50csga324-1
+create_bd_cell: Time (s): cpu = 00:00:04 ; elapsed = 00:00:06 . Memory (MB): peak = 3167.004 ; gain = 304.031 ; free physical = 885 ; free virtual = 9094
+INFO: [BD 5-700] No address spaces matched 'get_bd_addr_spaces /microblaze_0'
+apply_bd_automation: Time (s): cpu = 00:00:21 ; elapsed = 00:00:27 . Memory (MB): peak = 3169.973 ; gain = 400.258 ; free physical = 881 ; free virtual = 9089
+
+ ALNs address space sanity check (want /microblaze_0/Data and /microblaze_0/Instruction): /microblaze_0/Data /microblaze_0/Instruction 
+
+Slave segment '/axi_uartlite_0/S_AXI/Reg' is being assigned into address space '/microblaze_0/Data' at <0x4060_0000 [ 64K ]>.
+
+ ALNs reset polarity sanity check (must be ACTIVE_LOW): ACTIVE_LOW 
+
+# bd::add_axi_ip microblaze_0 xilinx.com:user:$ip_name:$ip_ver ${ip_name}_0
+Slave segment '/hdmi_text_controller_0/AXI/AXI_reg' is being assigned into address space '/microblaze_0/Data' at <0x44A0_0000 [ 64K ]>.
+# bd::export_intf ${ip_name}_0/HDMI hdmi_tmds
+# bd::finalize mb_block
+INFO: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
+INFO: [xilinx.com:ip:axi_intc:4.1-1] /microblaze_0_axi_intc: The AXI INTC core has been configured to operate with synchronous clocks.
+INFO: [xilinx.com:ip:clk_wiz:6.0-1] /clk_wiz_1 clk_wiz propagate
+Wrote  : </home/adityal2/ece3852/vivado/lab7/lab7.srcs/sources_1/bd/mb_block/mb_block.bd> 
+INFO: [BD 41-1662] The design 'mb_block.bd' is already validated. Therefore parameter propagation will not be re-run.
+INFO: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
+INFO: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
+Verilog Output written to : /home/adityal2/ece3852/vivado/lab7/lab7.gen/sources_1/bd/mb_block/synth/mb_block.v
+Verilog Output written to : /home/adityal2/ece3852/vivado/lab7/lab7.gen/sources_1/bd/mb_block/sim/mb_block.v
+Verilog Output written to : /home/adityal2/ece3852/vivado/lab7/lab7.gen/sources_1/bd/mb_block/hdl/mb_block_wrapper.v
+INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_local_memory/dlmb_v10 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_local_memory/ilmb_v10 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_local_memory/dlmb_bram_if_cntlr .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_local_memory/ilmb_bram_if_cntlr .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_local_memory/lmb_bram .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_axi_periph/xbar .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_axi_intc .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block mdm_1 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block clk_wiz_1 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block rst_clk_wiz_1_100M .
+INFO: [IP_Flow 19-4994] Overwriting existing constraint file '/home/adityal2/ece3852/vivado/lab7/lab7.gen/sources_1/bd/mb_block/ip/mb_block_axi_uartlite_0_0/mb_block_axi_uartlite_0_0_ooc.xdc'
+INFO: [BD 41-1029] Generation completed for the IP Integrator block axi_uartlite_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block hdmi_text_controller_0 .
+Exporting to file /home/adityal2/ece3852/vivado/lab7/lab7.gen/sources_1/bd/mb_block/hw_handoff/mb_block.hwh
+Generated Hardware Definition File /home/adityal2/ece3852/vivado/lab7/lab7.gen/sources_1/bd/mb_block/synth/mb_block.hwdef
+# puts "\n ALNs bd_info: cells: [get_bd_cells] \n"
+
+ ALNs bd_info: cells: /axi_uartlite_0 /clk_wiz_1 /hdmi_text_controller_0 /mdm_1 /microblaze_0 /microblaze_0_axi_intc /microblaze_0_axi_periph /microblaze_0_local_memory /rst_clk_wiz_1_100M 
+
+# util::close_all_open_projects
+INFO: [Common 17-206] Exiting Vivado at Mon Oct 26 22:12:54 2026...

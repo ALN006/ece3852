@@ -11,4 +11,15 @@ namespace eval proj {
             open_project $xpr
         }
     }
+    # Add the top-level RTL and the pin constraints, and set the top module.
+    proc add_sources {top_file xdc_file top_module} {
+        foreach f [list $top_file $xdc_file] {
+            if {![file exists $f]} { error "proj::add_sources: missing file $f" }
+        }
+        add_files -norecurse $top_file
+        add_files -fileset constrs_1 -norecurse $xdc_file
+
+        set_property top $top_module [current_fileset]
+        update_compile_order -fileset sources_1
+    }
 }

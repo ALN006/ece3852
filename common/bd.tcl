@@ -73,4 +73,14 @@ namespace eval bd {
         save_bd_design
         generate_target all [get_files ${bd_name}.bd]
     }
+    # Instantiate a packaged AXI slave IP and wire it to the cpu's peripheral bus.
+    proc add_axi_ip {cpu vlnv cell} {
+        create_bd_cell -type ip -vlnv $vlnv $cell
+        wire_axi $cpu $cell/AXI
+    }
+
+    # Export an interface pin of a cell as an external BD port.
+    proc export_intf {pin port_name} {
+        make_bd_intf_pins_external -name $port_name [get_bd_intf_pins $pin]
+    }
 }

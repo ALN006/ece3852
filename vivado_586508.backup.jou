@@ -1,0 +1,14 @@
+#-----------------------------------------------------------
+# Vivado v2023.1 (64-bit)
+# SW Build 3865809 on Sun May  7 15:04:56 MDT 2023
+# IP Build 3864474 on Sun May  7 20:36:21 MDT 2023
+# SharedData Build 3865790 on Sun May 07 13:33:03 MDT 2023
+# Start of session at: Mon Oct 26 22:25:41 2026
+# Process ID: 586508
+# Current directory: /home/adityal2/ece3852
+# Command line: vivado -mode batch -source common/build.tcl -tclargs lab7
+# Log file: /home/adityal2/ece3852/vivado.log
+# Journal file: /home/adityal2/ece3852/vivado.jou
+# Running On: linux-ssh-04.ews.illinois.edu, OS: Linux, CPU Frequency: 2095.078 MHz, CPU Physical cores: 12, Host memory: 24893 MB
+#-----------------------------------------------------------
+source common/build.tcl
