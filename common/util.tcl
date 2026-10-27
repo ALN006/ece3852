@@ -1,8 +1,16 @@
+# common/util.tcl -- Logging and Project Utilities
+
 namespace eval util {
-    # known-benign messages: still printed, but as INFO instead of WARNING
-    proc demote_msgs {ids} {
-        foreach id $ids {
-            set_msg_config -id $id -severity WARNING -new_severity INFO
+
+    proc step {msg} {
+        puts "\n------------------------------------------------------------------------"
+        puts "   $msg"
+        puts "------------------------------------------------------------------------\n"
+    }
+
+    proc close_all_open_projects {} {
+        while {[catch {current_project}] == 0} {
+            catch {close_project -no_save}
         }
     }
 }
