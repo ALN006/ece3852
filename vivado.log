@@ -3,406 +3,596 @@
 # SW Build 3865809 on Sun May  7 15:04:56 MDT 2023
 # IP Build 3864474 on Sun May  7 20:36:21 MDT 2023
 # SharedData Build 3865790 on Sun May 07 13:33:03 MDT 2023
-# Start of session at: Mon Oct 26 22:31:25 2026
-# Process ID: 597653
+# Start of session at: Wed Oct 28 12:54:26 2026
+# Process ID: 164911
 # Current directory: /home/adityal2/ece3852
-# Command line: vivado -mode batch -source common/build.tcl -tclargs lab7
+# Command line: vivado -mode batch -source build.tcl
 # Log file: /home/adityal2/ece3852/vivado.log
 # Journal file: /home/adityal2/ece3852/vivado.jou
-# Running On: linux-ssh-04.ews.illinois.edu, OS: Linux, CPU Frequency: 2095.078 MHz, CPU Physical cores: 12, Host memory: 24893 MB
+# Running On: linux-ssh-01.ews.illinois.edu, OS: Linux, CPU Frequency: 2095.077 MHz, CPU Physical cores: 12, Host memory: 24893 MB
 #-----------------------------------------------------------
-source common/build.tcl
-# set common_dir [file dirname [file normalize [info script]]]
-# source $common_dir/environ.tcl
+source build.tcl
+# puts "Starting Vivado build..."
+Starting Vivado build...
+# set root [file dirname [file normalize [info script]]]
+# source [file join $root common cfg.tcl]
 ## namespace eval cfg {
-## 
-##     # ---- from the command line ---- 
-##     if {$::argc < 1} {
-##         error "usage: vivado -mode batch -source common/build.tcl -tclargs <proj_name>"
-##     }
-##     variable proj_name [lindex $::argv 0]
-## 
-##     # ---- paths (derived from this file's location) ----
-##     variable root            [file normalize [file join [file dirname [info script]] ..]]
-##     variable design_src_dir  $root/$proj_name
-##     variable vivado_proj_dir $root/vivado/$proj_name
-##     variable ip_dir          $root/vivado/ip_repo
-##     variable ip_tmp_dir      $root/vivado/ip_tmp
-## 
-##     # ---- target hardware ----
-##     variable part            xc7s50csga324-1
-## 
-##     proc dump {} {
-##         puts "\n ALNs common tcl var config info:"
-##         foreach v [lsort [info vars ::cfg::*]] {
-##             puts [format "  %-16s = %s" [namespace tail $v] [set $v]]
-##         }
-##         puts ""
-##     }
+##     variable project_name "lab7"
+##     variable fpga_part "xc7s50csga324-1"
+##     variable top_module "top"
+##     variable default_jobs 4
 ## }
-# source $common_dir/proj.tcl
-## namespace eval proj {
-##     proc create {name dir part ip_repo} {
-##         file mkdir $ip_repo
-##         create_project -force $name $dir -part $part
-##         set_property ip_repo_paths $ip_repo [current_project]
-##         update_ip_catalog -rebuild
-##     }
+# source [file join $root common proj.tcl]
+## namespace eval proj { 
+## 	proc open_prj {project_name} {
+## 		set project_dir [file join $::root vivado $project_name]
+## 		set project_file [file join $project_dir "${project_name}.xpr"]
 ## 
-##     proc open_existing {xpr} {
-##         if {[llength [get_projects -quiet]] == 0} {
-##             open_project $xpr
-##         }
-##     }
-##     # Add the top-level RTL and the pin constraints, and set the top module.
-##     proc add_sources {top_file xdc_file top_module} {
-##         foreach f [list $top_file $xdc_file] {
-##             if {![file exists $f]} { error "proj::add_sources: missing file $f" }
-##         }
-##         add_files -norecurse $top_file
-##         add_files -fileset constrs_1 -norecurse $xdc_file
+## 		file mkdir [file dirname $project_dir]
 ## 
-##         set_property top $top_module [current_fileset]
-##         update_compile_order -fileset sources_1
-##     }
+## 		if { [ file exists $project_file ] } { 
+## 			puts "Opening existing project: $project_file"
+## 			open_project $project_file
+## 		} else {
+## 			create_project  $project_name $project_dir -part $::cfg::fpga_part
+## 			puts "Created project: $project_name"
+## 			puts "Project directory: $project_dir"
+## 			puts "FPGA part: $::cfg::fpga_part"
+## 		}
+## 	}
+## 	#sus, needs checks on current project and fileset
+## 	proc set_top {top_module} {
+## 		set source_files [get_files -quiet -of_objects [get_filesets sources_1]]
+## 		if {[llength $source_files] == 0} { error "Cannot set top '$top_module': no source files are registered." }
+## 
+## 		set_property top $top_module [current_fileset]
+## 		update_compile_order -fileset sources_1
+## 
+## 		set resolved_top [get_property top [current_fileset]]
+## 		puts "Top-level module set to: $resolved_top"
+## 	}
+## 	proc synthesize {jobs} {
+## 		puts "Starting synthesis..."
+## 		reset_run synth_1
+## 		launch_runs synth_1 -jobs $jobs
+## 		wait_on_run synth_1
+## 
+## 		set status [get_property STATUS [get_runs synth_1]]
+## 		puts "Synthesis status: $status"
+## 
+## 		if {![string match "*Complete*" $status]} {
+## 			error "Synthesis failed: $status"
+## 		 }
+## 	}
+## 	proc implement {jobs} {
+## 		puts "Starting implementation..."
+## 		launch_runs impl_1 -to_step write_bitstream -jobs $jobs
+## 		wait_on_run impl_1
+## 		set status [get_property STATUS [get_runs impl_1]]
+## 		puts "Implementation status: $status"
+## 		if {![string match "*Complete*" $status]} {
+## 			error "Implementation failed: $status"
+## 		}
+## 	}
+## 	proc run_target {target jobs} {
+## 		switch -- $target {
+## 			sources { puts "Sources registered. Skipping synthesis."  }
+## 			synth { synthesize $jobs }
+## 			all {
+## 				synthesize $jobs
+## 				implement $jobs
+## 			}
+## 			default { error "Unsupported build target: $target" }
+## 		}
+## 	}
 ## }
-# source $common_dir/bd.tcl
-## namespace eval bd {
-## 
-##     # names the microblaze automation creates; kept in one place
-##     variable clk_wiz  clk_wiz_1
-##     variable rst_gen  rst_clk_wiz_1_100M
-##     variable mdm      mdm_1
-## 
-##     proc create {bd_name} {
-##         if {[llength [get_projects -quiet]] == 0} { error "bd::create needs an open project" }
-##         create_bd_design $bd_name
-##     }
-## 
-##     # connect an AXI slave pin to the cpu's peripheral port through the interconnect
-##     proc wire_axi {cpu slave_pin} {
-##         apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config \
-##           [list Clk_master "/$bd::clk_wiz/clk_out1 (100 MHz)" Clk_slave Auto \
-##                 Clk_xbar "/$bd::clk_wiz/clk_out1 (100 MHz)" \
-##                 Master "/$cpu (Periph)" Slave /$slave_pin \
-##                 ddr_seg Auto intc_ip /${cpu}_axi_periph master_apm 0] \
-##           [get_bd_intf_pins $slave_pin]
-##     }
-## 
-##     # MicroBlaze + UART + external ports.
-##     # opts keys: cpu uart local_mem baud clk_port reset_port uart_port
-##     proc add_mb_system {opts} {
-##         dict with opts {}
-## 
-##         # ---- MicroBlaze ----
-##         create_bd_cell -type ip -vlnv xilinx.com:ip:microblaze $cpu
-## 
-##         apply_bd_automation -rule xilinx.com:bd_rule:microblaze -config \
-##           [list axi_intc 1 axi_periph Enabled cache None clk {New Clocking Wizard} \
-##                 cores 1 debug_module {Debug Only} ecc None local_mem $local_mem \
-##                 preset Microcontroller] \
-##           [get_bd_cells $cpu]
-## 
-##         puts "\n ALNs address space sanity check (want /$cpu/Data and /$cpu/Instruction): [get_bd_addr_spaces /$cpu/*] \n"
-## 
-##         # the automation adds an xlconcat we don't want; the UART interrupt goes straight to the intc
-##         delete_bd_objs [get_bd_nets ${cpu}_intr] [get_bd_cells ${cpu}_xlconcat]
-## 
-##         set_property CONFIG.PRIM_SOURCE Single_ended_clock_capable_pin [get_bd_cells $bd::clk_wiz]
-## 
-##         # debug module's system reset drives the clocking wizard reset
-##         connect_bd_net [get_bd_pins $bd::clk_wiz/reset] [get_bd_pins $bd::mdm/Debug_SYS_Rst]
-## 
-##         # ---- UART Lite ----
-##         create_bd_cell -type ip -vlnv xilinx.com:ip:axi_uartlite $uart
-##         set_property CONFIG.C_BAUDRATE $baud [get_bd_cells $uart]
-##         wire_axi $cpu $uart/S_AXI
-##         connect_bd_net [get_bd_pins $uart/interrupt] [get_bd_pins ${cpu}_axi_intc/intr]
-## 
-##         # ---- external ports ----
-##         # UART pins
-##         create_bd_intf_port -mode Master -vlnv xilinx.com:interface:uart_rtl:1.0 $uart_port
-##         connect_bd_intf_net [get_bd_intf_ports $uart_port] [get_bd_intf_pins $uart/UART]
-## 
-##         # 100 MHz board clock into the clocking wizard
-##         create_bd_port -dir I -type clk -freq_hz 100000000 $clk_port
-##         connect_bd_net [get_bd_ports $clk_port] [get_bd_pins $bd::clk_wiz/clk_in1]
-## 
-##         # reset button, active low inside the block design
-##         create_bd_port -dir I -type rst $reset_port
-##         set_property CONFIG.POLARITY ACTIVE_LOW [get_bd_ports $reset_port]
-##         connect_bd_net [get_bd_ports $reset_port] [get_bd_pins $bd::rst_gen/ext_reset_in]
-## 
-##         puts "\n ALNs reset polarity sanity check (must be ACTIVE_LOW): [get_property CONFIG.POLARITY [get_bd_pins $bd::rst_gen/ext_reset_in]] \n"
-##     }
-## 
-##     # validate, save first, then generate output products
-##     proc finalize {bd_name} {
-##         validate_bd_design
-##         save_bd_design
-##         generate_target all [get_files ${bd_name}.bd]
-##     }
-##     # Instantiate a packaged AXI slave IP and wire it to the cpu's peripheral bus.
-##     proc add_axi_ip {cpu vlnv cell} {
-##         create_bd_cell -type ip -vlnv $vlnv $cell
-##         wire_axi $cpu $cell/AXI
-##     }
-## 
-##     # Export an interface pin of a cell as an external BD port.
-##     proc export_intf {pin port_name} {
-##         make_bd_intf_pins_external -name $port_name [get_bd_intf_pins $pin]
-##     }
+# source [file join $root common src.tcl]
+## namespace eval src {
+## 	proc add_hdl {project_name} {
+## 		#add project opening/verifying code here
+## 		set src_dir [file join $::root $project_name src]
+## 		if {![file isdirectory $src_dir]} { error "RTL directory does not exist: $src_dir" }
+## 		
+## 		set hdl_files [ glob -nocomplain $src_dir/*.sv $src_dir/rtl/*.v ]
+## 		if { [ llength $hdl_files ] == 0 } { error "No hdl files found in $::root/$project_name/rtl" }
+## 		
+## 		set existing_files [get_files -quiet]
+## 		set added_count 0
+## 		foreach file $hdl_files {
+## 			set normalized_file [file normalize $file]
+## 			if {[lsearch -exact $existing_files $normalized_file] == -1} {
+## 				add_files -norecurse $normalized_file
+## 				incr added_count
+## 				puts "Registered HDL: $normalized_file"
+## 			}
+## 		}
+## 		puts "Added $added_count new HDL files."
+## 	}
 ## }
-# source $common_dir/util.tcl
-## namespace eval util {
-##     # for  known-benign messages: still printed, but as INFO instead of WARNING
-##     proc demote_msgs {ids} {
-##         foreach id $ids {
-##             set_msg_config -id $id -severity WARNING -new_severity INFO
-##         }
-##     }
-##     proc close_all_open_projects {} {
-##         foreach p [get_projects -quiet] {
-##             current_project $p
-##             close_project
-##         }
-##     }
+# source [file join $root common constr.tcl]
+## namespace eval constr {
+## 	proc add_xdc {project_name} {
+## 		#add project check here
+## 		set constr_dir [file join $::root $project_name constraints]
+## 		if {![file isdirectory $constr_dir]} { error "Constraints dir does not exist: $constr_dir" }
+## 		set xdc_files [glob -nocomplain [file join $constr_dir *.xdc]]
+## 
+## 		if {[llength $xdc_files] == 0} {
+##         		puts "No XDC files found in $::root/$project_name/constraints"
+##             		return
+##         	}
+## 		set existing_files [get_files -quiet -of_objects [get_filesets constrs_1]]
+## 		set added_count 0
+## 
+## 		foreach file $xdc_files {
+## 			set normalized_file [file normalize $file]
+## 			if {[lsearch -exact $existing_files $normalized_file] == -1} {
+## 				add_files -fileset constrs_1 -norecurse $normalized_file
+## 				incr added_count
+## 				puts "Registered XDC: $normalized_file"
+## 			}
+## 		}
+## 		puts "Added $added_count new XDC files."
+## 	}
 ## }
-# source $common_dir/ip.tcl
-## namespace eval ip {
-## 
-##     # folder name Vivado uses for a packaged IP, e.g. hdmi_text_controller_1_0
-##     proc dir_name {name ver} {
-##         return ${name}_[string map {. _} $ver]
-##     }
-## 
-##     # Generate the AXI-Lite template (HDL + driver + bd.tcl). Returns the IP root folder.
-##     proc generate_stock_axi_lite_peripheral {name ver ip_repo tmp_dir part} {
-##         set ip_root $ip_repo/[dir_name $name $ver]
-## 
-## 	#straight up delete an old stuff
-##         file delete -force $ip_root $tmp_dir
-## 	file mkdir  $tmp_dir
-## 
-##         # create_peripheral needs an open project; this one is throwaway
-##         create_project -force tmp_ip_gen_prj $tmp_dir/tmp_ip_gen_prj -part $part
-## 
-## 	#creates ip_root and lands there
-##         create_peripheral xilinx.com user $name $ver -dir $ip_repo
-##         set ip_ref [ipx::find_open_core xilinx.com:user:$name:$ver]
-## 
-##         add_peripheral_interface AXI -interface_mode slave -axi_type lite $ip_ref
-## 
-## 	#genrate some useful files
-##         generate_peripheral -driver $ip_ref
-##         write_peripheral $ip_ref
-## 	
-## 	close_project
-##         return $ip_root
-##     }
-## 
-##     # Open the IP in an edit project and make it current.
-##     proc open_edit {name ip_root tmp_dir part} {
-## 	#the spawning here is jank, look here first if things break
-## 	create_project -force tmp_ip_edit_prj_host $tmp_dir/tmp_ip_edit_prj_host -part $part
-##         ipx::edit_ip_in_project -name tmp_ip_edit_prj -upgrade true -directory $tmp_dir $ip_root/component.xml
-##         current_project tmp_ip_edit_prj
-##     }
-##     # Swap template Verilog for our SystemVerilog in the edit PROJECT (not yet the packaged IP).
-##     proc swap_sources {name ver ip_root src_dir} {
-##         remove_files [get_files */hdl/*.v]
-##         file delete -force $ip_root/hdl
-## 
-##         file mkdir $ip_root/src
-##         foreach f [glob $src_dir/*.sv] { file copy -force $f $ip_root/src }
-##         add_files -norecurse [glob $ip_root/src/*.sv]
-## 
-## 	set_property top ${name}_v[string map {. _} $ver] [current_fileset]
-##         update_compile_order -fileset sources_1
-##         ipx::merge_project_changes files [ipx::current_core]
-## 	ipx::merge_project_changes ports [ipx::current_core]
-##     }
-##     # Bundle the TMDS ports into a master HDMI interface.
-##     # map = {logical_port physical_port ...}. Requires ports to be merged already.
-##     proc add_hdmi_interface {{map {TMDS_DATA_P hdmi_tx_p  TMDS_DATA_N hdmi_tx_n
-##                                    TMDS_CLK_P  hdmi_clk_p TMDS_CLK_N  hdmi_clk_n}}} {
-##         set core [ipx::current_core]
-## 
-##         # 1. every physical port must exist in the IP
-##         foreach {logical physical} $map {
-##             if {[llength [ipx::get_ports $physical -of_objects $core]] == 0} {
-##                 error "ip::add_hdmi_interface: port '$physical' not in the IP (merge ports first)"
-##             }
-##         }
-## 
-##         # 2. remove interfaces Vivado inferred from the *_clk_* names; HDMI owns those ports
-##         set physicals [dict values $map]
-##         foreach bi [ipx::get_bus_interfaces -of_objects $core] {
-##             set n [get_property name $bi]
-##             if {$n in $physicals} { ipx::remove_bus_interface $n $core }
-##         }
-## 
-##         # 3. add the HDMI interface and map each logical port to its physical one
-##         ipx::add_bus_interface HDMI $core
-##         set hdmi [ipx::get_bus_interfaces HDMI -of_objects $core]
-##         set_property abstraction_type_vlnv xilinx.com:interface:hdmi_rtl:2.0 $hdmi
-##         set_property bus_type_vlnv         xilinx.com:interface:hdmi:2.0      $hdmi
-##         set_property interface_mode        master                             $hdmi
-##         set_property description           {HDMI output port}                 $hdmi
-## 
-##         foreach {logical physical} $map {
-##             ipx::add_port_map $logical $hdmi
-##             set_property physical_name $physical [ipx::get_port_maps $logical -of_objects $hdmi]
-##         }
-##     }
-##     # Overwrite the template driver sources with ours and drop the autogenerated selftest.
-##     # Requires the edit project to be current.
-##     proc import_driver {name ip_root drv_src_dir} {
-##         set drv [lindex [glob $ip_root/drivers/*/src] 0]
-## 
-##         foreach f {Makefile hdmi_text_controller.c hdmi_text_controller.h} {
-##             file copy -force $drv_src_dir/$f $drv/$f
-##         }
-## 
-##         # take the selftest out of the driver file group, then off disk
-##         set rel [string range $drv [expr {[string length $ip_root] + 1}] end]
-##         ipx::remove_file $rel/${name}_selftest.c \
-##             [ipx::get_file_groups xilinx_softwaredriver -of_objects [ipx::current_core]]
-##         file delete -force $drv/${name}_selftest.c
-##     }
-##     # Finalize the packaged IP and write it to disk. Run after all other edits.
-##     proc repackage {rev} {
-##         set core [ipx::current_core]
-##         set_property core_revision $rev $core
-##         ipx::update_source_project_archive -component $core
-##         ipx::create_xgui_files $core
-##         ipx::update_checksums $core
-##         ipx::check_integrity $core
-##         ipx::save_core $core
-##     }
-## }
-# cfg::dump
+# set target [lindex $argv 0]
+# if {$target eq "clean"} {
+# 	set generated_dir [file join $root vivado $cfg::project_name]
+# 	if {[file exists $generated_dir]} {
+# 		file delete -force $generated_dir
+# 		puts "Removed generated project: $generated_dir"
+# 	} else {
+# 		puts "Nothing to clean: $generated_dir does not exist"
+# 	}
+# 
+# 	return
+# }	
+# if {$target eq "help"} {
+#     puts "Usage: vivado -mode batch -source build.tcl -tclargs <target>"
+#     puts ""
+#     puts "Targets:"
+#     puts "  all    Run synthesis and implementation (default)"
+#     puts "  synth  Run synthesis only"
+#     puts "  clean  Remove generated project files"
+#     puts "  help   Display this message"
+#     return
+# }
+# if {$target eq ""} { set target "all" }
+# if {$target ni {all synth clean help sources}} {
+#     error "Unknown build target '$target'. Use: all, synth, clean, help"
+# }
+# set project_name [lindex $argv 1]
+# if {$project_name eq ""} { set project_name $cfg::project_name }
+# set jobs [lindex $argv 2]
+# if {$jobs eq ""} { set jobs $cfg::default_jobs }
+# set top_module [lindex $argv 3]
+# if {$top_module eq ""} { set top_module $cfg::top_module }
+# proj::open_prj $project_name
+create_project: Time (s): cpu = 00:00:09 ; elapsed = 00:00:10 . Memory (MB): peak = 2628.152 ; gain = 113.992 ; free physical = 391 ; free virtual = 18221
+Created project: lab7
+Project directory: /home/adityal2/ece3852/vivado/lab7
+FPGA part: xc7s50csga324-1
+# src::add_hdl $project_name
+Registered HDL: /home/adityal2/ece3852/lab7/src/top.sv
+Added 1 new HDL files.
+# constr::add_xdc $project_name
+Registered XDC: /home/adityal2/ece3852/lab7/constraints/constraints.xdc
+Added 1 new XDC files.
+# proj::set_top $cfg::top_module
+Top-level module set to: top
+# proj::run_target $target 4
+Starting synthesis...
+WARNING: [Vivado 12-7122] Auto Incremental Compile:: No reference checkpoint was found in run synth_1. Auto-incremental flow will not be run, the standard flow will be run instead.
+[Wed Oct 28 12:54:49 2026] Launched synth_1...
+Run output will be captured here: /home/adityal2/ece3852/vivado/lab7/lab7.runs/synth_1/runme.log
+[Wed Oct 28 12:54:49 2026] Waiting for synth_1 to finish...
 
- ALNs common tcl var config info:
-  design_src_dir   = /home/adityal2/ece3852/lab7
-  ip_dir           = /home/adityal2/ece3852/vivado/ip_repo
-  ip_tmp_dir       = /home/adityal2/ece3852/vivado/ip_tmp
-  part             = xc7s50csga324-1
-  proj_name        = lab7
-  root             = /home/adityal2/ece3852
-  vivado_proj_dir  = /home/adityal2/ece3852/vivado/lab7
+*** Running vivado
+    with args -log top.vds -m64 -product Vivado -mode batch -messageDb vivado.pb -notrace -source top.tcl
 
-# util::demote_msgs {{BD 5-700} {filemgmt 56-443} {IP_Flow 19-4994}}
-# set ip_name hdmi_text_controller
-# set ip_ver  1.0
-create_project: Time (s): cpu = 00:00:09 ; elapsed = 00:00:10 . Memory (MB): peak = 2628.176 ; gain = 114.992 ; free physical = 724 ; free virtual = 9855
-INFO: [IP_Flow 19-234] Refreshing IP repositories
-INFO: [IP_Flow 19-1704] No user IP repositories specified
-INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/software/xilinx-2023.1/Vivado/2023.1/data/ip'.
-# set ip_root [ip::generate_stock_axi_lite_peripheral $ip_name $ip_ver $cfg::ip_dir $cfg::ip_tmp_dir $cfg::part]
-# ip::open_edit $ip_name $ip_root $cfg::ip_tmp_dir $cfg::part
-INFO: [IP_Flow 19-795] Syncing license key meta-data
-INFO: [IP_Flow 19-234] Refreshing IP repositories
-INFO: [IP_Flow 19-1704] No user IP repositories specified
-INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/software/xilinx-2023.1/Vivado/2023.1/data/ip'.
-# ip::swap_sources $ip_name $ip_ver $ip_root $cfg::design_src_dir/ip/$ip_name/src
-WARNING: [IP_Flow 19-3833] Unreferenced file from the top module is not packaged: '/home/adityal2/ece3852/vivado/ip_repo/hdmi_text_controller_1_0/src/VGA_controller.sv'.
-WARNING: [IP_Flow 19-3833] Unreferenced file from the top module is not packaged: '/home/adityal2/ece3852/vivado/ip_repo/hdmi_text_controller_1_0/src/font_rom.sv'.
-WARNING: [IP_Flow 19-5109] File Group 'xilinx_verilogsynthesis (Verilog Synthesis)': File '/home/adityal2/ece3852/vivado/ip_repo/hdmi_text_controller_1_0/hdl/hdmi_text_controller_v1_0_AXI.v' does not exist in the project sources. It has been removed from the packaged IP. If still required, please add this file to the project, merge sources and re-package.
-WARNING: [IP_Flow 19-5109] File Group 'xilinx_verilogsynthesis (Verilog Synthesis)': File '/home/adityal2/ece3852/vivado/ip_repo/hdmi_text_controller_1_0/hdl/hdmi_text_controller_v1_0.v' does not exist in the project sources. It has been removed from the packaged IP. If still required, please add this file to the project, merge sources and re-package.
-WARNING: [IP_Flow 19-5109] File Group 'xilinx_verilogbehavioralsimulation (Verilog Simulation)': File '/home/adityal2/ece3852/vivado/ip_repo/hdmi_text_controller_1_0/hdl/hdmi_text_controller_v1_0_AXI.v' does not exist in the project sources. It has been removed from the packaged IP. If still required, please add this file to the project, merge sources and re-package.
-WARNING: [IP_Flow 19-5109] File Group 'xilinx_verilogbehavioralsimulation (Verilog Simulation)': File '/home/adityal2/ece3852/vivado/ip_repo/hdmi_text_controller_1_0/hdl/hdmi_text_controller_v1_0.v' does not exist in the project sources. It has been removed from the packaged IP. If still required, please add this file to the project, merge sources and re-package.
-WARNING: [IP_Flow 19-3833] Unreferenced file from the top module is not packaged: '/home/adityal2/ece3852/vivado/ip_repo/hdmi_text_controller_1_0/src/VGA_controller.sv'.
-WARNING: [IP_Flow 19-3833] Unreferenced file from the top module is not packaged: '/home/adityal2/ece3852/vivado/ip_repo/hdmi_text_controller_1_0/src/font_rom.sv'.
-WARNING: [IP_Flow 19-5101] Packaging a component with a SystemVerilog top file is not fully supported. Please refer to UG1118 'Creating and Packaging Custom IP'.
-INFO: [IP_Flow 19-5107] Inferred bus interface 'hdmi_clk_n' of definition 'xilinx.com:signal:clock:1.0' (from Xilinx Repository).
-INFO: [IP_Flow 19-5107] Inferred bus interface 'hdmi_clk_p' of definition 'xilinx.com:signal:clock:1.0' (from Xilinx Repository).
-INFO: [IP_Flow 19-3166] Bus Interface 'AXI': References existing memory map 'AXI'.
-# ip::add_hdmi_interface
-# ip::import_driver $ip_name $ip_root $cfg::design_src_dir/ip/$ip_name/drivers
-# ip::repackage 1
-WARNING: [IP_Flow 19-11770] Clock interface 'AXI_CLK' has no FREQ_HZ parameter.
-WARNING: [IP_Flow 19-1965] Bus Interface 'HDMI': A port map to the required logical port "DDC_SCL_I" of the bus abstraction "xilinx.com:interface:hdmi_rtl:2.0" is missing.
-WARNING: [IP_Flow 19-1965] Bus Interface 'HDMI': A port map to the required logical port "DDC_SCL_O" of the bus abstraction "xilinx.com:interface:hdmi_rtl:2.0" is missing.
-WARNING: [IP_Flow 19-1965] Bus Interface 'HDMI': A port map to the required logical port "DDC_SCL_T" of the bus abstraction "xilinx.com:interface:hdmi_rtl:2.0" is missing.
-WARNING: [IP_Flow 19-1965] Bus Interface 'HDMI': A port map to the required logical port "DDC_SDA_I" of the bus abstraction "xilinx.com:interface:hdmi_rtl:2.0" is missing.
-WARNING: [IP_Flow 19-1965] Bus Interface 'HDMI': A port map to the required logical port "DDC_SDA_O" of the bus abstraction "xilinx.com:interface:hdmi_rtl:2.0" is missing.
-WARNING: [IP_Flow 19-1965] Bus Interface 'HDMI': A port map to the required logical port "DDC_SDA_T" of the bus abstraction "xilinx.com:interface:hdmi_rtl:2.0" is missing.
-WARNING: [IP_Flow 19-1965] Bus Interface 'HDMI': A port map to the required logical port "CABLE_CONNECT" of the bus abstraction "xilinx.com:interface:hdmi_rtl:2.0" is missing.
-WARNING: [IP_Flow 19-1965] Bus Interface 'HDMI': A port map to the required logical port "HPD" of the bus abstraction "xilinx.com:interface:hdmi_rtl:2.0" is missing.
-INFO: [IP_Flow 19-2181] Payment Required is not set for this core.
-INFO: [IP_Flow 19-2187] The Product Guide file is missing.
-INFO: [Ipptcl 7-1486] check_integrity: Integrity check passed.
-# util::close_all_open_projects
-# proj::create $cfg::proj_name $cfg::vivado_proj_dir $cfg::part $cfg::ip_dir
-INFO: [IP_Flow 19-234] Refreshing IP repositories
-INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/adityal2/ece3852/vivado/ip_repo'.
-INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/software/xilinx-2023.1/Vivado/2023.1/data/ip'.
-# bd::create mb_block
-Wrote  : </home/adityal2/ece3852/vivado/lab7/lab7.srcs/sources_1/bd/mb_block/mb_block.bd> 
-# bd::add_mb_system [dict create \
-#     cpu         microblaze_0 \
-#     uart        axi_uartlite_0 \
-#     local_mem   128KB \
-#     baud        115200 \
-#     clk_port    clk_100MHz \
-#     reset_port  reset_rtl_0 \
-#     uart_port   uart_rtl_0]
+
+****** Vivado v2023.1 (64-bit)
+  **** SW Build 3865809 on Sun May  7 15:04:56 MDT 2023
+  **** IP Build 3864474 on Sun May  7 20:36:21 MDT 2023
+  **** SharedData Build 3865790 on Sun May 07 13:33:03 MDT 2023
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source top.tcl -notrace
+create_project: Time (s): cpu = 00:00:08 ; elapsed = 00:00:09 . Memory (MB): peak = 2628.184 ; gain = 113.992 ; free physical = 258 ; free virtual = 16661
+Command: synth_design -top top -part xc7s50csga324-1
+Starting synth_design
+Attempting to get a license for feature 'Synthesis' and/or device 'xc7s50'
+INFO: [Common 17-349] Got license for feature 'Synthesis' and/or device 'xc7s50'
 INFO: [Device 21-403] Loading part xc7s50csga324-1
-create_bd_cell: Time (s): cpu = 00:00:04 ; elapsed = 00:00:06 . Memory (MB): peak = 3166.797 ; gain = 301.062 ; free physical = 610 ; free virtual = 9774
-INFO: [BD 5-700] No address spaces matched 'get_bd_addr_spaces /microblaze_0'
-apply_bd_automation: Time (s): cpu = 00:00:21 ; elapsed = 00:00:28 . Memory (MB): peak = 3169.766 ; gain = 399.367 ; free physical = 610 ; free virtual = 9773
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 4 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 165728
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:04 ; elapsed = 00:00:05 . Memory (MB): peak = 3348.766 ; gain = 379.738 ; free physical = 228 ; free virtual = 15647
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'top' [/home/adityal2/ece3852/lab7/src/top.sv:1]
+INFO: [Synth 8-6155] done synthesizing module 'top' (0#1) [/home/adityal2/ece3852/lab7/src/top.sv:1]
+WARNING: [Synth 8-3330] design top has an empty top module
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:06 ; elapsed = 00:00:07 . Memory (MB): peak = 3420.734 ; gain = 451.707 ; free physical = 204 ; free virtual = 15574
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:06 ; elapsed = 00:00:07 . Memory (MB): peak = 3435.578 ; gain = 466.551 ; free physical = 196 ; free virtual = 15566
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:06 ; elapsed = 00:00:07 . Memory (MB): peak = 3435.578 ; gain = 466.551 ; free physical = 196 ; free virtual = 15566
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3435.578 ; gain = 0.000 ; free physical = 196 ; free virtual = 15566
+INFO: [Project 1-570] Preparing netlist for logic optimization
 
- ALNs address space sanity check (want /microblaze_0/Data and /microblaze_0/Instruction): /microblaze_0/Data /microblaze_0/Instruction 
+Processing XDC Constraints
+Initializing timing engine
+Parsing XDC File [/home/adityal2/ece3852/lab7/constraints/constraints.xdc]
+Finished Parsing XDC File [/home/adityal2/ece3852/lab7/constraints/constraints.xdc]
+Completed Processing XDC Constraints
 
-Slave segment '/axi_uartlite_0/S_AXI/Reg' is being assigned into address space '/microblaze_0/Data' at <0x4060_0000 [ 64K ]>.
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3508.516 ; gain = 0.000 ; free physical = 187 ; free virtual = 15556
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
 
- ALNs reset polarity sanity check (must be ACTIVE_LOW): ACTIVE_LOW 
+Constraint Validation Runtime : Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3508.516 ; gain = 0.000 ; free physical = 187 ; free virtual = 15556
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:00:13 ; elapsed = 00:00:14 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 212 ; free virtual = 15545
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xc7s50csga324-1
+---------------------------------------------------------------------------------
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:13 ; elapsed = 00:00:14 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 212 ; free virtual = 15545
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying 'set_property' XDC Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:13 ; elapsed = 00:00:14 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 212 ; free virtual = 15545
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:13 ; elapsed = 00:00:14 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 204 ; free virtual = 15538
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 120 (col length:60)
+BRAMs: 150 (col length: RAMB18 60 RAMB36 30)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+WARNING: [Synth 8-7080] Parallel synthesis criteria is not met
+WARNING: [Synth 8-3330] design top has an empty top module
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:15 ; elapsed = 00:00:16 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 251 ; free virtual = 15588
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying XDC Timing Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:00:20 ; elapsed = 00:00:21 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 327 ; free virtual = 15665
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:00:20 ; elapsed = 00:00:21 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 327 ; free virtual = 15665
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:00:20 ; elapsed = 00:00:21 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 327 ; free virtual = 15665
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:00:24 ; elapsed = 00:00:26 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 323 ; free virtual = 15673
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:00:24 ; elapsed = 00:00:26 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 323 ; free virtual = 15673
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:24 ; elapsed = 00:00:26 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 323 ; free virtual = 15673
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:00:24 ; elapsed = 00:00:26 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 323 ; free virtual = 15673
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:24 ; elapsed = 00:00:26 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 323 ; free virtual = 15673
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:00:24 ; elapsed = 00:00:26 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 323 ; free virtual = 15673
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
 
-# bd::add_axi_ip microblaze_0 xilinx.com:user:$ip_name:$ip_ver ${ip_name}_0
-Slave segment '/hdmi_text_controller_0/AXI/AXI_reg' is being assigned into address space '/microblaze_0/Data' at <0x44A0_0000 [ 64K ]>.
-# bd::export_intf ${ip_name}_0/HDMI hdmi
-# bd::finalize mb_block
-INFO: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
-INFO: [xilinx.com:ip:axi_intc:4.1-1] /microblaze_0_axi_intc: The AXI INTC core has been configured to operate with synchronous clocks.
-INFO: [xilinx.com:ip:clk_wiz:6.0-1] /clk_wiz_1 clk_wiz propagate
-Wrote  : </home/adityal2/ece3852/vivado/lab7/lab7.srcs/sources_1/bd/mb_block/mb_block.bd> 
-INFO: [BD 41-1662] The design 'mb_block.bd' is already validated. Therefore parameter propagation will not be re-run.
-INFO: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
-INFO: [filemgmt 56-443] The ECC Algorithm string is empty. Setting the Memory Map to default ECC value to ECC_NONE.
-Verilog Output written to : /home/adityal2/ece3852/vivado/lab7/lab7.gen/sources_1/bd/mb_block/synth/mb_block.v
-Verilog Output written to : /home/adityal2/ece3852/vivado/lab7/lab7.gen/sources_1/bd/mb_block/sim/mb_block.v
-Verilog Output written to : /home/adityal2/ece3852/vivado/lab7/lab7.gen/sources_1/bd/mb_block/hdl/mb_block_wrapper.v
-INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0 .
-INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_local_memory/dlmb_v10 .
-INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_local_memory/ilmb_v10 .
-INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_local_memory/dlmb_bram_if_cntlr .
-INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_local_memory/ilmb_bram_if_cntlr .
-INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_local_memory/lmb_bram .
-INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_axi_periph/xbar .
-INFO: [BD 41-1029] Generation completed for the IP Integrator block microblaze_0_axi_intc .
-INFO: [BD 41-1029] Generation completed for the IP Integrator block mdm_1 .
-INFO: [BD 41-1029] Generation completed for the IP Integrator block clk_wiz_1 .
-INFO: [BD 41-1029] Generation completed for the IP Integrator block rst_clk_wiz_1_100M .
-INFO: [IP_Flow 19-4994] Overwriting existing constraint file '/home/adityal2/ece3852/vivado/lab7/lab7.gen/sources_1/bd/mb_block/ip/mb_block_axi_uartlite_0_0/mb_block_axi_uartlite_0_0_ooc.xdc'
-INFO: [BD 41-1029] Generation completed for the IP Integrator block axi_uartlite_0 .
-INFO: [BD 41-1029] Generation completed for the IP Integrator block hdmi_text_controller_0 .
-Exporting to file /home/adityal2/ece3852/vivado/lab7/lab7.gen/sources_1/bd/mb_block/hw_handoff/mb_block.hwh
-Generated Hardware Definition File /home/adityal2/ece3852/vivado/lab7/lab7.gen/sources_1/bd/mb_block/synth/mb_block.hwdef
-# puts "BD ports      : [get_bd_ports]"
-BD ports      : /clk_100MHz /hdmi_tmds_clk_n /hdmi_tmds_clk_p /hdmi_tmds_data_n /hdmi_tmds_data_p /reset_rtl_0 /uart_rtl_0_rxd /uart_rtl_0_txd
-# puts "BD intf ports : [get_bd_intf_ports]"
-BD intf ports : /hdmi /uart_rtl_0
-# puts "\n ALNs bd_info: cells: [get_bd_cells] \n"
+Report BlackBoxes: 
++-+--------------+----------+
+| |BlackBox name |Instances |
++-+--------------+----------+
++-+--------------+----------+
 
- ALNs bd_info: cells: /axi_uartlite_0 /clk_wiz_1 /hdmi_text_controller_0 /mdm_1 /microblaze_0 /microblaze_0_axi_intc /microblaze_0_axi_periph /microblaze_0_local_memory /rst_clk_wiz_1_100M 
+Report Cell Usage: 
++------+-----+------+
+|      |Cell |Count |
++------+-----+------+
+|1     |top  |     1|
++------+-----+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:00:25 ; elapsed = 00:00:26 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 323 ; free virtual = 15673
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 2 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:23 ; elapsed = 00:00:24 . Memory (MB): peak = 3508.516 ; gain = 466.551 ; free physical = 323 ; free virtual = 15673
+Synthesis Optimization Complete : Time (s): cpu = 00:00:25 ; elapsed = 00:00:26 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 323 ; free virtual = 15673
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3508.516 ; gain = 0.000 ; free physical = 321 ; free virtual = 15671
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3508.516 ; gain = 0.000 ; free physical = 599 ; free virtual = 15949
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
 
-# proj::add_sources $cfg::design_src_dir/rtl/top.sv \
-#                   $cfg::design_src_dir/constraints.xdc \
-#                   top
-# puts "top module : [get_property top [current_fileset]]"
-top module : top
-# puts "constraints: [get_files -of_objects [get_filesets constrs_1]]"
-constraints: /home/adityal2/ece3852/lab7/constraints.xdc
-# util::close_all_open_projects
-INFO: [Common 17-206] Exiting Vivado at Mon Oct 26 22:32:37 2026...
+Synth Design complete | Checksum: 853b7606
+INFO: [Common 17-83] Releasing license: Synthesis
+14 Infos, 3 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:32 ; elapsed = 00:00:31 . Memory (MB): peak = 3508.516 ; gain = 880.332 ; free physical = 599 ; free virtual = 15949
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2891.532; main = 2568.772; forked = 371.659
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 5064.605; main = 3476.504; forked = 1588.102
+INFO: [Common 17-1381] The checkpoint '/home/adityal2/ece3852/vivado/lab7/lab7.runs/synth_1/top.dcp' has been generated.
+INFO: [runtcl-4] Executing : report_utilization -file top_utilization_synth.rpt -pb top_utilization_synth.pb
+INFO: [Common 17-206] Exiting Vivado at Wed Oct 28 12:55:43 2026...
+[Wed Oct 28 12:55:53 2026] synth_1 finished
+wait_on_runs: Time (s): cpu = 00:00:51 ; elapsed = 00:01:05 . Memory (MB): peak = 2651.965 ; gain = 0.000 ; free physical = 2876 ; free virtual = 18209
+Synthesis status: synth_design Complete!
+Starting implementation...
+[Wed Oct 28 12:55:53 2026] Launched impl_1...
+Run output will be captured here: /home/adityal2/ece3852/vivado/lab7/lab7.runs/impl_1/runme.log
+[Wed Oct 28 12:55:53 2026] Waiting for impl_1 to finish...
+
+*** Running vivado
+    with args -log top.vdi -applog -m64 -product Vivado -messageDb vivado.pb -mode batch -source top.tcl -notrace
+
+
+****** Vivado v2023.1 (64-bit)
+  **** SW Build 3865809 on Sun May  7 15:04:56 MDT 2023
+  **** IP Build 3864474 on Sun May  7 20:36:21 MDT 2023
+  **** SharedData Build 3865790 on Sun May 07 13:33:03 MDT 2023
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source top.tcl -notrace
+create_project: Time (s): cpu = 00:00:08 ; elapsed = 00:00:09 . Memory (MB): peak = 2628.336 ; gain = 113.023 ; free physical = 1402 ; free virtual = 16735
+Command: link_design -top top -part xc7s50csga324-1
+Design is defaulting to srcset: sources_1
+Design is defaulting to constrset: constrs_1
+INFO: [Device 21-403] Loading part xc7s50csga324-1
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2973.086 ; gain = 0.000 ; free physical = 1095 ; free virtual = 16429
+INFO: [Project 1-479] Netlist was created with Vivado 2023.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Parsing XDC File [/home/adityal2/ece3852/lab7/constraints/constraints.xdc]
+Finished Parsing XDC File [/home/adityal2/ece3852/lab7/constraints/constraints.xdc]
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3072.586 ; gain = 0.000 ; free physical = 1005 ; free virtual = 16339
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+5 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+link_design completed successfully
+link_design: Time (s): cpu = 00:00:05 ; elapsed = 00:00:06 . Memory (MB): peak = 3072.586 ; gain = 439.250 ; free physical = 1005 ; free virtual = 16339
+Command: opt_design
+Attempting to get a license for feature 'Implementation' and/or device 'xc7s50'
+INFO: [Common 17-349] Got license for feature 'Implementation' and/or device 'xc7s50'
+Running DRC as a precondition to command opt_design
+
+Starting DRC Task
+INFO: [DRC 23-27] Running DRC with 8 threads
+INFO: [Project 1-461] DRC finished with 0 Errors
+INFO: [Project 1-462] Please refer to the DRC report (report_drc) for more information.
+
+Time (s): cpu = 00:00:00.4 ; elapsed = 00:00:00.52 . Memory (MB): peak = 3142.555 ; gain = 69.969 ; free physical = 985 ; free virtual = 16320
+
+Starting Cache Timing Information Task
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+Ending Cache Timing Information Task | Checksum: 853b7606
+
+Time (s): cpu = 00:00:07 ; elapsed = 00:00:07 . Memory (MB): peak = 3479.336 ; gain = 336.781 ; free physical = 542 ; free virtual = 15893
+
+Starting Logic Optimization Task
+
+Phase 1 Retarget
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+INFO: [Opt 31-49] Retargeted 0 cell(s).
+Phase 1 Retarget | Checksum: 853b7606
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.02 . Memory (MB): peak = 3760.258 ; gain = 0.000 ; free physical = 252 ; free virtual = 15603
+INFO: [Opt 31-389] Phase Retarget created 0 cells and removed 0 cells
+
+Phase 2 Constant propagation
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Phase 2 Constant propagation | Checksum: 853b7606
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.02 . Memory (MB): peak = 3760.258 ; gain = 0.000 ; free physical = 252 ; free virtual = 15603
+INFO: [Opt 31-389] Phase Constant propagation created 0 cells and removed 0 cells
+
+Phase 3 Sweep
+Phase 3 Sweep | Checksum: 853b7606
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.02 . Memory (MB): peak = 3760.258 ; gain = 0.000 ; free physical = 252 ; free virtual = 15603
+INFO: [Opt 31-389] Phase Sweep created 0 cells and removed 0 cells
+
+Phase 4 BUFG optimization
+Phase 4 BUFG optimization | Checksum: 853b7606
+
+Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.03 . Memory (MB): peak = 3792.273 ; gain = 32.016 ; free physical = 252 ; free virtual = 15603
+INFO: [Opt 31-662] Phase BUFG optimization created 0 cells of which 0 are BUFGs and removed 0 cells.
+
+Phase 5 Shift Register Optimization
+INFO: [Opt 31-1064] SRL Remap converted 0 SRLs to 0 registers and converted 0 registers of register chains to 0 SRLs
+Phase 5 Shift Register Optimization | Checksum: 853b7606
+
+Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.04 . Memory (MB): peak = 3792.273 ; gain = 32.016 ; free physical = 252 ; free virtual = 15603
+INFO: [Opt 31-389] Phase Shift Register Optimization created 0 cells and removed 0 cells
+
+Phase 6 Post Processing Netlist
+Phase 6 Post Processing Netlist | Checksum: 853b7606
+
+Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.04 . Memory (MB): peak = 3792.273 ; gain = 32.016 ; free physical = 252 ; free virtual = 15603
+INFO: [Opt 31-389] Phase Post Processing Netlist created 0 cells and removed 0 cells
+Opt_design Change Summary
+=========================
+
+
+-------------------------------------------------------------------------------------------------------------------------
+|  Phase                        |  #Cells created  |  #Cells Removed  |  #Constrained objects preventing optimizations  |
+-------------------------------------------------------------------------------------------------------------------------
+|  Retarget                     |               0  |               0  |                                              0  |
+|  Constant propagation         |               0  |               0  |                                              0  |
+|  Sweep                        |               0  |               0  |                                              0  |
+|  BUFG optimization            |               0  |               0  |                                              0  |
+|  Shift Register Optimization  |               0  |               0  |                                              0  |
+|  Post Processing Netlist      |               0  |               0  |                                              0  |
+-------------------------------------------------------------------------------------------------------------------------
+
+
+
+Starting Connectivity Check Task
+
+Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00 . Memory (MB): peak = 3792.273 ; gain = 0.000 ; free physical = 252 ; free virtual = 15603
+Ending Logic Optimization Task | Checksum: 853b7606
+
+Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.04 . Memory (MB): peak = 3792.273 ; gain = 32.016 ; free physical = 252 ; free virtual = 15603
+
+Starting Power Optimization Task
+INFO: [Pwropt 34-132] Skipping clock gating for clocks with a period < 2.00 ns.
+Ending Power Optimization Task | Checksum: 853b7606
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.01 . Memory (MB): peak = 3792.273 ; gain = 0.000 ; free physical = 247 ; free virtual = 15598
+
+Starting Final Cleanup Task
+Ending Final Cleanup Task | Checksum: 853b7606
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3792.273 ; gain = 0.000 ; free physical = 247 ; free virtual = 15598
+
+Starting Netlist Obfuscation Task
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3792.273 ; gain = 0.000 ; free physical = 247 ; free virtual = 15598
+Ending Netlist Obfuscation Task | Checksum: 853b7606
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3792.273 ; gain = 0.000 ; free physical = 247 ; free virtual = 15598
+INFO: [Common 17-83] Releasing license: Implementation
+22 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+opt_design completed successfully
+opt_design: Time (s): cpu = 00:00:10 ; elapsed = 00:00:11 . Memory (MB): peak = 3792.273 ; gain = 719.688 ; free physical = 247 ; free virtual = 15598
+INFO: [runtcl-4] Executing : report_drc -file top_drc_opted.rpt -pb top_drc_opted.pb -rpx top_drc_opted.rpx
+Command: report_drc -file top_drc_opted.rpt -pb top_drc_opted.pb -rpx top_drc_opted.rpx
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/software/xilinx-2023.1/Vivado/2023.1/data/ip'.
+INFO: [DRC 23-27] Running DRC with 8 threads
+INFO: [Vivado_Tcl 2-168] The results of DRC are in file /home/adityal2/ece3852/vivado/lab7/lab7.runs/impl_1/top_drc_opted.rpt.
+report_drc completed successfully
+INFO: [Common 17-1381] The checkpoint '/home/adityal2/ece3852/vivado/lab7/lab7.runs/impl_1/top_opt.dcp' has been generated.
+Command: place_design
+Attempting to get a license for feature 'Implementation' and/or device 'xc7s50'
+INFO: [Common 17-349] Got license for feature 'Implementation' and/or device 'xc7s50'
+INFO: [DRC 23-27] Running DRC with 8 threads
+INFO: [Vivado_Tcl 4-198] DRC finished with 0 Errors
+INFO: [Vivado_Tcl 4-199] Please refer to the DRC report (report_drc) for more information.
+Running DRC as a precondition to command place_design
+INFO: [DRC 23-27] Running DRC with 8 threads
+INFO: [Vivado_Tcl 4-198] DRC finished with 0 Errors
+INFO: [Vivado_Tcl 4-199] Please refer to the DRC report (report_drc) for more information.
+
+Starting Placer Task
+INFO: [Place 30-611] Multithreading enabled for place_design using a maximum of 8 CPUs
+
+Phase 1 Placer Initialization
+
+Phase 1.1 Placer Initialization Netlist Sorting
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3907.164 ; gain = 0.000 ; free physical = 229 ; free virtual = 15584
+Phase 1.1 Placer Initialization Netlist Sorting | Checksum: 00000000
+
+Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 3907.164 ; gain = 0.000 ; free physical = 229 ; free virtual = 15583
+Phase 1 Placer Initialization | Checksum: 00000000
+
+Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.03 . Memory (MB): peak = 3907.164 ; gain = 0.000 ; free physical = 229 ; free virtual = 15584
+ERROR: [Place 30-494] The design is empty
+Resolution: Check if opt_design has removed all the leaf cells of your design.  Check whether you have instantiated and connected all of the top level ports.
+Ending Placer Task | Checksum: 00000000
+
+Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.03 . Memory (MB): peak = 3907.164 ; gain = 0.000 ; free physical = 229 ; free virtual = 15584
+INFO: [Common 17-83] Releasing license: Implementation
+38 Infos, 0 Warnings, 0 Critical Warnings and 2 Errors encountered.
+place_design failed
+ERROR: [Common 17-69] Command failed: Placer could not place all instances
+INFO: [Common 17-206] Exiting Vivado at Wed Oct 28 12:56:35 2026...
+[Wed Oct 28 12:56:46 2026] impl_1 finished
+ERROR: [Vivado 12-13638] Failed runs(s) : 'impl_1'
+wait_on_runs: Time (s): cpu = 00:00:01 ; elapsed = 00:00:53 . Memory (MB): peak = 2651.965 ; gain = 0.000 ; free physical = 3099 ; free virtual = 18213
+ERROR: [Common 17-39] 'wait_on_runs' failed due to earlier errors.
+
+    while executing
+"wait_on_run impl_1"
+    (procedure "implement" line 4)
+    invoked from within
+"implement $jobs"
+    ("all" arm line 3)
+    invoked from within
+"switch -- $target {
+			sources { puts "Sources registered. Skipping synthesis."  }
+			synth { synthesize $jobs }
+			all {
+				synthesize $jobs
+				imp..."
+    (procedure "proj::run_target" line 2)
+    invoked from within
+"proj::run_target $target 4"
+    (file "build.tcl" line 53)
+INFO: [Common 17-206] Exiting Vivado at Wed Oct 28 12:56:46 2026...

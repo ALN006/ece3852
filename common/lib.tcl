@@ -3,7 +3,7 @@ set lib_dir	[ file dirname $_self ]
 
 foreach f [ glob -nocomplain -type f $lib_dir/*.tcl ] {
 	set f_norm [ file normalize $f ]
-	if { $f_norm == $f } { continue }
+	if { $f_norm == $_self } { continue }
 	source $f_norm	
 }
 
