@@ -8,6 +8,7 @@ source [file join $root common cfg.tcl]
 source [file join $root common proj.tcl]
 source [file join $root common src.tcl]
 source [file join $root common constr.tcl]
+source [file join $root common ip.tcl]
 
 set target [lindex $argv 0]
 if {$target eq "clean"} {
@@ -46,8 +47,19 @@ set top_module [lindex $argv 3]
 if {$top_module eq ""} { set top_module $cfg::top_module }
 
 proj::open_prj $project_name
+ip::register_repositories
+set spec [ ip::load_spec [ file join $root lab7 ip hdmi_text_controller ] ]
+ip::validate_dependencies $spec
+
+set clk_wiz_dependency [lindex [dict get $spec dependencies] 1]
+set clk_wiz [ ip::create_configured_ip $clk_wiz_dependency [file join $root vivado $project_name ip ] ]
+ip::generate_ip $clk_wiz
+
+set hdmi_def [get_ipdefs -all realdigital.org:realdigital:hdmi_tx:1.0]
+report_property $hdmi_def
+
 src::add_hdl $project_name
 constr::add_xdc $project_name
-proj::set_top $cfg::top_module
+proj::set_top $top_module
 
 proj::run_target $target 4

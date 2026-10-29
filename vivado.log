@@ -3,13 +3,13 @@
 # SW Build 3865809 on Sun May  7 15:04:56 MDT 2023
 # IP Build 3864474 on Sun May  7 20:36:21 MDT 2023
 # SharedData Build 3865790 on Sun May 07 13:33:03 MDT 2023
-# Start of session at: Wed Oct 28 12:54:26 2026
-# Process ID: 164911
+# Start of session at: Wed Oct 28 19:08:33 2026
+# Process ID: 233317
 # Current directory: /home/adityal2/ece3852
-# Command line: vivado -mode batch -source build.tcl
+# Command line: vivado -mode batch -source build.tcl -tclargs sources
 # Log file: /home/adityal2/ece3852/vivado.log
 # Journal file: /home/adityal2/ece3852/vivado.jou
-# Running On: linux-ssh-01.ews.illinois.edu, OS: Linux, CPU Frequency: 2095.077 MHz, CPU Physical cores: 12, Host memory: 24893 MB
+# Running On: linux-ssh-10.ews.illinois.edu, OS: Linux, CPU Frequency: 2095.078 MHz, CPU Physical cores: 12, Host memory: 24893 MB
 #-----------------------------------------------------------
 source build.tcl
 # puts "Starting Vivado build..."
@@ -135,6 +135,102 @@ Starting Vivado build...
 ## 		puts "Added $added_count new XDC files."
 ## 	}
 ## }
+# source [file join $root common ip.tcl]
+## namespace eval ip { 
+## 	proc discover_repositories {} {
+## 		set ip_repo_root [ file join $::root vivado ip_repo]
+## 		set repositories {}
+## 
+## 		if {![ file isdirectory $ip_repo_root ]} { return $repositories }
+## 
+## 		foreach metadata [ glob -nocomplain -directory $ip_repo_root -types f */component.xml ] {
+## 			lappend repositories [ file dirname $metadata ]
+## 		}
+## 		
+## 		return $repositories
+## 	}
+## 	proc register_repositories {} {
+## 		set repositories [ discover_repositories ]
+## 		if { [ llength $repositories ] == 0 } {
+## 			puts "No custom IP repositories found"
+## 			return
+## 		}
+## 		
+## 		set_property ip_repo_paths $repositories [ current_project ]
+## 		update_ip_catalog
+## 
+## 		puts "Registered IP repositories:"
+## 		foreach repository $repositories { puts "  $repository"  }
+## 	}
+## 	proc list_available_ips {} {
+## 		puts "\nAvailable custom IP definitions:"
+## 		foreach ip [get_ipdefs -all *] { puts "  $ip" }
+## 	}
+## 	proc find_ip { target } {
+## 		puts "\n IPs with \"$target\" in the vlnv: "
+## 		set found 0
+## 		foreach vlnv [ get_ipdefs -all * ] {
+## 			if { [ string match -nocase "*${target}*" $vlnv ] } { 
+## 				puts "  $vlnv"
+## 				incr found
+## 			}
+## 		}
+## 		puts "found $found IPs"
+## 	}
+## 	proc load_spec { ip_dir } {
+## 		set spec_file [ file join $ip_dir ip_spec.tcl ]
+## 		if { ![ file isfile $spec_file ] } { error "IP specification no found: $spec_file" }
+## 		
+## 		set spec [ source $spec_file ]
+## 	 	
+## 		foreach field {vendor library name version vlnv dependencies sources ip_dir} {
+## 			if {![dict exists $spec $field]} { error "Missing '$field' in $spec_file" }
+## 		}
+## 		foreach src [dict get $spec sources] {
+## 			if {![file isfile $src]} { error "Source file not found: $src" }
+## 		}
+## 		
+## 		puts "Loaded IP specification: [dict get $spec vlnv]"
+## 		puts "  Sources: [llength [dict get $spec sources]]"
+## 		puts "  Dependencies: [llength [dict get $spec dependencies]]"
+## 		
+## 		return $spec	
+## 	}
+## 	proc validate_dependencies {spec} {
+## 		foreach dependency [dict get $spec dependencies] {
+## 			set vlnv [dict get $dependency vlnv]
+## 			set matches [get_ipdefs -all $vlnv]
+## 			if {[llength $matches] == 0} { error "Required IP dependency not found: $vlnv" }
+## 			
+## 			puts "Found dependency: $vlnv"
+## 			dict for {property value} [dict get $dependency configurations] {
+## 				puts "  $property = $value"
+## 			}
+## 		}
+## 	}
+## 	proc create_configured_ip {dependency output_dir} {
+## 		set vlnv [dict get $dependency vlnv]
+## 		set configurations [dict get $dependency configurations]
+## 		set name [lindex [split $vlnv :] 2]
+## 		set instance [get_ips -quiet $name]
+## 
+## 		if {[llength $instance] == 0} {
+## 		       	file mkdir $output_dir	
+## 			create_ip -vlnv $vlnv -module_name $name -dir $output_dir
+## 			set instance [get_ips $name]
+## 			puts "Created IP instance: $name"
+## 		} else {
+## 			puts "Reusing existing IP instance: $name"
+## 		}
+## 
+## 		if {[dict size $configurations] > 0} { set_property -dict $configurations $instance }
+## 		return $instance
+## 	}
+## 	proc generate_ip {instance} {
+##     		generate_target all $instance
+##     		puts "Generated output products for: $instance"
+## 	}
+## }
 # set target [lindex $argv 0]
 # if {$target eq "clean"} {
 # 	set generated_dir [file join $root vivado $cfg::project_name]
@@ -168,431 +264,76 @@ Starting Vivado build...
 # set top_module [lindex $argv 3]
 # if {$top_module eq ""} { set top_module $cfg::top_module }
 # proj::open_prj $project_name
-create_project: Time (s): cpu = 00:00:09 ; elapsed = 00:00:10 . Memory (MB): peak = 2628.152 ; gain = 113.992 ; free physical = 391 ; free virtual = 18221
-Created project: lab7
-Project directory: /home/adityal2/ece3852/vivado/lab7
-FPGA part: xc7s50csga324-1
+Opening existing project: /home/adityal2/ece3852/vivado/lab7/lab7.xpr
+INFO: [filemgmt 56-3] Default IP Output Path : Could not find the directory '/home/adityal2/ece3852/vivado/lab7/lab7.gen/sources_1'.
+Scanning sources...
+Finished scanning sources
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/adityal2/ece3852/vivado/ip_repo/hdmi_tx_1_0'.
+INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/adityal2/ece3852/vivado/ip_repo/hdmi_text_controller_1_0'.
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/software/xilinx-2023.1/Vivado/2023.1/data/ip'.
+open_project: Time (s): cpu = 00:00:09 ; elapsed = 00:00:10 . Memory (MB): peak = 2658.871 ; gain = 144.711 ; free physical = 330 ; free virtual = 21060
+# ip::register_repositories
+INFO: [IP_Flow 19-1839] IP Catalog is up to date.
+Registered IP repositories:
+  /home/adityal2/ece3852/vivado/ip_repo/hdmi_tx_1_0
+  /home/adityal2/ece3852/vivado/ip_repo/hdmi_text_controller_1_0
+Loaded IP specification: xilinx.com:user:hdmi_text_controller:1.0
+  Sources: 4
+  Dependencies: 2
+# set spec [ ip::load_spec [ file join $root lab7 ip hdmi_text_controller ] ]
+# ip::validate_dependencies $spec
+Found dependency: realdigital.org:realdigital:hdmi_tx:1.0
+Found dependency: xilinx.com:ip:clk_wiz:6.0
+  CONFIG.PRIM_IN_FREQ = 100.000
+  CONFIG.NUM_OUT_CLKS = 2
+  CONFIG.CLKOUT2_USED = true
+  CONFIG.CLKOUT1_REQUESTED_OUT_FREQ = 25.000
+  CONFIG.CLKOUT2_REQUESTED_OUT_FREQ = 125.000
+# set clk_wiz_dependency [lindex [dict get $spec dependencies] 1]
+Reusing existing IP instance: clk_wiz
+# set clk_wiz [ ip::create_configured_ip $clk_wiz_dependency [file join $root vivado $project_name ip ] ]
+# ip::generate_ip $clk_wiz
+Generated output products for: clk_wiz
+# set hdmi_def [get_ipdefs -all realdigital.org:realdigital:hdmi_tx:1.0]
+# report_property $hdmi_def
+Property              Type     Read-only  Value
+ALL_SIM_TYPES         string*  true       rtl
+ANSWER_RECORD         string   true       https://www.xilinx.com/search/support-keyword-search.html#q=HDMI/DVI%20Encoder
+CHANGE_LOG            string   true       
+CLASS                 string   true       ipdef
+CORE_REVISION         long     true       2
+DATASHEET             string   true       
+DESCRIPTION           string   true       HDMI/DVI Video Encoder
+DESIGN_TOOL_CONTEXTS  string*  true       HDL IPI Sysgen
+DISPLAY_NAME          string   true       HDMI/DVI Encoder
+IS_AXI                string   true       0
+KNOWN_TARGETS         string*  true       synthesis simulation instantiation_template
+LIBRARY               string   true       realdigital
+LICENSE_KEYS          string*  true       
+MODEL_NAME            string   true       hdmi_tx_v1_0
+NAME                  string   true       hdmi_tx
+PRODUCT_GUIDE         string   true       
+PRODUCT_WEBPAGE       string   true       https://www.realdigital.org
+REPOSITORY            string   true       /home/adityal2/ece3852/vivado/ip_repo/hdmi_tx_1_0
+REQUIRES_LICENSE      bool     true       0
+SIM_PRECOMPILE        bool     true       0
+SUPPORTED_FAMILIES    string*  true       aartix7:ALL:Production artix7:ALL:Production artix7l:ALL:Production aspartan7:ALL:Production azynq:ALL:Production kintex7:ALL:Production kintex7l:ALL:Production spartan7:ALL:Production zynq:ALL:Production
+SUPPORTS_MODREF       bool     true       1
+TAG                   string   true       hdmi_tx
+TAXONOMY              string*  true       /UserIP
+TYPE                  string   true       
+UPGRADE_FROM          string*  true       user.org:user:hdmi_tx_v1_0:1.0
+VENDOR                string   true       Real Digital
+VERSION               string   true       1.0
+VLNV                  string   true       realdigital.org:realdigital:hdmi_tx:1.0
+XML_FILE_NAME         string   true       /home/adityal2/ece3852/vivado/ip_repo/hdmi_tx_1_0/component.xml
 # src::add_hdl $project_name
-Registered HDL: /home/adityal2/ece3852/lab7/src/top.sv
-Added 1 new HDL files.
+Added 0 new HDL files.
 # constr::add_xdc $project_name
-Registered XDC: /home/adityal2/ece3852/lab7/constraints/constraints.xdc
-Added 1 new XDC files.
-# proj::set_top $cfg::top_module
+Added 0 new XDC files.
+# proj::set_top $top_module
 Top-level module set to: top
 # proj::run_target $target 4
-Starting synthesis...
-WARNING: [Vivado 12-7122] Auto Incremental Compile:: No reference checkpoint was found in run synth_1. Auto-incremental flow will not be run, the standard flow will be run instead.
-[Wed Oct 28 12:54:49 2026] Launched synth_1...
-Run output will be captured here: /home/adityal2/ece3852/vivado/lab7/lab7.runs/synth_1/runme.log
-[Wed Oct 28 12:54:49 2026] Waiting for synth_1 to finish...
-
-*** Running vivado
-    with args -log top.vds -m64 -product Vivado -mode batch -messageDb vivado.pb -notrace -source top.tcl
-
-
-****** Vivado v2023.1 (64-bit)
-  **** SW Build 3865809 on Sun May  7 15:04:56 MDT 2023
-  **** IP Build 3864474 on Sun May  7 20:36:21 MDT 2023
-  **** SharedData Build 3865790 on Sun May 07 13:33:03 MDT 2023
-    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
-    ** Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
-
-source top.tcl -notrace
-create_project: Time (s): cpu = 00:00:08 ; elapsed = 00:00:09 . Memory (MB): peak = 2628.184 ; gain = 113.992 ; free physical = 258 ; free virtual = 16661
-Command: synth_design -top top -part xc7s50csga324-1
-Starting synth_design
-Attempting to get a license for feature 'Synthesis' and/or device 'xc7s50'
-INFO: [Common 17-349] Got license for feature 'Synthesis' and/or device 'xc7s50'
-INFO: [Device 21-403] Loading part xc7s50csga324-1
-INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 4 processes.
-INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
-INFO: [Synth 8-7075] Helper process launched with PID 165728
----------------------------------------------------------------------------------
-Starting RTL Elaboration : Time (s): cpu = 00:00:04 ; elapsed = 00:00:05 . Memory (MB): peak = 3348.766 ; gain = 379.738 ; free physical = 228 ; free virtual = 15647
----------------------------------------------------------------------------------
-INFO: [Synth 8-6157] synthesizing module 'top' [/home/adityal2/ece3852/lab7/src/top.sv:1]
-INFO: [Synth 8-6155] done synthesizing module 'top' (0#1) [/home/adityal2/ece3852/lab7/src/top.sv:1]
-WARNING: [Synth 8-3330] design top has an empty top module
----------------------------------------------------------------------------------
-Finished RTL Elaboration : Time (s): cpu = 00:00:06 ; elapsed = 00:00:07 . Memory (MB): peak = 3420.734 ; gain = 451.707 ; free physical = 204 ; free virtual = 15574
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Start Handling Custom Attributes
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Finished Handling Custom Attributes : Time (s): cpu = 00:00:06 ; elapsed = 00:00:07 . Memory (MB): peak = 3435.578 ; gain = 466.551 ; free physical = 196 ; free virtual = 15566
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:06 ; elapsed = 00:00:07 . Memory (MB): peak = 3435.578 ; gain = 466.551 ; free physical = 196 ; free virtual = 15566
----------------------------------------------------------------------------------
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3435.578 ; gain = 0.000 ; free physical = 196 ; free virtual = 15566
-INFO: [Project 1-570] Preparing netlist for logic optimization
-
-Processing XDC Constraints
-Initializing timing engine
-Parsing XDC File [/home/adityal2/ece3852/lab7/constraints/constraints.xdc]
-Finished Parsing XDC File [/home/adityal2/ece3852/lab7/constraints/constraints.xdc]
-Completed Processing XDC Constraints
-
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3508.516 ; gain = 0.000 ; free physical = 187 ; free virtual = 15556
-INFO: [Project 1-111] Unisim Transformation Summary:
-No Unisim elements were transformed.
-
-Constraint Validation Runtime : Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3508.516 ; gain = 0.000 ; free physical = 187 ; free virtual = 15556
----------------------------------------------------------------------------------
-Finished Constraint Validation : Time (s): cpu = 00:00:13 ; elapsed = 00:00:14 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 212 ; free virtual = 15545
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Start Loading Part and Timing Information
----------------------------------------------------------------------------------
-Loading part: xc7s50csga324-1
----------------------------------------------------------------------------------
-Finished Loading Part and Timing Information : Time (s): cpu = 00:00:13 ; elapsed = 00:00:14 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 212 ; free virtual = 15545
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Start Applying 'set_property' XDC Constraints
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:13 ; elapsed = 00:00:14 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 212 ; free virtual = 15545
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:13 ; elapsed = 00:00:14 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 204 ; free virtual = 15538
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Start RTL Component Statistics 
----------------------------------------------------------------------------------
-Detailed RTL Component Info : 
----------------------------------------------------------------------------------
-Finished RTL Component Statistics 
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Start Part Resource Summary
----------------------------------------------------------------------------------
-Part Resources:
-DSPs: 120 (col length:60)
-BRAMs: 150 (col length: RAMB18 60 RAMB36 30)
----------------------------------------------------------------------------------
-Finished Part Resource Summary
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Start Cross Boundary and Area Optimization
----------------------------------------------------------------------------------
-WARNING: [Synth 8-7080] Parallel synthesis criteria is not met
-WARNING: [Synth 8-3330] design top has an empty top module
----------------------------------------------------------------------------------
-Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:15 ; elapsed = 00:00:16 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 251 ; free virtual = 15588
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Start Applying XDC Timing Constraints
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Finished Applying XDC Timing Constraints : Time (s): cpu = 00:00:20 ; elapsed = 00:00:21 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 327 ; free virtual = 15665
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Start Timing Optimization
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Finished Timing Optimization : Time (s): cpu = 00:00:20 ; elapsed = 00:00:21 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 327 ; free virtual = 15665
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Start Technology Mapping
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Finished Technology Mapping : Time (s): cpu = 00:00:20 ; elapsed = 00:00:21 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 327 ; free virtual = 15665
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Start IO Insertion
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Start Flattening Before IO Insertion
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Finished Flattening Before IO Insertion
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Start Final Netlist Cleanup
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Finished Final Netlist Cleanup
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Finished IO Insertion : Time (s): cpu = 00:00:24 ; elapsed = 00:00:26 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 323 ; free virtual = 15673
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Start Renaming Generated Instances
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Finished Renaming Generated Instances : Time (s): cpu = 00:00:24 ; elapsed = 00:00:26 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 323 ; free virtual = 15673
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Start Rebuilding User Hierarchy
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:24 ; elapsed = 00:00:26 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 323 ; free virtual = 15673
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Start Renaming Generated Ports
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Finished Renaming Generated Ports : Time (s): cpu = 00:00:24 ; elapsed = 00:00:26 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 323 ; free virtual = 15673
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Start Handling Custom Attributes
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Finished Handling Custom Attributes : Time (s): cpu = 00:00:24 ; elapsed = 00:00:26 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 323 ; free virtual = 15673
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Start Renaming Generated Nets
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Finished Renaming Generated Nets : Time (s): cpu = 00:00:24 ; elapsed = 00:00:26 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 323 ; free virtual = 15673
----------------------------------------------------------------------------------
----------------------------------------------------------------------------------
-Start Writing Synthesis Report
----------------------------------------------------------------------------------
-
-Report BlackBoxes: 
-+-+--------------+----------+
-| |BlackBox name |Instances |
-+-+--------------+----------+
-+-+--------------+----------+
-
-Report Cell Usage: 
-+------+-----+------+
-|      |Cell |Count |
-+------+-----+------+
-|1     |top  |     1|
-+------+-----+------+
----------------------------------------------------------------------------------
-Finished Writing Synthesis Report : Time (s): cpu = 00:00:25 ; elapsed = 00:00:26 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 323 ; free virtual = 15673
----------------------------------------------------------------------------------
-Synthesis finished with 0 errors, 0 critical warnings and 2 warnings.
-Synthesis Optimization Runtime : Time (s): cpu = 00:00:23 ; elapsed = 00:00:24 . Memory (MB): peak = 3508.516 ; gain = 466.551 ; free physical = 323 ; free virtual = 15673
-Synthesis Optimization Complete : Time (s): cpu = 00:00:25 ; elapsed = 00:00:26 . Memory (MB): peak = 3508.516 ; gain = 539.488 ; free physical = 323 ; free virtual = 15673
-INFO: [Project 1-571] Translating synthesized netlist
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3508.516 ; gain = 0.000 ; free physical = 321 ; free virtual = 15671
-INFO: [Project 1-570] Preparing netlist for logic optimization
-INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3508.516 ; gain = 0.000 ; free physical = 599 ; free virtual = 15949
-INFO: [Project 1-111] Unisim Transformation Summary:
-No Unisim elements were transformed.
-
-Synth Design complete | Checksum: 853b7606
-INFO: [Common 17-83] Releasing license: Synthesis
-14 Infos, 3 Warnings, 0 Critical Warnings and 0 Errors encountered.
-synth_design completed successfully
-synth_design: Time (s): cpu = 00:00:32 ; elapsed = 00:00:31 . Memory (MB): peak = 3508.516 ; gain = 880.332 ; free physical = 599 ; free virtual = 15949
-INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2891.532; main = 2568.772; forked = 371.659
-INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 5064.605; main = 3476.504; forked = 1588.102
-INFO: [Common 17-1381] The checkpoint '/home/adityal2/ece3852/vivado/lab7/lab7.runs/synth_1/top.dcp' has been generated.
-INFO: [runtcl-4] Executing : report_utilization -file top_utilization_synth.rpt -pb top_utilization_synth.pb
-INFO: [Common 17-206] Exiting Vivado at Wed Oct 28 12:55:43 2026...
-[Wed Oct 28 12:55:53 2026] synth_1 finished
-wait_on_runs: Time (s): cpu = 00:00:51 ; elapsed = 00:01:05 . Memory (MB): peak = 2651.965 ; gain = 0.000 ; free physical = 2876 ; free virtual = 18209
-Synthesis status: synth_design Complete!
-Starting implementation...
-[Wed Oct 28 12:55:53 2026] Launched impl_1...
-Run output will be captured here: /home/adityal2/ece3852/vivado/lab7/lab7.runs/impl_1/runme.log
-[Wed Oct 28 12:55:53 2026] Waiting for impl_1 to finish...
-
-*** Running vivado
-    with args -log top.vdi -applog -m64 -product Vivado -messageDb vivado.pb -mode batch -source top.tcl -notrace
-
-
-****** Vivado v2023.1 (64-bit)
-  **** SW Build 3865809 on Sun May  7 15:04:56 MDT 2023
-  **** IP Build 3864474 on Sun May  7 20:36:21 MDT 2023
-  **** SharedData Build 3865790 on Sun May 07 13:33:03 MDT 2023
-    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
-    ** Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
-
-source top.tcl -notrace
-create_project: Time (s): cpu = 00:00:08 ; elapsed = 00:00:09 . Memory (MB): peak = 2628.336 ; gain = 113.023 ; free physical = 1402 ; free virtual = 16735
-Command: link_design -top top -part xc7s50csga324-1
-Design is defaulting to srcset: sources_1
-Design is defaulting to constrset: constrs_1
-INFO: [Device 21-403] Loading part xc7s50csga324-1
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2973.086 ; gain = 0.000 ; free physical = 1095 ; free virtual = 16429
-INFO: [Project 1-479] Netlist was created with Vivado 2023.1
-INFO: [Project 1-570] Preparing netlist for logic optimization
-Parsing XDC File [/home/adityal2/ece3852/lab7/constraints/constraints.xdc]
-Finished Parsing XDC File [/home/adityal2/ece3852/lab7/constraints/constraints.xdc]
-INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3072.586 ; gain = 0.000 ; free physical = 1005 ; free virtual = 16339
-INFO: [Project 1-111] Unisim Transformation Summary:
-No Unisim elements were transformed.
-
-5 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
-link_design completed successfully
-link_design: Time (s): cpu = 00:00:05 ; elapsed = 00:00:06 . Memory (MB): peak = 3072.586 ; gain = 439.250 ; free physical = 1005 ; free virtual = 16339
-Command: opt_design
-Attempting to get a license for feature 'Implementation' and/or device 'xc7s50'
-INFO: [Common 17-349] Got license for feature 'Implementation' and/or device 'xc7s50'
-Running DRC as a precondition to command opt_design
-
-Starting DRC Task
-INFO: [DRC 23-27] Running DRC with 8 threads
-INFO: [Project 1-461] DRC finished with 0 Errors
-INFO: [Project 1-462] Please refer to the DRC report (report_drc) for more information.
-
-Time (s): cpu = 00:00:00.4 ; elapsed = 00:00:00.52 . Memory (MB): peak = 3142.555 ; gain = 69.969 ; free physical = 985 ; free virtual = 16320
-
-Starting Cache Timing Information Task
-INFO: [Timing 38-35] Done setting XDC timing constraints.
-Ending Cache Timing Information Task | Checksum: 853b7606
-
-Time (s): cpu = 00:00:07 ; elapsed = 00:00:07 . Memory (MB): peak = 3479.336 ; gain = 336.781 ; free physical = 542 ; free virtual = 15893
-
-Starting Logic Optimization Task
-
-Phase 1 Retarget
-INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
-INFO: [Opt 31-49] Retargeted 0 cell(s).
-Phase 1 Retarget | Checksum: 853b7606
-
-Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.02 . Memory (MB): peak = 3760.258 ; gain = 0.000 ; free physical = 252 ; free virtual = 15603
-INFO: [Opt 31-389] Phase Retarget created 0 cells and removed 0 cells
-
-Phase 2 Constant propagation
-INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
-Phase 2 Constant propagation | Checksum: 853b7606
-
-Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.02 . Memory (MB): peak = 3760.258 ; gain = 0.000 ; free physical = 252 ; free virtual = 15603
-INFO: [Opt 31-389] Phase Constant propagation created 0 cells and removed 0 cells
-
-Phase 3 Sweep
-Phase 3 Sweep | Checksum: 853b7606
-
-Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.02 . Memory (MB): peak = 3760.258 ; gain = 0.000 ; free physical = 252 ; free virtual = 15603
-INFO: [Opt 31-389] Phase Sweep created 0 cells and removed 0 cells
-
-Phase 4 BUFG optimization
-Phase 4 BUFG optimization | Checksum: 853b7606
-
-Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.03 . Memory (MB): peak = 3792.273 ; gain = 32.016 ; free physical = 252 ; free virtual = 15603
-INFO: [Opt 31-662] Phase BUFG optimization created 0 cells of which 0 are BUFGs and removed 0 cells.
-
-Phase 5 Shift Register Optimization
-INFO: [Opt 31-1064] SRL Remap converted 0 SRLs to 0 registers and converted 0 registers of register chains to 0 SRLs
-Phase 5 Shift Register Optimization | Checksum: 853b7606
-
-Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.04 . Memory (MB): peak = 3792.273 ; gain = 32.016 ; free physical = 252 ; free virtual = 15603
-INFO: [Opt 31-389] Phase Shift Register Optimization created 0 cells and removed 0 cells
-
-Phase 6 Post Processing Netlist
-Phase 6 Post Processing Netlist | Checksum: 853b7606
-
-Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.04 . Memory (MB): peak = 3792.273 ; gain = 32.016 ; free physical = 252 ; free virtual = 15603
-INFO: [Opt 31-389] Phase Post Processing Netlist created 0 cells and removed 0 cells
-Opt_design Change Summary
-=========================
-
-
--------------------------------------------------------------------------------------------------------------------------
-|  Phase                        |  #Cells created  |  #Cells Removed  |  #Constrained objects preventing optimizations  |
--------------------------------------------------------------------------------------------------------------------------
-|  Retarget                     |               0  |               0  |                                              0  |
-|  Constant propagation         |               0  |               0  |                                              0  |
-|  Sweep                        |               0  |               0  |                                              0  |
-|  BUFG optimization            |               0  |               0  |                                              0  |
-|  Shift Register Optimization  |               0  |               0  |                                              0  |
-|  Post Processing Netlist      |               0  |               0  |                                              0  |
--------------------------------------------------------------------------------------------------------------------------
-
-
-
-Starting Connectivity Check Task
-
-Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00 . Memory (MB): peak = 3792.273 ; gain = 0.000 ; free physical = 252 ; free virtual = 15603
-Ending Logic Optimization Task | Checksum: 853b7606
-
-Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.04 . Memory (MB): peak = 3792.273 ; gain = 32.016 ; free physical = 252 ; free virtual = 15603
-
-Starting Power Optimization Task
-INFO: [Pwropt 34-132] Skipping clock gating for clocks with a period < 2.00 ns.
-Ending Power Optimization Task | Checksum: 853b7606
-
-Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.01 . Memory (MB): peak = 3792.273 ; gain = 0.000 ; free physical = 247 ; free virtual = 15598
-
-Starting Final Cleanup Task
-Ending Final Cleanup Task | Checksum: 853b7606
-
-Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3792.273 ; gain = 0.000 ; free physical = 247 ; free virtual = 15598
-
-Starting Netlist Obfuscation Task
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3792.273 ; gain = 0.000 ; free physical = 247 ; free virtual = 15598
-Ending Netlist Obfuscation Task | Checksum: 853b7606
-
-Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3792.273 ; gain = 0.000 ; free physical = 247 ; free virtual = 15598
-INFO: [Common 17-83] Releasing license: Implementation
-22 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
-opt_design completed successfully
-opt_design: Time (s): cpu = 00:00:10 ; elapsed = 00:00:11 . Memory (MB): peak = 3792.273 ; gain = 719.688 ; free physical = 247 ; free virtual = 15598
-INFO: [runtcl-4] Executing : report_drc -file top_drc_opted.rpt -pb top_drc_opted.pb -rpx top_drc_opted.rpx
-Command: report_drc -file top_drc_opted.rpt -pb top_drc_opted.pb -rpx top_drc_opted.rpx
-INFO: [IP_Flow 19-234] Refreshing IP repositories
-INFO: [IP_Flow 19-1704] No user IP repositories specified
-INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/software/xilinx-2023.1/Vivado/2023.1/data/ip'.
-INFO: [DRC 23-27] Running DRC with 8 threads
-INFO: [Vivado_Tcl 2-168] The results of DRC are in file /home/adityal2/ece3852/vivado/lab7/lab7.runs/impl_1/top_drc_opted.rpt.
-report_drc completed successfully
-INFO: [Common 17-1381] The checkpoint '/home/adityal2/ece3852/vivado/lab7/lab7.runs/impl_1/top_opt.dcp' has been generated.
-Command: place_design
-Attempting to get a license for feature 'Implementation' and/or device 'xc7s50'
-INFO: [Common 17-349] Got license for feature 'Implementation' and/or device 'xc7s50'
-INFO: [DRC 23-27] Running DRC with 8 threads
-INFO: [Vivado_Tcl 4-198] DRC finished with 0 Errors
-INFO: [Vivado_Tcl 4-199] Please refer to the DRC report (report_drc) for more information.
-Running DRC as a precondition to command place_design
-INFO: [DRC 23-27] Running DRC with 8 threads
-INFO: [Vivado_Tcl 4-198] DRC finished with 0 Errors
-INFO: [Vivado_Tcl 4-199] Please refer to the DRC report (report_drc) for more information.
-
-Starting Placer Task
-INFO: [Place 30-611] Multithreading enabled for place_design using a maximum of 8 CPUs
-
-Phase 1 Placer Initialization
-
-Phase 1.1 Placer Initialization Netlist Sorting
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3907.164 ; gain = 0.000 ; free physical = 229 ; free virtual = 15584
-Phase 1.1 Placer Initialization Netlist Sorting | Checksum: 00000000
-
-Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 3907.164 ; gain = 0.000 ; free physical = 229 ; free virtual = 15583
-Phase 1 Placer Initialization | Checksum: 00000000
-
-Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.03 . Memory (MB): peak = 3907.164 ; gain = 0.000 ; free physical = 229 ; free virtual = 15584
-ERROR: [Place 30-494] The design is empty
-Resolution: Check if opt_design has removed all the leaf cells of your design.  Check whether you have instantiated and connected all of the top level ports.
-Ending Placer Task | Checksum: 00000000
-
-Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.03 . Memory (MB): peak = 3907.164 ; gain = 0.000 ; free physical = 229 ; free virtual = 15584
-INFO: [Common 17-83] Releasing license: Implementation
-38 Infos, 0 Warnings, 0 Critical Warnings and 2 Errors encountered.
-place_design failed
-ERROR: [Common 17-69] Command failed: Placer could not place all instances
-INFO: [Common 17-206] Exiting Vivado at Wed Oct 28 12:56:35 2026...
-[Wed Oct 28 12:56:46 2026] impl_1 finished
-ERROR: [Vivado 12-13638] Failed runs(s) : 'impl_1'
-wait_on_runs: Time (s): cpu = 00:00:01 ; elapsed = 00:00:53 . Memory (MB): peak = 2651.965 ; gain = 0.000 ; free physical = 3099 ; free virtual = 18213
-ERROR: [Common 17-39] 'wait_on_runs' failed due to earlier errors.
-
-    while executing
-"wait_on_run impl_1"
-    (procedure "implement" line 4)
-    invoked from within
-"implement $jobs"
-    ("all" arm line 3)
-    invoked from within
-"switch -- $target {
-			sources { puts "Sources registered. Skipping synthesis."  }
-			synth { synthesize $jobs }
-			all {
-				synthesize $jobs
-				imp..."
-    (procedure "proj::run_target" line 2)
-    invoked from within
-"proj::run_target $target 4"
-    (file "build.tcl" line 53)
-INFO: [Common 17-206] Exiting Vivado at Wed Oct 28 12:56:46 2026...
+Sources registered. Skipping synthesis.
+INFO: [Common 17-206] Exiting Vivado at Wed Oct 28 19:08:55 2026...
