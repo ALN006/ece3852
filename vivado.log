@@ -3,52 +3,46 @@
 # SW Build 3865809 on Sun May  7 15:04:56 MDT 2023
 # IP Build 3864474 on Sun May  7 20:36:21 MDT 2023
 # SharedData Build 3865790 on Sun May 07 13:33:03 MDT 2023
-# Start of session at: Wed Oct 28 19:08:33 2026
-# Process ID: 233317
+# Start of session at: Sat Oct 31 15:17:07 2026
+# Process ID: 480928
 # Current directory: /home/adityal2/ece3852
-# Command line: vivado -mode batch -source build.tcl -tclargs sources
+# Command line: vivado -mode batch -source test.tcl
 # Log file: /home/adityal2/ece3852/vivado.log
 # Journal file: /home/adityal2/ece3852/vivado.jou
-# Running On: linux-ssh-10.ews.illinois.edu, OS: Linux, CPU Frequency: 2095.078 MHz, CPU Physical cores: 12, Host memory: 24893 MB
+# Running On: linux-ssh-01.ews.illinois.edu, OS: Linux, CPU Frequency: 2095.077 MHz, CPU Physical cores: 12, Host memory: 24893 MB
 #-----------------------------------------------------------
-source build.tcl
-# puts "Starting Vivado build..."
-Starting Vivado build...
-# set root [file dirname [file normalize [info script]]]
-# source [file join $root common cfg.tcl]
-## namespace eval cfg {
-##     variable project_name "lab7"
-##     variable fpga_part "xc7s50csga324-1"
-##     variable top_module "top"
-##     variable default_jobs 4
-## }
-# source [file join $root common proj.tcl]
+source test.tcl
+# source common/proj.tcl
 ## namespace eval proj { 
-## 	proc open_prj {project_name} {
-## 		set project_dir [file join $::root vivado $project_name]
-## 		set project_file [file join $project_dir "${project_name}.xpr"]
+## 	proc open_vivado { project_dir fpga } {
+## 		if {![file isdirectory $project_dir]} { error "Project directory does not exist: $project_dir" }
+## 		set normalized_project_dir [ file normalize $project_dir ]
 ## 
-## 		file mkdir [file dirname $project_dir]
+## 		set project_name [ file tail $normalized_project_dir ]
+## 		set vivado_project_dir [ file join $normalized_project_dir vivado_project ]
+## 		set vivado_project_file [ file join $vivado_project_dir "${project_name}.xpr" ]
 ## 
-## 		if { [ file exists $project_file ] } { 
-## 			puts "Opening existing project: $project_file"
-## 			open_project $project_file
+## 		file mkdir $vivado_project_dir
+## 		if { [ file exists $vivado_project_file ] } { 
+## 			puts "Opening existing project: $vivado_project_file"
+## 			open_project $vivado_project_file
 ## 		} else {
-## 			create_project  $project_name $project_dir -part $::cfg::fpga_part
-## 			puts "Created project: $project_name"
-## 			puts "Project directory: $project_dir"
-## 			puts "FPGA part: $::cfg::fpga_part"
+## 			create_project  $project_name $vivado_project_dir -part $fpga
+## 			puts "Created vivado project: $project_name"
+## 			puts "Project directory: $vivado_project_dir"
+## 			puts "FPGA used: $fpga"
 ## 		}
+## 		return $vivado_project_file
 ## 	}
 ## 	#sus, needs checks on current project and fileset
 ## 	proc set_top {top_module} {
 ## 		set source_files [get_files -quiet -of_objects [get_filesets sources_1]]
 ## 		if {[llength $source_files] == 0} { error "Cannot set top '$top_module': no source files are registered." }
 ## 
-## 		set_property top $top_module [current_fileset]
+## 		set_property top $top_module [ get_filesets sources_1 ]
 ## 		update_compile_order -fileset sources_1
 ## 
-## 		set resolved_top [get_property top [current_fileset]]
+## 		set resolved_top [ get_property top [ get_filesets sources_1 ] ]
 ## 		puts "Top-level module set to: $resolved_top"
 ## 	}
 ## 	proc synthesize {jobs} {
@@ -66,8 +60,10 @@ Starting Vivado build...
 ## 	}
 ## 	proc implement {jobs} {
 ## 		puts "Starting implementation..."
+## 		reset_run impl_1
 ## 		launch_runs impl_1 -to_step write_bitstream -jobs $jobs
 ## 		wait_on_run impl_1
+## 
 ## 		set status [get_property STATUS [get_runs impl_1]]
 ## 		puts "Implementation status: $status"
 ## 		if {![string match "*Complete*" $status]} {
@@ -86,254 +82,82 @@ Starting Vivado build...
 ## 		}
 ## 	}
 ## }
-# source [file join $root common src.tcl]
+# source common/src.tcl
 ## namespace eval src {
-## 	proc add_hdl {project_name} {
-## 		#add project opening/verifying code here
-## 		set src_dir [file join $::root $project_name src]
-## 		if {![file isdirectory $src_dir]} { error "RTL directory does not exist: $src_dir" }
+## 	# all procs here depend on the correct project being open, need to find a way to verify that
+## 	proc register { fileset src_dir } {
+## 		if {[llength [get_filesets -quiet $fileset]] == 0} { error "Fileset does not exist: $fileset" }
+## 		set src_dir [ file normalize $src_dir ]
+## 		if {![file isdirectory $src_dir]} { error "source directory does not exist: $src_dir" }
 ## 		
-## 		set hdl_files [ glob -nocomplain $src_dir/*.sv $src_dir/rtl/*.v ]
-## 		if { [ llength $hdl_files ] == 0 } { error "No hdl files found in $::root/$project_name/rtl" }
-## 		
-## 		set existing_files [get_files -quiet]
+## 		set src_files [ glob -nocomplain $src_dir/*.sv $src_dir/*.v $src_dir/*.xdc ]
+## 		if { [ llength $src_files ] == 0 } { error "No source files found in $src_dir" }
+## 
+## 		set existing_files [get_property NAME [get_files -quiet -of_objects [get_filesets $fileset]]]
 ## 		set added_count 0
-## 		foreach file $hdl_files {
-## 			set normalized_file [file normalize $file]
-## 			if {[lsearch -exact $existing_files $normalized_file] == -1} {
-## 				add_files -norecurse $normalized_file
+## 		foreach src_file $src_files {
+## 			if {[lsearch -exact $existing_files $src_file] == -1} {
+## 				add_files -norecurse -fileset $fileset $src_file
+## 				lappend existing_files $src_file
 ## 				incr added_count
-## 				puts "Registered HDL: $normalized_file"
+## 				puts "Registered source: $src_file"
 ## 			}
 ## 		}
-## 		puts "Added $added_count new HDL files."
+## 		puts "Added $added_count new source files."
 ## 	}
-## }
-# source [file join $root common constr.tcl]
-## namespace eval constr {
-## 	proc add_xdc {project_name} {
-## 		#add project check here
-## 		set constr_dir [file join $::root $project_name constraints]
-## 		if {![file isdirectory $constr_dir]} { error "Constraints dir does not exist: $constr_dir" }
-## 		set xdc_files [glob -nocomplain [file join $constr_dir *.xdc]]
+## 	proc show_registered { fileset } {
+## 		if { [ llength [ get_filesets -quiet $fileset ] ] == 0 } { error "fileset does not exist: $fileset" }
 ## 
-## 		if {[llength $xdc_files] == 0} {
-##         		puts "No XDC files found in $::root/$project_name/constraints"
-##             		return
-##         	}
-## 		set existing_files [get_files -quiet -of_objects [get_filesets constrs_1]]
-## 		set added_count 0
+## 		set file_objs [get_files -quiet -of_objects [get_filesets $fileset]]
 ## 
-## 		foreach file $xdc_files {
-## 			set normalized_file [file normalize $file]
-## 			if {[lsearch -exact $existing_files $normalized_file] == -1} {
-## 				add_files -fileset constrs_1 -norecurse $normalized_file
-## 				incr added_count
-## 				puts "Registered XDC: $normalized_file"
-## 			}
-## 		}
-## 		puts "Added $added_count new XDC files."
-## 	}
-## }
-# source [file join $root common ip.tcl]
-## namespace eval ip { 
-## 	proc discover_repositories {} {
-## 		set ip_repo_root [ file join $::root vivado ip_repo]
-## 		set repositories {}
-## 
-## 		if {![ file isdirectory $ip_repo_root ]} { return $repositories }
-## 
-## 		foreach metadata [ glob -nocomplain -directory $ip_repo_root -types f */component.xml ] {
-## 			lappend repositories [ file dirname $metadata ]
-## 		}
-## 		
-## 		return $repositories
-## 	}
-## 	proc register_repositories {} {
-## 		set repositories [ discover_repositories ]
-## 		if { [ llength $repositories ] == 0 } {
-## 			puts "No custom IP repositories found"
+## 		if { [ llength $file_objs ] == 0 } { 
+## 			puts "No files registered in $fileset."
 ## 			return
 ## 		}
-## 		
-## 		set_property ip_repo_paths $repositories [ current_project ]
-## 		update_ip_catalog
 ## 
-## 		puts "Registered IP repositories:"
-## 		foreach repository $repositories { puts "  $repository"  }
-## 	}
-## 	proc list_available_ips {} {
-## 		puts "\nAvailable custom IP definitions:"
-## 		foreach ip [get_ipdefs -all *] { puts "  $ip" }
-## 	}
-## 	proc find_ip { target } {
-## 		puts "\n IPs with \"$target\" in the vlnv: "
-## 		set found 0
-## 		foreach vlnv [ get_ipdefs -all * ] {
-## 			if { [ string match -nocase "*${target}*" $vlnv ] } { 
-## 				puts "  $vlnv"
-## 				incr found
-## 			}
-## 		}
-## 		puts "found $found IPs"
-## 	}
-## 	proc load_spec { ip_dir } {
-## 		set spec_file [ file join $ip_dir ip_spec.tcl ]
-## 		if { ![ file isfile $spec_file ] } { error "IP specification no found: $spec_file" }
-## 		
-## 		set spec [ source $spec_file ]
-## 	 	
-## 		foreach field {vendor library name version vlnv dependencies sources ip_dir} {
-## 			if {![dict exists $spec $field]} { error "Missing '$field' in $spec_file" }
-## 		}
-## 		foreach src [dict get $spec sources] {
-## 			if {![file isfile $src]} { error "Source file not found: $src" }
-## 		}
-## 		
-## 		puts "Loaded IP specification: [dict get $spec vlnv]"
-## 		puts "  Sources: [llength [dict get $spec sources]]"
-## 		puts "  Dependencies: [llength [dict get $spec dependencies]]"
-## 		
-## 		return $spec	
-## 	}
-## 	proc validate_dependencies {spec} {
-## 		foreach dependency [dict get $spec dependencies] {
-## 			set vlnv [dict get $dependency vlnv]
-## 			set matches [get_ipdefs -all $vlnv]
-## 			if {[llength $matches] == 0} { error "Required IP dependency not found: $vlnv" }
-## 			
-## 			puts "Found dependency: $vlnv"
-## 			dict for {property value} [dict get $dependency configurations] {
-## 				puts "  $property = $value"
-## 			}
+## 		foreach file_obj $file_objs {
+## 			puts [ get_property NAME $file_obj ]
 ## 		}
 ## 	}
-## 	proc create_configured_ip {dependency output_dir} {
-## 		set vlnv [dict get $dependency vlnv]
-## 		set configurations [dict get $dependency configurations]
-## 		set name [lindex [split $vlnv :] 2]
-## 		set instance [get_ips -quiet $name]
+## 	proc unregister {fileset src_file} {
+## 		if {[llength [get_filesets -quiet $fileset]] == 0} { error "Fileset does not exist: $fileset" }
 ## 
-## 		if {[llength $instance] == 0} {
-## 		       	file mkdir $output_dir	
-## 			create_ip -vlnv $vlnv -module_name $name -dir $output_dir
-## 			set instance [get_ips $name]
-## 			puts "Created IP instance: $name"
-## 		} else {
-## 			puts "Reusing existing IP instance: $name"
-## 		}
+## 		set src_file [file normalize $src_file]
+## 		set src_file_obj [get_files -quiet -of_objects [get_filesets $fileset] $src_file]
 ## 
-## 		if {[dict size $configurations] > 0} { set_property -dict $configurations $instance }
-## 		return $instance
+## 		if {[llength $src_file_obj] == 0} { error "File is not registered in $fileset: $src_file" }
+## 
+## 		remove_files $src_file_obj
+## 		puts "Unregistered: $src_file"
 ## 	}
-## 	proc generate_ip {instance} {
-##     		generate_target all $instance
-##     		puts "Generated output products for: $instance"
+## 	proc delete {fileset src_file} {
+## 		set src_file [file normalize $src_file]
+## 
+## 		if {![file isfile $src_file]} { error "File does not exist: $src_file" }
+## 
+## 		unregister $fileset $src_file
+## 		file delete $src_file
+## 
+## 		puts "Deleted: $src_file"
 ## 	}
 ## }
-# set target [lindex $argv 0]
-# if {$target eq "clean"} {
-# 	set generated_dir [file join $root vivado $cfg::project_name]
-# 	if {[file exists $generated_dir]} {
-# 		file delete -force $generated_dir
-# 		puts "Removed generated project: $generated_dir"
-# 	} else {
-# 		puts "Nothing to clean: $generated_dir does not exist"
-# 	}
-# 
-# 	return
-# }	
-# if {$target eq "help"} {
-#     puts "Usage: vivado -mode batch -source build.tcl -tclargs <target>"
-#     puts ""
-#     puts "Targets:"
-#     puts "  all    Run synthesis and implementation (default)"
-#     puts "  synth  Run synthesis only"
-#     puts "  clean  Remove generated project files"
-#     puts "  help   Display this message"
-#     return
-# }
-# if {$target eq ""} { set target "all" }
-# if {$target ni {all synth clean help sources}} {
-#     error "Unknown build target '$target'. Use: all, synth, clean, help"
-# }
-# set project_name [lindex $argv 1]
-# if {$project_name eq ""} { set project_name $cfg::project_name }
-# set jobs [lindex $argv 2]
-# if {$jobs eq ""} { set jobs $cfg::default_jobs }
-# set top_module [lindex $argv 3]
-# if {$top_module eq ""} { set top_module $cfg::top_module }
-# proj::open_prj $project_name
-Opening existing project: /home/adityal2/ece3852/vivado/lab7/lab7.xpr
-INFO: [filemgmt 56-3] Default IP Output Path : Could not find the directory '/home/adityal2/ece3852/vivado/lab7/lab7.gen/sources_1'.
+# set default_args 	[ source common/default_args.tcl ]
+# set fpga		[ dict get $default_args fpga_part ]
+# proj::open_vivado ./test $fpga
+Opening existing project: /home/adityal2/ece3852/test/vivado_project/test.xpr
+INFO: [filemgmt 56-3] Default IP Output Path : Could not find the directory '/home/adityal2/ece3852/test/vivado_project/test.gen/sources_1'.
 Scanning sources...
 Finished scanning sources
-INFO: [IP_Flow 19-234] Refreshing IP repositories
-INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/adityal2/ece3852/vivado/ip_repo/hdmi_tx_1_0'.
-INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/adityal2/ece3852/vivado/ip_repo/hdmi_text_controller_1_0'.
-INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/software/xilinx-2023.1/Vivado/2023.1/data/ip'.
-open_project: Time (s): cpu = 00:00:09 ; elapsed = 00:00:10 . Memory (MB): peak = 2658.871 ; gain = 144.711 ; free physical = 330 ; free virtual = 21060
-# ip::register_repositories
-INFO: [IP_Flow 19-1839] IP Catalog is up to date.
-Registered IP repositories:
-  /home/adityal2/ece3852/vivado/ip_repo/hdmi_tx_1_0
-  /home/adityal2/ece3852/vivado/ip_repo/hdmi_text_controller_1_0
-Loaded IP specification: xilinx.com:user:hdmi_text_controller:1.0
-  Sources: 4
-  Dependencies: 2
-# set spec [ ip::load_spec [ file join $root lab7 ip hdmi_text_controller ] ]
-# ip::validate_dependencies $spec
-Found dependency: realdigital.org:realdigital:hdmi_tx:1.0
-Found dependency: xilinx.com:ip:clk_wiz:6.0
-  CONFIG.PRIM_IN_FREQ = 100.000
-  CONFIG.NUM_OUT_CLKS = 2
-  CONFIG.CLKOUT2_USED = true
-  CONFIG.CLKOUT1_REQUESTED_OUT_FREQ = 25.000
-  CONFIG.CLKOUT2_REQUESTED_OUT_FREQ = 125.000
-# set clk_wiz_dependency [lindex [dict get $spec dependencies] 1]
-Reusing existing IP instance: clk_wiz
-# set clk_wiz [ ip::create_configured_ip $clk_wiz_dependency [file join $root vivado $project_name ip ] ]
-# ip::generate_ip $clk_wiz
-Generated output products for: clk_wiz
-# set hdmi_def [get_ipdefs -all realdigital.org:realdigital:hdmi_tx:1.0]
-# report_property $hdmi_def
-Property              Type     Read-only  Value
-ALL_SIM_TYPES         string*  true       rtl
-ANSWER_RECORD         string   true       https://www.xilinx.com/search/support-keyword-search.html#q=HDMI/DVI%20Encoder
-CHANGE_LOG            string   true       
-CLASS                 string   true       ipdef
-CORE_REVISION         long     true       2
-DATASHEET             string   true       
-DESCRIPTION           string   true       HDMI/DVI Video Encoder
-DESIGN_TOOL_CONTEXTS  string*  true       HDL IPI Sysgen
-DISPLAY_NAME          string   true       HDMI/DVI Encoder
-IS_AXI                string   true       0
-KNOWN_TARGETS         string*  true       synthesis simulation instantiation_template
-LIBRARY               string   true       realdigital
-LICENSE_KEYS          string*  true       
-MODEL_NAME            string   true       hdmi_tx_v1_0
-NAME                  string   true       hdmi_tx
-PRODUCT_GUIDE         string   true       
-PRODUCT_WEBPAGE       string   true       https://www.realdigital.org
-REPOSITORY            string   true       /home/adityal2/ece3852/vivado/ip_repo/hdmi_tx_1_0
-REQUIRES_LICENSE      bool     true       0
-SIM_PRECOMPILE        bool     true       0
-SUPPORTED_FAMILIES    string*  true       aartix7:ALL:Production artix7:ALL:Production artix7l:ALL:Production aspartan7:ALL:Production azynq:ALL:Production kintex7:ALL:Production kintex7l:ALL:Production spartan7:ALL:Production zynq:ALL:Production
-SUPPORTS_MODREF       bool     true       1
-TAG                   string   true       hdmi_tx
-TAXONOMY              string*  true       /UserIP
-TYPE                  string   true       
-UPGRADE_FROM          string*  true       user.org:user:hdmi_tx_v1_0:1.0
-VENDOR                string   true       Real Digital
-VERSION               string   true       1.0
-VLNV                  string   true       realdigital.org:realdigital:hdmi_tx:1.0
-XML_FILE_NAME         string   true       /home/adityal2/ece3852/vivado/ip_repo/hdmi_tx_1_0/component.xml
-# src::add_hdl $project_name
-Added 0 new HDL files.
-# constr::add_xdc $project_name
-Added 0 new XDC files.
-# proj::set_top $top_module
-Top-level module set to: top
-# proj::run_target $target 4
-Sources registered. Skipping synthesis.
-INFO: [Common 17-206] Exiting Vivado at Wed Oct 28 19:08:55 2026...
+open_project: Time (s): cpu = 00:00:09 ; elapsed = 00:00:09 . Memory (MB): peak = 2647.969 ; gain = 133.805 ; free physical = 1948 ; free virtual = 17666
+# src::register sources_1 ./test/rtl
+Registered source: /home/adityal2/ece3852/test/rtl/other.sv
+Added 1 new source files.
+# src::show_registered sources_1
+/home/adityal2/ece3852/test/rtl/top.sv
+/home/adityal2/ece3852/test/rtl/other.sv
+# src::delete sources_1 ./test/rtl/other.sv
+Unregistered: /home/adityal2/ece3852/test/rtl/other.sv
+Deleted: /home/adityal2/ece3852/test/rtl/other.sv
+# src::show_registered sources_1
+/home/adityal2/ece3852/test/rtl/top.sv
+INFO: [Common 17-206] Exiting Vivado at Sat Oct 31 15:17:24 2026...
