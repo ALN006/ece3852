@@ -3,8 +3,8 @@
 # SW Build 3865809 on Sun May  7 15:04:56 MDT 2023
 # IP Build 3864474 on Sun May  7 20:36:21 MDT 2023
 # SharedData Build 3865790 on Sun May 07 13:33:03 MDT 2023
-# Start of session at: Sat Oct 31 15:17:07 2026
-# Process ID: 480928
+# Start of session at: Sat Oct 31 20:59:34 2026
+# Process ID: 2114289
 # Current directory: /home/adityal2/ece3852
 # Command line: vivado -mode batch -source test.tcl
 # Log file: /home/adityal2/ece3852/vivado.log
@@ -32,7 +32,10 @@ source test.tcl
 ## 			puts "Project directory: $vivado_project_dir"
 ## 			puts "FPGA used: $fpga"
 ## 		}
-## 		return $vivado_project_file
+## 		return [ current_project ]
+## 	}
+## 	proc close_all {} {
+## 		while { [ catch { current_project} ] == 0} { close_project }
 ## 	}
 ## 	#sus, needs checks on current project and fileset
 ## 	proc set_top {top_module} {
@@ -70,7 +73,8 @@ source test.tcl
 ## 			error "Implementation failed: $status"
 ## 		}
 ## 	}
-## 	proc run_target {target jobs} {
+## 	proc run_target {project target jobs} {
+## 		current_project $project
 ## 		switch -- $target {
 ## 			sources { puts "Sources registered. Skipping synthesis."  }
 ## 			synth { synthesize $jobs }
@@ -84,8 +88,8 @@ source test.tcl
 ## }
 # source common/src.tcl
 ## namespace eval src {
-## 	# all procs here depend on the correct project being open, need to find a way to verify that
-## 	proc register { fileset src_dir } {
+## 	proc register { project fileset src_dir } {
+## 		current_project $project
 ## 		if {[llength [get_filesets -quiet $fileset]] == 0} { error "Fileset does not exist: $fileset" }
 ## 		set src_dir [ file normalize $src_dir ]
 ## 		if {![file isdirectory $src_dir]} { error "source directory does not exist: $src_dir" }
@@ -105,7 +109,8 @@ source test.tcl
 ## 		}
 ## 		puts "Added $added_count new source files."
 ## 	}
-## 	proc show_registered { fileset } {
+## 	proc show_registered { project fileset } {
+## 		current_project $project
 ## 		if { [ llength [ get_filesets -quiet $fileset ] ] == 0 } { error "fileset does not exist: $fileset" }
 ## 
 ## 		set file_objs [get_files -quiet -of_objects [get_filesets $fileset]]
@@ -115,11 +120,10 @@ source test.tcl
 ## 			return
 ## 		}
 ## 
-## 		foreach file_obj $file_objs {
-## 			puts [ get_property NAME $file_obj ]
-## 		}
+## 		foreach file_obj $file_objs { puts [ get_property NAME $file_obj ] }
 ## 	}
-## 	proc unregister {fileset src_file} {
+## 	proc unregister { project fileset src_file } {
+## 		current_project $project
 ## 		if {[llength [get_filesets -quiet $fileset]] == 0} { error "Fileset does not exist: $fileset" }
 ## 
 ## 		set src_file [file normalize $src_file]
@@ -130,7 +134,8 @@ source test.tcl
 ## 		remove_files $src_file_obj
 ## 		puts "Unregistered: $src_file"
 ## 	}
-## 	proc delete {fileset src_file} {
+## 	proc delete { project fileset src_file } {
+## 		current_project $project
 ## 		set src_file [file normalize $src_file]
 ## 
 ## 		if {![file isfile $src_file]} { error "File does not exist: $src_file" }
@@ -143,21 +148,15 @@ source test.tcl
 ## }
 # set default_args 	[ source common/default_args.tcl ]
 # set fpga		[ dict get $default_args fpga_part ]
-# proj::open_vivado ./test $fpga
 Opening existing project: /home/adityal2/ece3852/test/vivado_project/test.xpr
 INFO: [filemgmt 56-3] Default IP Output Path : Could not find the directory '/home/adityal2/ece3852/test/vivado_project/test.gen/sources_1'.
 Scanning sources...
 Finished scanning sources
-open_project: Time (s): cpu = 00:00:09 ; elapsed = 00:00:09 . Memory (MB): peak = 2647.969 ; gain = 133.805 ; free physical = 1948 ; free virtual = 17666
-# src::register sources_1 ./test/rtl
-Registered source: /home/adityal2/ece3852/test/rtl/other.sv
-Added 1 new source files.
-# src::show_registered sources_1
+open_project: Time (s): cpu = 00:00:08 ; elapsed = 00:00:09 . Memory (MB): peak = 2650.934 ; gain = 137.773 ; free physical = 5769 ; free virtual = 18193
+# set project		[ proj::open_vivado ./test $fpga ]
+# src::register $project sources_1 ./test/rtl
+Added 0 new source files.
+# src::show_registered $project sources_1
 /home/adityal2/ece3852/test/rtl/top.sv
-/home/adityal2/ece3852/test/rtl/other.sv
-# src::delete sources_1 ./test/rtl/other.sv
-Unregistered: /home/adityal2/ece3852/test/rtl/other.sv
-Deleted: /home/adityal2/ece3852/test/rtl/other.sv
-# src::show_registered sources_1
-/home/adityal2/ece3852/test/rtl/top.sv
-INFO: [Common 17-206] Exiting Vivado at Sat Oct 31 15:17:24 2026...
+# proj::close_all
+INFO: [Common 17-206] Exiting Vivado at Sat Oct 31 20:59:53 2026...

@@ -17,7 +17,10 @@ namespace eval proj {
 			puts "Project directory: $vivado_project_dir"
 			puts "FPGA used: $fpga"
 		}
-		return $vivado_project_file
+		return [ current_project ]
+	}
+	proc close_all {} {
+		while { [ catch { current_project} ] == 0} { close_project }
 	}
 	#sus, needs checks on current project and fileset
 	proc set_top {top_module} {
@@ -55,7 +58,8 @@ namespace eval proj {
 			error "Implementation failed: $status"
 		}
 	}
-	proc run_target {target jobs} {
+	proc run_target {project target jobs} {
+		current_project $project
 		switch -- $target {
 			sources { puts "Sources registered. Skipping synthesis."  }
 			synth { synthesize $jobs }

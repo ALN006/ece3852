@@ -1,6 +1,6 @@
 namespace eval src {
-	# all procs here depend on the correct project being open, need to find a way to verify that
-	proc register { fileset src_dir } {
+	proc register { project fileset src_dir } {
+		current_project $project
 		if {[llength [get_filesets -quiet $fileset]] == 0} { error "Fileset does not exist: $fileset" }
 		set src_dir [ file normalize $src_dir ]
 		if {![file isdirectory $src_dir]} { error "source directory does not exist: $src_dir" }
@@ -20,7 +20,8 @@ namespace eval src {
 		}
 		puts "Added $added_count new source files."
 	}
-	proc show_registered { fileset } {
+	proc show_registered { project fileset } {
+		current_project $project
 		if { [ llength [ get_filesets -quiet $fileset ] ] == 0 } { error "fileset does not exist: $fileset" }
 
 		set file_objs [get_files -quiet -of_objects [get_filesets $fileset]]
@@ -30,11 +31,10 @@ namespace eval src {
 			return
 		}
 
-		foreach file_obj $file_objs {
-			puts [ get_property NAME $file_obj ]
-		}
+		foreach file_obj $file_objs { puts [ get_property NAME $file_obj ] }
 	}
-	proc unregister {fileset src_file} {
+	proc unregister { project fileset src_file } {
+		current_project $project
 		if {[llength [get_filesets -quiet $fileset]] == 0} { error "Fileset does not exist: $fileset" }
 
 		set src_file [file normalize $src_file]
@@ -45,7 +45,8 @@ namespace eval src {
 		remove_files $src_file_obj
 		puts "Unregistered: $src_file"
 	}
-	proc delete {fileset src_file} {
+	proc delete { project fileset src_file } {
+		current_project $project
 		set src_file [file normalize $src_file]
 
 		if {![file isfile $src_file]} { error "File does not exist: $src_file" }

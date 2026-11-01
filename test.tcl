@@ -3,9 +3,9 @@ source common/src.tcl
 
 set default_args 	[ source common/default_args.tcl ]
 set fpga		[ dict get $default_args fpga_part ]
+set project		[ proj::open_vivado ./test $fpga ]
 
-proj::open_vivado ./test $fpga
-src::register sources_1 ./test/rtl
-src::show_registered sources_1
-src::delete sources_1 ./test/rtl/other.sv
-src::show_registered sources_1
+src::register $project sources_1 ./test/rtl
+src::show_registered $project sources_1
+proj::close_all
+
