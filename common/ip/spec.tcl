@@ -17,6 +17,18 @@ namespace eval ip::spec {
 		foreach source $sources {
 			if {![file isfile $source]} { error "IP source file does not exist: $source" }
 		}
+
+		if {[dict exists $spec dependencies]} {
+			foreach dependency [dict get $spec dependencies] {
+				if {![dict exists $dependency vlnv]} { error "Invalid IP dependency: missing 'vlnv'." }
+				if {[dict get $dependency vlnv] eq ""} { error "Invalid IP dependency: empty 'vlnv'." }
+				if {[dict exists $dependency configurations]} {
+					if {[catch {dict size [dict get $dependency configurations]}]} {
+						error "Invalid configurations for dependency '[dict get $dependency vlnv]'."
+					}
+				}
+			}
+		}	
 		return $spec
 	}
 }

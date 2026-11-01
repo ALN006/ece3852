@@ -3,8 +3,8 @@
 # SW Build 3865809 on Sun May  7 15:04:56 MDT 2023
 # IP Build 3864474 on Sun May  7 20:36:21 MDT 2023
 # SharedData Build 3865790 on Sun May 07 13:33:03 MDT 2023
-# Start of session at: Sun Nov  1 14:37:46 2026
-# Process ID: 139247
+# Start of session at: Sun Nov  1 15:04:52 2026
+# Process ID: 144292
 # Current directory: /home/adityal2/ece3852
 # Command line: vivado -mode batch -source test.tcl
 # Log file: /home/adityal2/ece3852/vivado.log
@@ -213,6 +213,18 @@ source test.tcl
 ## 		foreach source $sources {
 ## 			if {![file isfile $source]} { error "IP source file does not exist: $source" }
 ## 		}
+## 
+## 		if {[dict exists $spec dependencies]} {
+## 			foreach dependency [dict get $spec dependencies] {
+## 				if {![dict exists $dependency vlnv]} { error "Invalid IP dependency: missing 'vlnv'." }
+## 				if {[dict get $dependency vlnv] eq ""} { error "Invalid IP dependency: empty 'vlnv'." }
+## 				if {[dict exists $dependency configurations]} {
+## 					if {[catch {dict size [dict get $dependency configurations]}]} {
+## 						error "Invalid configurations for dependency '[dict get $dependency vlnv]'."
+## 					}
+## 				}
+## 			}
+## 		}	
 ## 		return $spec
 ## 	}
 ## }
@@ -221,7 +233,7 @@ source test.tcl
 Opening existing project: /home/adityal2/ece3852/test/vivado_project/test.xpr
 Scanning sources...
 Finished scanning sources
-open_project: Time (s): cpu = 00:00:08 ; elapsed = 00:00:09 . Memory (MB): peak = 2647.965 ; gain = 134.805 ; free physical = 11653 ; free virtual = 24350
+open_project: Time (s): cpu = 00:00:08 ; elapsed = 00:00:09 . Memory (MB): peak = 2648.031 ; gain = 134.805 ; free physical = 11627 ; free virtual = 24367
 # set project		[ proj::open_vivado ./test $fpga ]
 # src::register $project sources_1 ./test/rtl
 Added 0 new source files.
@@ -229,15 +241,8 @@ Added 0 new source files.
 /home/adityal2/ece3852/test/rtl/top.sv
 # hdl::set_top $project top
 Top-level module set to: top
-IP specification contains no source files.
-    while executing
-"error "IP specification contains no source files." "
-    invoked from within
-"if {[llength $sources] == 0} { error "IP specification contains no source files." }"
-    (procedure "ip::spec::load_if_valid" line 14)
-    invoked from within
-"ip::spec::load_if_valid test/ip/ip1/ip_spec.tcl"
-    invoked from within
-"set ip1_spec [ip::spec::load_if_valid test/ip/ip1/ip_spec.tcl]"
-    (file "test.tcl" line 16)
-INFO: [Common 17-206] Exiting Vivado at Sun Nov  1 14:38:07 2026...
+# set ip1_spec [ip::spec::load_if_valid test/ip/ip1/ip_spec.tcl]
+# puts [dict get $ip1_spec name]
+ip1
+# proj::close_all
+INFO: [Common 17-206] Exiting Vivado at Sun Nov  1 15:05:13 2026...
