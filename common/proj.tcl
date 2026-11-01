@@ -22,17 +22,6 @@ namespace eval proj {
 	proc close_all {} {
 		while { [ catch { current_project} ] == 0} { close_project }
 	}
-	#sus, needs checks on current project and fileset
-	proc set_top {top_module} {
-		set source_files [get_files -quiet -of_objects [get_filesets sources_1]]
-		if {[llength $source_files] == 0} { error "Cannot set top '$top_module': no source files are registered." }
-
-		set_property top $top_module [ get_filesets sources_1 ]
-		update_compile_order -fileset sources_1
-
-		set resolved_top [ get_property top [ get_filesets sources_1 ] ]
-		puts "Top-level module set to: $resolved_top"
-	}
 	proc synthesize {jobs} {
 		puts "Starting synthesis..."
 		reset_run synth_1

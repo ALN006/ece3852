@@ -8,7 +8,7 @@ namespace eval src {
 		set src_files [ glob -nocomplain $src_dir/*.sv $src_dir/*.v $src_dir/*.xdc ]
 		if { [ llength $src_files ] == 0 } { error "No source files found in $src_dir" }
 
-		set existing_files [get_property NAME [get_files -quiet -of_objects [get_filesets $fileset]]]
+		set existing_files [get_property -quiet NAME [get_files -quiet -of_objects [get_filesets $fileset]]]
 		set added_count 0
 		foreach src_file $src_files {
 			if {[lsearch -exact $existing_files $src_file] == -1} {
