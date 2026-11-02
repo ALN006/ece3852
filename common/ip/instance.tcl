@@ -15,5 +15,23 @@ namespace eval ip::instance {
 		puts "deleting ip_gen_dir: $ip_gen_dir"
 		if {[file isdirectory $ip_gen_dir]} { file delete -force $ip_gen_dir }
 	}
+	proc register_default_config { project dependency config_name } {
+		current_project $project
 
+		set vlnv 		[dict get $dependency vlnv]
+		set vlnv_as_a_list 	[split $vlnv :]
+
+		if { [ llength $vlnv_as_a_list ] != 4 } { error "Invalid IP VLNV: $vlnv" }
+		lassign $vlnv_as_a_list vendor library name version
+		set module_name ${name}_${config_name}
+
+		create_ip \
+			-vendor $vendor \
+			-library $library \
+			-name $name \
+			-version $version \
+			-module_name $module_name
+		
+		return [ get_ips $module_name ]
+	}	
 }
