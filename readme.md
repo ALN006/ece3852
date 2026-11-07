@@ -19,3 +19,8 @@
 
 # externel documentation:
 1. Urbana Board Documentation (XC7S50CSGA324-1): https://www.realdigital.org/doc/496fed57c6b275735fe24c85de5718c2
+
+# final project research material:
+1. working fpga 3d renderer: https://community.element14.com/challenges-projects/element14-presents/project-videos/w/documents/27700/3d-object-rendering-using-an-fpga----episode-558?CMP=SOM-YOUTUBE-PRG-E14PRESENTS-e14Presents-558
+2. kinda useless tangent: https://www.youtube.com/watch?v=VzGw7CiEiJY
+3. common bg cc cs vid: https://www.youtube.com/watch?v=TEAtmCYYKZA
