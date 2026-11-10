@@ -31,7 +31,7 @@ module top (
         .data,      // TODO: check that this is an inout pin
     );
 
-    logic [ `coord_bits - 1 : 0 ] obj_z_coords [ 0 : `max_objs_on_screen ];
+    logic [ `coord_bits - 1 : 0 ] obj_z_coords [ 0 : `max_objs_on_screen - 1 ];
     frame_gen_for_3d_polar_pong frame_gen_logic (
         .clk,
         .keycodes,
