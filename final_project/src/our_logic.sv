@@ -16,7 +16,6 @@ module our_logic #(
 
     output  logic [ `color_bits     - 1 : 0 ]   red, green, blue
 );
-
     logic [ `address_bits - 1   : 0 ] read_addresses    [ 0 : `max_objs_on_screen ];
     logic [ `color_bits - 1     : 0 ] red, green, blue;
     drawer_for_3d_polar_pong draw_logic (   // TODO: implement this to handle occlusion
@@ -29,8 +28,8 @@ module our_logic #(
         .red, .green, .blue 
     ); 
 
-    logic [ `color_bits - 1 : 0 ] read_data;
-    memory per_object_storage [`max_objs_on_screen - 1:0] (      // TODO: implement this to store sprites without considering occlussion
+    logic [ (3 * `color_bits) - 1 : 0 ] read_data; // rgb color
+    memory per_object_pixel_color_storage [`max_objs_on_screen - 1:0] ( // TODO: implement this to store sprites without considering occlussion
         .clk, 
         .enable (~draw_now),
         .address((draw_now) ? read_addresses : write_addresses),
@@ -39,16 +38,16 @@ module our_logic #(
         .read_data
     );
 
-    logic [ `address_bits   - 1 : 0 ] write_addresses   [ 0 : `max_objs_on_screen ];
-    logic [ `color_bits     - 1 : 0 ] write_data        [ 0 : `max_objs_on_screen ];
-    logic [ `coord_bits     - 1 : 0 ] obj_coords        [ 0 : (4 * `max_objs_on_screen) - 1 ]; // 3d + span
+    logic [ `address_bits       - 1 : 0 ] write_addresses   [ 0 : `max_objs_on_screen ];
+    logic [ (3 * `color_bits)   - 1 : 0 ] write_data        [ 0 : `max_objs_on_screen ]; // rgb color
+    logic [ `coord_bits         - 1 : 0 ] obj_coords        [ 0 : (4 * `max_objs_on_screen) - 1 ]; // 3d + span
     frame_gen_for_3d_polar_pong frame_gen_logic (   // TODO: implement everything but occlusion handling here 
         .clk,
         .draw_now,
         .keycodes,
         
         .write_addresses,
-        .write_data, // data is declared above memory
+        .write_data,
         .obj_coords
     );
 
