@@ -1,7 +1,3 @@
-`define max_objs_on_screen  13 
-`define color_bits          4
-`define coord_bits          10
-
 // TODO: determine if we want to GPIO or direct AXI_slave
 module top (
     input logic     clk,
@@ -11,35 +7,9 @@ module top (
     // TODO: add hex seg displays eventually 
     // TODO: confirm that HDMI outputs dont belong here
     // TODO: consider adding LEDs 
-);
-    logic [ `color_bits - 1 : 0 ] red, green, blue;
-    drawer_for_3d_polar_pong draw_logic (   // TODO: implement this
-        .pix_clk,           // TODO: consider passing in faster clock
-        .read_data(data),
-        .obj_z_coords,
+); 
 
-        .read_addresses,
-        .red, .green, .blue 
-    ); 
-
-    logic [ `color_bits - 1 : 0 ] data;
-    memory per_object_storage [`max_objs_on_screen - 1:0] (      // TODO: implement this as a wrapper
-        .clk, 
-        .address,
-        .enable,
-        .w_data,
-
-        .r_data      // TODO: check that this is an inout pin
-    );
-
-    logic [ `coord_bits - 1 : 0 ] obj_z_coords [ 0 : `max_objs_on_screen - 1 ];
-    frame_gen_for_3d_polar_pong frame_gen_logic (
-        .clk,
-        .keycodes,
-        
-        .write_data(data), // data is declared above memory
-        .obj_z_coords
-    );
+    // TODO: instantiate our logic
 
     clk_wiz_0 clk_wiz (
         .reset,
@@ -55,6 +25,7 @@ module top (
         .hs(hsync),
         .vs(vsync),
         .active_nblank(vde),
+        
         .drawX(drawX),
         .drawY(drawY)
     );  
