@@ -8,4 +8,7 @@ module drawer_for_3d_polar_pong (
 
 );
 
+    assign read_addresses = 16'hAAAA;
+    assign {red, green, blue} = 12'hAAA;
+
 endmodule

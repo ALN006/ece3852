@@ -7,4 +7,10 @@ module frame_gen_for_3d_polar_pong (
 
 );
 
+    assign write_data = 32'hAAAAAAAA;
+    always_comb begin
+        for (integer i = 0; i < 10; i = i + 1) begin
+            obj_z_coords[i] = {14{0}};
+        end
+    end
 endmodule

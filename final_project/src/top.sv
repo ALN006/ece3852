@@ -27,8 +27,9 @@ module top (
         .clk, 
         .address,
         .enable,
+        .w_data,
 
-        .data,      // TODO: check that this is an inout pin
+        .r_data      // TODO: check that this is an inout pin
     );
 
     logic [ `coord_bits - 1 : 0 ] obj_z_coords [ 0 : `max_objs_on_screen - 1 ];
