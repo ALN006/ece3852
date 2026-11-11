@@ -6,14 +6,14 @@ module memory #(
     input   logic                               clk,
     input   logic [ ADDRESS_WIDTH   - 1 : 0 ]   address,
     input   logic                               enable,
-    input   logic [ DATA_WIDTH      - 1 : 0 ]   w_data,
+    input   logic [ DATA_WIDTH      - 1 : 0 ]   write_data,
 
-    output  logic [ DATA_WIDTH      - 1 : 0 ]   r_data
+    output  logic [ DATA_WIDTH      - 1 : 0 ]   read_data
 
 );
     always_ff @(posedge clk) begin 
         if (enable == 1'b0) begin 
-            r_data <= { (DATA_WIDTH+1)/2 {2'b10} };
+            read_data <= { (DATA_WIDTH+1)/2 {2'b10} };
         end
     end
 endmodule

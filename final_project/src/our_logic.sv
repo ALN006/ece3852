@@ -17,7 +17,6 @@ module our_logic #(
     output  logic [ `color_bits     - 1 : 0 ]   red, green, blue
 );
     logic [ `address_bits   - 1 : 0 ] read_addresses    [ 0 : `max_objs_on_screen ];
-    logic [ `color_bits     - 1 : 0 ] red, green, blue;
     occlusion_handling_color_mapper draw_logic (   // TODO: implement this to handle occlusion
         .pix_clk,           // TODO: consider passing in faster clock
         .draw_now,
@@ -28,7 +27,7 @@ module our_logic #(
         .red, .green, .blue 
     ); 
 
-    logic [ (3 * `color_bits) - 1 : 0 ] read_data [ 0 : MAX_OBJS_ON_SCREEN    - 1 ]; // rgb color
+    logic [ (3 * `color_bits) - 1 : 0 ] read_data [ 0 : `max_objs_on_screen    - 1 ]; // rgb color
     memory per_object_pixel_color_storage [`max_objs_on_screen - 1:0] ( // TODO: implement this to store sprites without considering occlussion
         .clk, 
         .enable (~draw_now),
