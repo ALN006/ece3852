@@ -1,9 +1,9 @@
 /* verilator lint_off UNUSEDSIGNAL */ // TODO: actually implement this module
 module occlusion_handling_color_mapper #(
-    parameter ADDRESS_BITS          = 8,    
-    parameter COLOR_BITS            = 4,
-    parameter COORD_BITS            = 10,
-    parameter MAX_OBJS_ON_SCREEN    = 13
+    parameter int ADDRESS_BITS          = 8,    
+    parameter int COLOR_BITS            = 4,
+    parameter int COORD_BITS            = 10,
+    parameter int MAX_OBJS_ON_SCREEN    = 13
 )(
     input   logic                                   pix_clk,
     input   logic                                   draw_now,

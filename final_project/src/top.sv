@@ -1,3 +1,6 @@
+`define MAX_SIMULTAENEOUS_KEYCODES  6
+`define KEYCODE_WIDTH               8
+
 // TODO: determine if we want to GPIO or direct AXI_slave
 module top (
     input logic     clk,
@@ -5,14 +8,25 @@ module top (
     // TODO: consider taking buttons or switches 
 
     // TODO: add hex seg displays eventually 
-    // TODO: confirm that HDMI outputs dont belong here
+    // TODO: check if HDMI outputs belong here
     // TODO: consider adding LEDs 
 ); 
-    // TODO: instantiate our logic
+    // TODO: finish instantiating our logic
+    our_logic #(
+        .MAX_SIMULTAENEOUS_KEYCODES
+        .KEYCODE_WIDTH
+    ) 3d_polar_pong_logic (
+        .clk,
+        .pix_clk,
+        .draw_now,
+        .drawX, .drawY,
+
+        .red, .green, .blue
+    );
 
     clk_wiz_0 clk_wiz (
         .reset,
-        .clk_in1(axi_aclk),
+        .clk_in1(clk),
 
         .locked,
         .clk_out1(clk_25MHz), .clk_out2(clk_125MHz)

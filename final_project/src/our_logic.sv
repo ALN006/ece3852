@@ -1,12 +1,8 @@
-// TODO: check if a macro is the most appropriate form for the vars bellow
-`define max_objs_on_screen  13 
-`define color_bits          4
-`define coord_bits          10
-`define address_bits        8
+import our_logic_constants_pkg::*;
 
 module our_logic #(
-    parameter MAX_SIMULTAENEOUS_KEYCODES    = 6, // TODO: figure out what happens when you dont specify the type of a parameter
-    parameter KEYCODE_BITS                  = 8
+    parameter int MAX_SIMULTAENEOUS_KEYCODES    = 6, // TODO: figure out what happens when you dont specify the type of a parameter
+    parameter int KEYCODE_WIDTH                 = 8
 )(
     input   logic                               clk,
     input   logic                               pix_clk,
@@ -52,7 +48,7 @@ module our_logic #(
     frame_gen_for_3d_polar_pong # (
         .ADDRESS_BITS(`address_bits),
         .COLOR_BITS(`color_bits),
-        .COORD_BITS(`coord_bits),
+        .COORD_BITS(`coord_bihts),
         .MAX_OBJS_ON_SCREEN(`max_objs_on_screen)  
     ) frame_gen_logic (   // TODO: implement everything but occlusion handling here 
         .clk,

@@ -1,11 +1,11 @@
 /* verilator lint_off UNUSEDSIGNAL */   // TODO: implement this module
 module frame_gen_for_3d_polar_pong #(   // TODO: there is a small chance that this and the onther module name are too long, confirm
-    parameter MAX_SIMULTAENEOUS_KEYCODES    = 6, 
-    parameter KEYCODE_BITS                  = 8,
-    parameter ADDRESS_BITS                  = 8,    
-    parameter COLOR_BITS                    = 4,
-    parameter COORD_BITS                    = 10,
-    parameter MAX_OBJS_ON_SCREEN            = 13 
+    parameter int MAX_SIMULTAENEOUS_KEYCODES    = 6, 
+    parameter int KEYCODE_BITS                  = 8,
+    parameter int ADDRESS_BITS                  = 8,    
+    parameter int COLOR_BITS                    = 4,
+    parameter int COORD_BITS                    = 10,
+    parameter int MAX_OBJS_ON_SCREEN            = 13 
 )(
     input   logic                                   clk,
     input   logic                                   draw_now,
