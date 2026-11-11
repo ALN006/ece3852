@@ -9,6 +9,7 @@ module occlusion_handling_color_mapper #(
     input   logic                                   draw_now,
     input   logic [ 3 * COLOR_BITS      - 1 : 0 ]   read_data           [ 0 : MAX_OBJS_ON_SCREEN    - 1 ],
     input   logic [ COORD_BITS          - 1 : 0 ]   obj_coords          [ 0 : 4*MAX_OBJS_ON_SCREEN  - 1 ],
+    input   logic [ COORD_BITS          - 1 : 0 ]   drawX, drawY,
 
     output  logic [ ADDRESS_BITS        - 1 : 0 ]   read_addresses      [ 0 : MAX_OBJS_ON_SCREEN    - 1 ], 
     output  logic [ COLOR_BITS          - 1 : 0 ]   red, green, blue

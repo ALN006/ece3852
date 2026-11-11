@@ -27,6 +27,7 @@ module our_logic #(
         .draw_now,
         .read_data,
         .obj_coords,
+        .drawX, .drawY,
 
         .read_addresses,
         .red, .green, .blue 
@@ -45,8 +46,8 @@ module our_logic #(
         .read_data
     );
     
-    logic [ `address_bits       - 1 : 0 ] write_addresses   [ 0 : `max_objs_on_screen ];
-    logic [ (3 * `color_bits)   - 1 : 0 ] write_data        [ 0 : `max_objs_on_screen ]; // rgb color
+    logic [ `address_bits       - 1 : 0 ] write_addresses   [ 0 : `max_objs_on_screen - 1];
+    logic [ (3 * `color_bits)   - 1 : 0 ] write_data        [ 0 : `max_objs_on_screen - 1]; // rgb color
     logic [ `coord_bits         - 1 : 0 ] obj_coords        [ 0 : (4 * `max_objs_on_screen) - 1 ]; // 3d + span
     frame_gen_for_3d_polar_pong # (
         .ADDRESS_BITS(address_bits),
