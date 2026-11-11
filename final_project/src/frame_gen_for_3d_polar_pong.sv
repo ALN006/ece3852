@@ -1,16 +1,21 @@
-module frame_gen_for_3d_polar_pong (
-    input logic clk,
-    input logic [5:0] keycodes,
+/* verilator lint_off UNUSEDSIGNAL */   // TODO: implement this module
+module frame_gen_for_3d_polar_pong #(   // TODO: there is a small chance that this and the onther module name are too long, confirm
+    parameter MAX_SIMULTAENEOUS_KEYCODES    = 6, 
+    parameter KEYCODE_BITS                  = 8,
+    parameter ADDRESS_BITS                  = 8,    
+    parameter COLOR_BITS                    = 4,
+    parameter COORD_BITS                    = 10,
+    parameter MAX_OBJS_ON_SCREEN            = 13 
+)(
+    input   logic                                   clk,
+    input   logic                                   draw_now,
+    input   logic [ KEYCODE_BITS        - 1 : 0 ]   keycodes        [ 0 : MAX_SIMULTAENEOUS_KEYCODES    - 1 ],
     
-    output logic [31:0] write_data,
-    output logic [9:0] obj_z_coords [0:13],
-
+    output  logic [ ADDRESS_BITS        - 1 : 0 ]   write_addresses [ 0 : MAX_OBJS_ON_SCREEN            - 1 ],
+    output  logic [ 3 * COLOR_BITS      - 1 : 0 ]   write_data      [ 0 : MAX_OBJS_ON_SCREEN            - 1 ], 
+    output  logic [ COORD_BITS          - 1 : 0 ]   obj_coords      [ 0 : 4*MAX_OBJS_ON_SCREEN          - 1 ]
 );
-
-    assign write_data = 32'hAAAAAAAA;
-    always_comb begin
-        for (integer i = 0; i < 10; i = i + 1) begin
-            obj_z_coords[i] = {14{0}};
-        end
-    end
+    assign  write_addresses = '{ MAX_OBJS_ON_SCREEN     { {(ADDRESS_BITS    + 1)/2  {2'b10}} } };
+    assign  write_data      = '{ MAX_OBJS_ON_SCREEN     { {(3 * COLOR_BITS  + 1)/2  {2'b10}} } };
+    assign  obj_coords      = '{ 4 * MAX_OBJS_ON_SCREEN { {(COORD_BITS      + 1)/2  {2'b10}} } };
 endmodule

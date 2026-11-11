@@ -8,7 +8,6 @@ module top (
     // TODO: confirm that HDMI outputs dont belong here
     // TODO: consider adding LEDs 
 ); 
-
     // TODO: instantiate our logic
 
     clk_wiz_0 clk_wiz (

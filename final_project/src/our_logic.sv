@@ -5,20 +5,20 @@
 `define address_bits        8
 
 module our_logic #(
-    parameter MAX_SIMULTAENEOUS_KEYCODES = 6,
-    parameter KEYCODE_BITS = 8
+    parameter MAX_SIMULTAENEOUS_KEYCODES    = 6, // TODO: figure out what happens when you dont specify the type of a parameter
+    parameter KEYCODE_BITS                  = 8
 )(
     input   logic                               clk,
     input   logic                               pix_clk,
     input   logic                               draw_now,
     input   logic [ `coord_bits     - 1 : 0 ]   drawX, drawY,
-    input   logic [ KEYCODE_BITS    - 1 : 0 ]   keycodes            [ 0 : MAX_SIMULTAENEOUS_KEYCODES ],
+    input   logic [ KEYCODE_BITS    - 1 : 0 ]   keycodes        [ 0 : MAX_SIMULTAENEOUS_KEYCODES    - 1],
 
     output  logic [ `color_bits     - 1 : 0 ]   red, green, blue
 );
-    logic [ `address_bits - 1   : 0 ] read_addresses    [ 0 : `max_objs_on_screen ];
-    logic [ `color_bits - 1     : 0 ] red, green, blue;
-    drawer_for_3d_polar_pong draw_logic (   // TODO: implement this to handle occlusion
+    logic [ `address_bits   - 1 : 0 ] read_addresses    [ 0 : `max_objs_on_screen ];
+    logic [ `color_bits     - 1 : 0 ] red, green, blue;
+    occlusion_handling_color_mapper draw_logic (   // TODO: implement this to handle occlusion
         .pix_clk,           // TODO: consider passing in faster clock
         .draw_now,
         .read_data,
@@ -28,7 +28,7 @@ module our_logic #(
         .red, .green, .blue 
     ); 
 
-    logic [ (3 * `color_bits) - 1 : 0 ] read_data; // rgb color
+    logic [ (3 * `color_bits) - 1 : 0 ] read_data [ 0 : MAX_OBJS_ON_SCREEN    - 1 ]; // rgb color
     memory per_object_pixel_color_storage [`max_objs_on_screen - 1:0] ( // TODO: implement this to store sprites without considering occlussion
         .clk, 
         .enable (~draw_now),
@@ -37,7 +37,7 @@ module our_logic #(
 
         .read_data
     );
-
+    
     logic [ `address_bits       - 1 : 0 ] write_addresses   [ 0 : `max_objs_on_screen ];
     logic [ (3 * `color_bits)   - 1 : 0 ] write_data        [ 0 : `max_objs_on_screen ]; // rgb color
     logic [ `coord_bits         - 1 : 0 ] obj_coords        [ 0 : (4 * `max_objs_on_screen) - 1 ]; // 3d + span
@@ -50,5 +50,4 @@ module our_logic #(
         .write_data,
         .obj_coords
     );
-
 endmodule
