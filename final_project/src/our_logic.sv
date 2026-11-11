@@ -16,8 +16,13 @@ module our_logic #(
 
     output  logic [ `color_bits     - 1 : 0 ]   red, green, blue
 );
-    logic [ `address_bits   - 1 : 0 ] read_addresses    [ 0 : `max_objs_on_screen ];
-    occlusion_handling_color_mapper draw_logic (   // TODO: implement this to handle occlusion
+    logic [ `address_bits   - 1 : 0 ] read_addresses    [ 0 : `max_objs_on_screen - 1 ];
+    occlusion_handling_color_mapper #(
+        .ADDRESS_BITS(address_bits),
+        .COLOR_BITS(color_bits),
+        .COORD_BITS(coord_bits),
+        .MAX_OBJS_ON_SCREEN(max_objs_on_screen)  
+    ) draw_logic (   // TODO: implement this to handle occlusion
         .pix_clk,           // TODO: consider passing in faster clock
         .draw_now,
         .read_data,
@@ -28,7 +33,10 @@ module our_logic #(
     ); 
 
     logic [ (3 * `color_bits) - 1 : 0 ] read_data [ 0 : `max_objs_on_screen    - 1 ]; // rgb color
-    memory per_object_pixel_color_storage [`max_objs_on_screen - 1:0] ( // TODO: implement this to store sprites without considering occlussion
+    memory  [`max_objs_on_screen - 1:0] #(
+        .ADDRESS_WIDTH(ADDRESS_BITS),
+        .DATA_WIDTH(3 * `color_bits)
+    ) per_object_pixel_color_storage ( // TODO: implement this to store sprites without considering occlussion
         .clk, 
         .enable (~draw_now),
         .address((draw_now) ? read_addresses : write_addresses),
@@ -40,7 +48,12 @@ module our_logic #(
     logic [ `address_bits       - 1 : 0 ] write_addresses   [ 0 : `max_objs_on_screen ];
     logic [ (3 * `color_bits)   - 1 : 0 ] write_data        [ 0 : `max_objs_on_screen ]; // rgb color
     logic [ `coord_bits         - 1 : 0 ] obj_coords        [ 0 : (4 * `max_objs_on_screen) - 1 ]; // 3d + span
-    frame_gen_for_3d_polar_pong frame_gen_logic (   // TODO: implement everything but occlusion handling here 
+    frame_gen_for_3d_polar_pong # (
+        .ADDRESS_BITS(address_bits),
+        .COLOR_BITS(color_bits),
+        .COORD_BITS(coord_bits),
+        .MAX_OBJS_ON_SCREEN(max_objs_on_screen)  
+    ) frame_gen_logic (   // TODO: implement everything but occlusion handling here 
         .clk,
         .draw_now,
         .keycodes,
