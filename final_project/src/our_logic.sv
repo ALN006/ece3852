@@ -1,7 +1,6 @@
-
 module our_logic #(
-    parameter int MAX_SIMULTAENEOUS_KEYCODES    = 6, // TODO: figure out what happens when you dont specify the type of a parameter
-    parameter int KEYCODE_WIDTH                 = 8 // Answer seems to be "synthesizer sets the type to that of whatever data it's receiving"
+    parameter int MAX_SIMULTAENEOUS_KEYCODES    = 6,
+    parameter int KEYCODE_WIDTH                 = 8 
 )(
     input   logic                               clk,
     input   logic                               pix_clk,
@@ -27,24 +26,10 @@ module our_logic #(
         .read_addresses,
         .red, .green, .blue 
     ); 
-
-    logic [ (3 * `color_bits) - 1 : 0 ] read_data [ 0 : `max_objs_on_screen    - 1 ]; // rgb color
-    memory #(
-        .ADDRESS_WIDTH(`address_bits),
-        .DATA_WIDTH(3 * `color_bits)
-    ) per_object_pixel_color_storage [`max_objs_on_screen - 1:0] ( // TODO: implement this to store sprites without considering occlussion
-        .clk,                                                       // seems to be done?
-        .enable (~draw_now),
-        .address((draw_now) ? read_addresses : write_addresses),
-        .write_data,
-
-        .read_data
-    );
-    
     logic [ `address_bits       - 1 : 0 ] write_addresses   [ 0 : `max_objs_on_screen - 1];
     logic [ (3 * `color_bits)   - 1 : 0 ] write_data        [ 0 : `max_objs_on_screen - 1]; // rgb color
     logic [ `coord_bits         - 1 : 0 ] obj_coords        [ 0 : (4 * `max_objs_on_screen) - 1 ]; // 3d + span
-    frame_gen_for_3d_polar_pong # (
+    physics_engine # (
         .ADDRESS_BITS(`address_bits),
         .COLOR_BITS(`color_bits),
         .COORD_BITS(`coord_bihts),

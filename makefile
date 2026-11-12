@@ -19,10 +19,11 @@ SRC_DIR     := $(PROJECT)/$(SRC)
 TEST_DIR    := $(PROJECT)/$(TEST)
 BUILD_DIR   := $(PROJECT)/$(BUILD)
 SRC_FILES   := $(wildcard $(SRC_DIR)/*.sv)
+PKG_FILES 	:= $(wildcard $(SRC_DIR)/*_pkg.sv)
 DESIGN_SV   := $(SRC_DIR)/$(TOP_MODULE).sv
 TB_SV       := $(TEST_DIR)/test_$(TOP_MODULE).sv
 FORMAL_SBY  := $(TEST_DIR)/$(TOP_MODULE).sby
-FLAT_V     := $(BUILD_DIR)/$(TOP_MODULE)_flat.v
+FLAT_V     	:= $(BUILD_DIR)/$(TOP_MODULE)_flat.v
 TB_BIN      := obj_dir/Vtest_$(TOP_MODULE)
 DESIGN_VCD  := test_$(TOP_MODULE).vcd
 DESIGN_JSON := $(TEST_DIR)/$(TOP_MODULE).json
@@ -32,7 +33,7 @@ DESIGN_SVG  := $(TEST_DIR)/$(TOP_MODULE).svg
 
 lint_src: $(DESIGN_SV)
 	@printf "\n $(GREEN) INFO: linting design src file $(DESIGN_SV)$(NC) \n\n"
-	verilator --lint-only -fno-dfg -Wall -I$(SRC_DIR) $(DESIGN_SV)
+	verilator --lint-only -fno-dfg -Wall -I$(SRC_DIR) $(DESIGN_SV) $(PKG_FILES)
 
 lint_all_src: $(SRC_FILES)
 	@printf "\n $(GREEN) INFO: linting all design src files in $(SRC_DIR)/$(NC) \n\n"
