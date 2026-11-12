@@ -15,6 +15,6 @@ module memory #(
     logic [ DATA_WIDTH - 1 : 0 ] mem [ 0 : WORD_COUNT - 1 ];
     always_ff @(posedge clk) begin 
         if (enable == 1'b1) mem[write_address] <= write_data;
-        read_data <= mem[read_address];
+        read_data <= mem[read_address]; // do we want the added security of preventing read_data from taking new values when we're not reading out of memory?
     end
 endmodule

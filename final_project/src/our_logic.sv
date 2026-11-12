@@ -2,13 +2,13 @@ import our_logic_constants_pkg::*;
 
 module our_logic #(
     parameter int MAX_SIMULTAENEOUS_KEYCODES    = 6, // TODO: figure out what happens when you dont specify the type of a parameter
-    parameter int KEYCODE_WIDTH                 = 8
+    parameter int KEYCODE_WIDTH                 = 8 // Answer seems to be "synthesizer sets the type to that of whatever data it's receiving"
 )(
     input   logic                               clk,
     input   logic                               pix_clk,
     input   logic                               draw_now,
     input   logic [ `coord_bits     - 1 : 0 ]   drawX, drawY,
-    input   logic [ KEYCODE_BITS    - 1 : 0 ]   keycodes        [ 0 : MAX_SIMULTAENEOUS_KEYCODES    - 1],
+    input   logic [ KEYCODE_WIDTH    - 1 : 0 ]   keycodes        [ 0 : MAX_SIMULTAENEOUS_KEYCODES    - 1],
 
     output  logic [ `color_bits     - 1 : 0 ]   red, green, blue
 );
@@ -34,7 +34,7 @@ module our_logic #(
         .ADDRESS_WIDTH(`address_bits),
         .DATA_WIDTH(3 * `color_bits)
     ) per_object_pixel_color_storage [`max_objs_on_screen - 1:0] ( // TODO: implement this to store sprites without considering occlussion
-        .clk, 
+        .clk,                                                       // seems to be done?
         .enable (~draw_now),
         .address((draw_now) ? read_addresses : write_addresses),
         .write_data,

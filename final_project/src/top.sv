@@ -20,6 +20,7 @@ module top (
         .pix_clk,
         .draw_now,
         .drawX, .drawY,
+        .keycodes({keycode0_gpio[7:0], keycode0_gpio[15:8], keycode0_gpio[23:16], keycode0_gpio[31:24], keycode1_gpio[0:7], keycode1_gpio[15:8]}),
 
         .red, .green, .blue
     );
@@ -34,7 +35,7 @@ module top (
 
     vga_controller vga (
         .pixel_clk(clk_25MHz),
-        .reset(reset_ah),
+        .reset,
         .hs(hsync),
         .vs(vsync),
         .active_nblank(vde),
@@ -49,7 +50,7 @@ module top (
         .pix_clk(clk_25MHz),
         .pix_clkx5(clk_125MHz),
         .pix_clk_locked(locked),
-        .rst(reset_ah),
+        .rst(reset),
         //Color and Sync Signals
         .red(red),
         .green(green),
@@ -71,13 +72,15 @@ module top (
         .TMDS_DATA_N(hdmi_tmds_data_n)          
     );
 
+    logic [31:0] keycode0_gpio, keycode1_gpio;
+
     mb_block mb_block_i (
         .clk_100MHz(Clk),
         .gpio_usb_int_tri_i(gpio_usb_int_tri_i),
         .gpio_usb_keycode_0_tri_o(keycode0_gpio),
         .gpio_usb_keycode_1_tri_o(keycode1_gpio),
         .gpio_usb_rst_tri_o(gpio_usb_rst_tri_o),
-        .reset_rtl_0(~reset_ah), //Block designs expect active low reset, all other modules are active high
+        .reset_rtl_0(~reset), //Block designs expect active low reset, all other modules are active high
         .uart_rtl_0_rxd(uart_rtl_0_rxd),
         .uart_rtl_0_txd(uart_rtl_0_txd),
         .usb_spi_miso(usb_spi_miso),
