@@ -1,4 +1,3 @@
-import our_logic_constants_pkg::*;
 
 module our_logic #(
     parameter int MAX_SIMULTAENEOUS_KEYCODES    = 6, // TODO: figure out what happens when you dont specify the type of a parameter
@@ -8,7 +7,7 @@ module our_logic #(
     input   logic                               pix_clk,
     input   logic                               draw_now,
     input   logic [ `coord_bits     - 1 : 0 ]   drawX, drawY,
-    input   logic [ KEYCODE_WIDTH    - 1 : 0 ]   keycodes        [ 0 : MAX_SIMULTAENEOUS_KEYCODES    - 1],
+    input   logic [ KEYCODE_WIDTH   - 1 : 0 ]   keycodes        [ 0 : MAX_SIMULTAENEOUS_KEYCODES    - 1],
 
     output  logic [ `color_bits     - 1 : 0 ]   red, green, blue
 );
