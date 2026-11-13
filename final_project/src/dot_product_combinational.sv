@@ -23,4 +23,12 @@ module dot_product_combinational #(
 
     assign dot_product = partial_sums[DIMENSIONS - 1];
 
+    `ifdef FORMAL 
+        // the only thing that can be put here to fully verify this module is a check against the clone of the actual logic above
+        // perhaps it is worth coming back if we find another way to express dot products which we can check this against
+        // we can verify individual properties of the dot product, that probably requires a better understanding than what I currently posses
+
+        // thus TODO: get a better understanding of the dot product opperation to come back a verify its properties here
+    `endif
+
 endmodule
