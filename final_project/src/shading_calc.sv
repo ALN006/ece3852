@@ -1,5 +1,7 @@
 import our_logic_types_pkg::*;
 
+// take in the 100% lit up color, then desaturate as needed depending on light reflections
+
 module shading_calc #(
     parameter int COLOR_BITS            = 4,
     parameter int COORD_BITS            = 10,
