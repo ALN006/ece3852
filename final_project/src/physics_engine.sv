@@ -1,5 +1,6 @@
-/* verilator lint_off UNUSEDSIGNAL */   // TODO: implement this module
-// TODO: really need to update verilator
+/* verilator lint_off UNUSEDSIGNAL */   
+// TODO: There is a lot of documentation/diagrams that can and perhaps should accompany this code, figure out how to go about that 
+// TODO: The next thing to figure out for this guy is probably a colision detection mechanism which I imagine will involve calculating the distance between a point and some planes :)
 
 module physics_engine #(
     parameter int                           MAX_SIMULTAENEOUS_KEYCODES  = 6, 
