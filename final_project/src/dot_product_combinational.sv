@@ -1,6 +1,6 @@
 // TODO : check if this module meets timing
 module dot_product_combinational #(
-    parameter   int DIMENSIONS      = 3,    // NOTE: must always be atleast 2 // TODO: consider enforcing this NOTE with an assertion
+    parameter   int DIMENSIONS      = 3,    // NOTE: must always be atleast 1 // TODO: consider enforcing this NOTE with an assertion, also check if an unsigned int type exists
     parameter   int COORD_WIDTH     = 11,
     localparam  int RESULT_WIDTH    = 2*COORD_WIDTH + $clog2(DIMENSIONS)
 ) (
@@ -13,6 +13,7 @@ module dot_product_combinational #(
     end
 
     // NOTE: there is probably some more optimal reduction tree version of the bellow code but with just 3 dimensions (the first inteded use case) it kinda doesnt matter
+    // It will be hillarious if i do come back and use Brent Kung or Kogge Stone here, perhaps I should
     logic signed [ RESULT_WIDTH - 1 : 0 ] partial_sums [ 0 : DIMENSIONS - 1 ];
     always_comb begin 
         partial_sums[0] = RESULT_WIDTH'(component_products[0]);
@@ -24,11 +25,10 @@ module dot_product_combinational #(
     assign dot_product = partial_sums[DIMENSIONS - 1];
 
     `ifdef FORMAL 
-        // the only thing that can be put here to fully verify this module is a check against the clone of the actual logic above
-        // perhaps it is worth coming back if we find another way to express dot products which we can check this against
-        // we can verify individual properties of the dot product, that probably requires a better understanding than what I currently posses
-
-        // thus TODO: get a better understanding of the dot product opperation to come back a verify its properties here
+        // TODO: check if the following properties are sufficient to prove that the dot product works
+        // -|a||b| < a.b < |a||b|
+        // a.b = b.a
+        // ((a+b).a)/(|a+b|) + ((a+b).b)/(|a+b|) = |a + b| -> (a+b).a + (a+b).b = (|a+b|)**2
     `endif
 
 endmodule
