@@ -11,7 +11,7 @@ module physics_engine #(
     parameter logic [ COORD_WIDTH - 1 : 0 ] BALL_RADIUS                 = COORD_WIDTH'(20) 
 )(
     input   logic                                   clk,
-    input   logic                                   draw_now,
+    input   logic                                   calc_now,
     input   logic [ KEYCODE_WIDTH       - 1 : 0 ]   keycodes    [ 0 : MAX_SIMULTAENEOUS_KEYCODES    - 1 ],
     
     output  our_logic_types_pkg::sphere_t           ball,
