@@ -1,6 +1,7 @@
+// TODO : check if this module meets timing
 module dot_product_combinational #(
     parameter   int DIMENSIONS      = 3,    // NOTE: must always be atleast 2 // TODO: consider enforcing this NOTE with an assertion
-    parameter   int COORD_WIDTH     = 10,
+    parameter   int COORD_WIDTH     = 11,
     localparam  int RESULT_WDITH    = 2*COORD_WIDTH + $clog2(DIMENSIONS)
 ) (
     input   logic signed [ COORD_WIDTH      - 1 : 0 ] vectors       [ 0 : 1 ] [ 0 : DIMENSIONS ],
