@@ -1,0 +1,12 @@
+[options]
+mode cover
+
+[engines]
+smtbmc
+
+[script]
+read -formal -sv cross_river.sv
+prep -top cross_river
+
+[files]
+cross_river.sv

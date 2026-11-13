@@ -1,0 +1,12 @@
+[options]
+mode prove
+
+[engines]
+smtbmc
+
+[script]
+read -formal -sv busy_counter.sv
+prep -top busy_counter
+
+[files]
+busy_counter.sv

@@ -1,0 +1,35 @@
+SBY 19:51:15 [cross_river] Removing directory '/Users/adityaln/Desktop/ece385/formal/cross_river'.
+SBY 19:51:15 [cross_river] Copy '/Users/adityaln/Desktop/ece385/formal/cross_river.sv' to '/Users/adityaln/Desktop/ece385/formal/cross_river/src/cross_river.sv'.
+SBY 19:51:15 [cross_river] engine_0: smtbmc
+SBY 19:51:15 [cross_river] base: starting process "cd cross_river/src; yosys -ql ../model/design.log ../model/design.ys"
+SBY 19:51:15 [cross_river] base: finished (returncode=0)
+SBY 19:51:15 [cross_river] prep: starting process "cd cross_river/model; yosys -ql design_prep.log design_prep.ys"
+SBY 19:51:15 [cross_river] prep: finished (returncode=0)
+SBY 19:51:15 [cross_river] smt2: starting process "cd cross_river/model; yosys -ql design_smt2.log design_smt2.ys"
+SBY 19:51:15 [cross_river] smt2: finished (returncode=0)
+SBY 19:51:15 [cross_river] engine_0: starting process "cd cross_river; yosys-smtbmc --presat --unroll -c --noprogress -t 20  --append 0 --dump-vcd engine_0/trace%.vcd --dump-yw engine_0/trace%.yw --dump-vlogtb engine_0/trace%_tb.v --dump-smtc engine_0/trace%.smtc model/design_smt2.smt2"
+SBY 19:51:15 [cross_river] engine_0: ##   0:00:00  Solver: yices
+SBY 19:51:15 [cross_river] engine_0: ##   0:00:00  Checking cover reachability in step 0..
+SBY 19:51:15 [cross_river] engine_0: ##   0:00:00  Checking cover reachability in step 1..
+SBY 19:51:15 [cross_river] engine_0: ##   0:00:00  Checking cover reachability in step 2..
+SBY 19:51:15 [cross_river] engine_0: ##   0:00:00  Checking cover reachability in step 3..
+SBY 19:51:15 [cross_river] engine_0: ##   0:00:00  Checking cover reachability in step 4..
+SBY 19:51:15 [cross_river] engine_0: ##   0:00:00  Checking cover reachability in step 5..
+SBY 19:51:15 [cross_river] engine_0: ##   0:00:00  Checking cover reachability in step 6..
+SBY 19:51:15 [cross_river] engine_0: ##   0:00:00  Checking cover reachability in step 7..
+SBY 19:51:15 [cross_river] engine_0: ##   0:00:00  Checking cover reachability in step 8..
+SBY 19:51:15 [cross_river] engine_0: ##   0:00:00  Checking cover reachability in step 9..
+SBY 19:51:15 [cross_river] engine_0: ##   0:00:00  Reached cover statement in step 9 at cross_river: cross_river.sv:39.17-39.67 (_witness_.check_cover_cross_river_sv_39_28)
+SBY 19:51:15 [cross_river] engine_0: ##   0:00:00  Writing trace to VCD file: engine_0/trace0.vcd
+SBY 19:51:15 [cross_river] engine_0: ##   0:00:00  Writing trace to Verilog testbench: engine_0/trace0_tb.v
+SBY 19:51:15 [cross_river] engine_0: ##   0:00:00  Writing trace to constraints file: engine_0/trace0.smtc
+SBY 19:51:15 [cross_river] engine_0: ##   0:00:00  Writing trace to Yosys witness file: engine_0/trace0.yw
+SBY 19:51:15 [cross_river] engine_0: ##   0:00:00  Status: passed
+SBY 19:51:15 [cross_river] engine_0: finished (returncode=0)
+SBY 19:51:15 [cross_river] engine_0: Status returned by engine: pass
+SBY 19:51:15 [cross_river] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 19:51:15 [cross_river] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:00 (0)
+SBY 19:51:15 [cross_river] summary: engine_0 (smtbmc) returned pass
+SBY 19:51:15 [cross_river] summary: cover trace: cross_river/engine_0/trace0.vcd
+SBY 19:51:15 [cross_river] summary:   reached cover statement cross_river._witness_.check_cover_cross_river_sv_39_28 at cross_river.sv:39.17-39.67 step 9
+SBY 19:51:15 [cross_river] DONE (PASS, rc=0)

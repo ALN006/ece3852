@@ -1,0 +1,78 @@
+initial
+assume (= [$auto$async2sync.cc:107:execute$86] false)
+assume (= [$auto$async2sync.cc:116:execute$90] true)
+assume (= [bank_c] false)
+assume (= [bank_g] true)
+assume (= [bank_m] true)
+assume (= [bank_w] false)
+assume (= [f_past_valid] false)
+
+state 0
+assume (= [clk] false)
+assume (= [move_c] false)
+assume (= [move_g] false)
+assume (= [move_w] false)
+assume (= [reset] true)
+
+state 1
+assume (= [clk] false)
+assume (= [move_c] false)
+assume (= [move_g] true)
+assume (= [move_w] false)
+assume (= [reset] false)
+
+state 2
+assume (= [clk] false)
+assume (= [move_c] false)
+assume (= [move_g] false)
+assume (= [move_w] false)
+assume (= [reset] false)
+
+state 3
+assume (= [clk] false)
+assume (= [move_c] false)
+assume (= [move_g] false)
+assume (= [move_w] true)
+assume (= [reset] false)
+
+state 4
+assume (= [clk] false)
+assume (= [move_c] false)
+assume (= [move_g] true)
+assume (= [move_w] false)
+assume (= [reset] false)
+
+state 5
+assume (= [clk] false)
+assume (= [move_c] true)
+assume (= [move_g] false)
+assume (= [move_w] false)
+assume (= [reset] false)
+
+state 6
+assume (= [clk] false)
+assume (= [move_c] false)
+assume (= [move_g] false)
+assume (= [move_w] false)
+assume (= [reset] false)
+
+state 7
+assume (= [clk] false)
+assume (= [move_c] false)
+assume (= [move_g] true)
+assume (= [move_w] false)
+assume (= [reset] false)
+
+state 8
+assume (= [clk] false)
+assume (= [move_c] false)
+assume (= [move_g] true)
+assume (= [move_w] false)
+assume (= [reset] false)
+
+state 9
+assume (= [clk] false)
+assume (= [move_c] false)
+assume (= [move_g] false)
+assume (= [move_w] false)
+assume (= [reset] false)

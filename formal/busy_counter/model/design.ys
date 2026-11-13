@@ -1,0 +1,8 @@
+# running in busy_counter/src/
+read -formal -sv busy_counter.sv
+prep -top busy_counter
+
+hierarchy -smtcheck
+rename -witness
+write_jny -no-connections ../model/design.json
+write_rtlil ../model/design.il

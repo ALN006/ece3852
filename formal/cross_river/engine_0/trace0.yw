@@ -1,0 +1,30 @@
+{
+  "format": "Yosys Witness Trace",
+  "generator": "smtbmc",
+  "clocks": [
+    {"path": ["\\clk"], "edge": "posedge", "offset": 0}
+  ],
+  "signals": [
+    {"path": ["\\clk"], "width": 1, "offset": 0, "init_only": false},
+    {"path": ["\\move_c"], "width": 1, "offset": 0, "init_only": false},
+    {"path": ["\\move_g"], "width": 1, "offset": 0, "init_only": false},
+    {"path": ["\\move_w"], "width": 1, "offset": 0, "init_only": false},
+    {"path": ["\\reset"], "width": 1, "offset": 0, "init_only": false},
+    {"path": ["\\bank_c"], "width": 1, "offset": 0, "init_only": true},
+    {"path": ["\\bank_g"], "width": 1, "offset": 0, "init_only": true},
+    {"path": ["\\bank_m"], "width": 1, "offset": 0, "init_only": true},
+    {"path": ["\\bank_w"], "width": 1, "offset": 0, "init_only": true}
+  ],
+  "steps": [
+    {"bits": "011010000"},
+    {"bits": "00100"},
+    {"bits": "00000"},
+    {"bits": "01000"},
+    {"bits": "00100"},
+    {"bits": "00010"},
+    {"bits": "00000"},
+    {"bits": "00100"},
+    {"bits": "00100"},
+    {"bits": "00000"}
+  ]
+}
