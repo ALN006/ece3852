@@ -16,20 +16,16 @@ package our_logic_types_pkg;
 
     // TODO: check syntax here
     function automatic point_3d_t trunc_add(point_3d_t a, point_3d_t b);
-        trunc_add.x = COORD_WIDTH'(a.x + b.x);
-        trunc_add.y = COORD_WIDTH'(a.y + b.y);
-        trunc_add.z = COORD_WIDTH'(a.z + b.z);
+        return {COORD_WIDTH'(a.x + b.x), COORD_WIDTH'(a.y + b.y), COORD_WIDTH'(a.z + b.z) };
     endfunction
 
     function automatic point_3d_t trunc_sub(point_3d_t a, point_3d_t b);
-        trunc_sub.x = COORD_WIDTH'(a.x - b.x);
-        trunc_sub.y = COORD_WIDTH'(a.y - b.y);
-        trunc_sub.z = COORD_WIDTH'(a.z - b.z);
+        return {COORD_WIDTH'(a.x - b.x), COORD_WIDTH'(a.y - b.y), COORD_WIDTH'(a.z - b.z) };
     endfunction
 
     // TODO: check wether the bellow function meets timing
     function automatic logic signed [ 2*COORD_WIDTH + 1 : 0 ] dot(point_3d_t a, point_3d_t b);
-        dot = a.x * b.x + a.y * b.y + a.z * b.z;
+        return a.x * b.x + a.y * b.y + a.z * b.z;
     endfunction
 
     typedef struct packed {
@@ -52,7 +48,7 @@ package our_logic_types_pkg;
         point_3d_t                          v0;
         point_3d_t                          v1;
         point_3d_t                          v2; // just use a third point, helps make rounding errors smaller
-        logic signed       [ COORD_WIDTH - 1 : 0 ] height;
+        logic signed       [ COORD_WIDTH - 1 : 0 ] depth;
     } cuboid_t; // 100 bits
 
     typedef struct packed {
