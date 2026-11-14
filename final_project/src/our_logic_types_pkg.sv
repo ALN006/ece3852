@@ -49,7 +49,7 @@ package our_logic_types_pkg;
         point_3d_t                          v1;
         point_3d_t                          v2; // just use a third point, helps make rounding errors smaller
         logic signed       [ COORD_WIDTH - 1 : 0 ] depth;
-    } cuboid_t; // 100 bits
+    } cuboid_t; 
 
     typedef struct packed {
         point_2d_t                          center;
