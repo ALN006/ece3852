@@ -4,14 +4,14 @@ package our_logic_types_pkg;
 
     // TODO: figure out which of these abstractions to actually use
     typedef struct packed {
-        logic [ COORD_WIDTH - 1 : 0 ]   x;
-        logic [ COORD_WIDTH - 1 : 0 ]   y;        
+        logic signed [ COORD_WIDTH - 1 : 0 ]   x;
+        logic signed [ COORD_WIDTH - 1 : 0 ]   y;        
     } point_2d_t;
 
     typedef struct packed {
-        logic [ COORD_WIDTH - 1 : 0 ]   x;
-        logic [ COORD_WIDTH - 1 : 0 ]   y;
-        logic [ COORD_WIDTH - 1 : 0 ]   z;
+        logic signed [ COORD_WIDTH - 1 : 0 ]   x;
+        logic signed [ COORD_WIDTH - 1 : 0 ]   y;
+        logic signed [ COORD_WIDTH - 1 : 0 ]   z;
     } point_3d_t;
 
     typedef struct packed {
@@ -34,16 +34,16 @@ package our_logic_types_pkg;
         point_3d_t                          v0;
         point_3d_t                          v1;
         point_3d_t                          width_vector; // It uses a point_3d structure, but it should be interpreted as a VECTOR
-        logic       [ COORD_WIDTH - 1 : 0 ] height;
+        logic signed       [ COORD_WIDTH - 1 : 0 ] height;
     } cuboid_t; // 100 bits
 
     typedef struct packed {
         point_2d_t                          center;
-        logic       [ COORD_WIDTH - 1 : 0 ] radius;
+        logic signed       [ COORD_WIDTH - 1 : 0 ] radius;
     } circle_t;    
 
     typedef struct packed {
         point_3d_t                          center; // COORD_WIDTH * 3 bits (30 bits total)
-        logic       [ COORD_WIDTH - 1 : 0 ] radius; // COORD_WIDTH bits (10 bits total)
+        logic signed       [ COORD_WIDTH - 1 : 0 ] radius; // COORD_WIDTH bits (10 bits total)
     } sphere_t; // 40 bits
 endpackage

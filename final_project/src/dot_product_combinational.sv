@@ -26,6 +26,7 @@ module dot_product_combinational #(
 
     `ifdef FORMAL 
         // TODO: check if the following properties are sufficient to prove that the dot product works
+        // TODO: jaidev mentioned something about the law of cosines, look into that
         // -|a||b| < a.b < |a||b|
         // a.b = b.a
         // ((a+b).a)/(|a+b|) + ((a+b).b)/(|a+b|) = |a + b| -> (a+b).a + (a+b).b = (|a+b|)**2
