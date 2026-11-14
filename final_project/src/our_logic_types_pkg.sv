@@ -33,7 +33,7 @@ package our_logic_types_pkg;
     typedef struct packed { // A & B define a line along the cuboid, length and width define the other orthogonal dimensions
         point_3d_t                          v0;
         point_3d_t                          v1;
-        point_3d_t                          width_vector; // It uses a point_3d structure, but it should be interpreted as a VECTOR
+        point_3d_t                          v2; // just use a third point, helps make rounding errors smaller
         logic signed       [ COORD_WIDTH - 1 : 0 ] height;
     } cuboid_t; // 100 bits
 

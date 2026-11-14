@@ -37,6 +37,41 @@ module physics_engine #(
         end
     end 
 
+    // TODO: write an offset module to avoid repetition here
+    our_logic_types_pkg::point_3d_t ball_center_offset  [ 0 : PADDLE_COUNT - 1 ];
+    our_logic_types_pkg::point_3d_t width_vector        [ 0 : PADDLE_COUNT - 1 ];
+    our_logic_types_pkg::point_3d_t depth_vector        [ 0 : PADDLE_COUNT - 1 ];
+    always_comb for (int i = 0; i < PADDLE_COUNT; i++) begin 
+        ball_center_offset[i] = {
+            COORD_WIDTH'(ball.center[ 2 * COORD_WIDTH +: COORD_WIDTH ] - paddles[i].v0.x),
+            COORD_WIDTH'(ball.center[ 1 * COORD_WIDTH +: COORD_WIDTH ] - paddles[i].v0.y), 
+            COORD_WIDTH'(ball.center[ 0 * COORD_WIDTH +: COORD_WIDTH ] - paddles[i].v0.z)
+        };
+        width_vector[i] = {
+            COORD_WIDTH'(paddles[i].v2.x - paddles[i].v0.x),
+            COORD_WIDTH'(paddles[i].v2.y - paddles[i].v0.y),
+            COORD_WIDTH'(paddles[i].v2.z - paddles[i].v0.z),
+        };
+        depth_vector[i] = {
+            COORD_WIDTH'(paddles[i].v2.x - paddles[i].v0.x),
+            COORD_WIDTH'(paddles[i].v2.y - paddles[i].v0.y),
+            COORD_WIDTH'(paddles[i].v2.z - paddles[i].v0.z),
+        };
+    end
+
+    logic signed [ COORD_WIDTH   - 1 : 0 ] ball_center_offset_dot_width_vector [ 0 : PADDLE_COUNT - 1 ]; // ball center offset = ball center - v0
+    logic signed [ COORD_WIDTH   - 1 : 0 ] ball_center_offset_dot_depth_vector [ 0 : PADDLE_COUNT - 1 ]; // depth vector = v1 - v0
+    generate
+        for (genvar i = 0; i < PADDLE_COUNT; i++) begin : dot_products
+            dot_product_combinational #(
+                .DIMENSIONS(3),
+                .COORD_WIDTH(COORD_WIDTH),
+            ) dot_product [0:1] (
+                // TODO: fill in the connections here
+            );
+        end
+    endgenerate
+
     always_comb for ( int i = 0; i < PADDLE_COUNT; i++) begin 
         paddles[i].v0           = (3*COORD_WIDTH)'({(3*COORD_WIDTH + 1)/2 {2'b10}});
         paddles[i].v1           = (3*COORD_WIDTH)'({(3*COORD_WIDTH + 1)/2 {2'b10}});
