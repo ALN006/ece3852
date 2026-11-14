@@ -1,0 +1,23 @@
+Vtest_dot_product_combinational__ALL.o: \
+  Vtest_dot_product_combinational__ALL.cpp \
+  Vtest_dot_product_combinational.cpp \
+  Vtest_dot_product_combinational__pch.h \
+  /Users/adityaln/utils/oss-cad-suite/share/verilator/include/verilated.h \
+  /Users/adityaln/utils/oss-cad-suite/share/verilator/include/verilated_config.h \
+  /Users/adityaln/utils/oss-cad-suite/share/verilator/include/verilatedos.h \
+  /Users/adityaln/utils/oss-cad-suite/share/verilator/include/verilated_types.h \
+  /Users/adityaln/utils/oss-cad-suite/share/verilator/include/verilated_funcs.h \
+  Vtest_dot_product_combinational__Syms.h \
+  /Users/adityaln/utils/oss-cad-suite/share/verilator/include/verilated_vcd_c.h \
+  /Users/adityaln/utils/oss-cad-suite/share/verilator/include/verilated_trace.h \
+  Vtest_dot_product_combinational.h \
+  Vtest_dot_product_combinational___024root.h \
+  /Users/adityaln/utils/oss-cad-suite/share/verilator/include/verilated_timing.h \
+  Vtest_dot_product_combinational___024root__0.cpp \
+  Vtest_dot_product_combinational__main.cpp \
+  Vtest_dot_product_combinational__Trace__0.cpp \
+  Vtest_dot_product_combinational___024root__Slow.cpp \
+  Vtest_dot_product_combinational___024root__0__Slow.cpp \
+  Vtest_dot_product_combinational__Syms__Slow.cpp \
+  Vtest_dot_product_combinational__Trace__0__Slow.cpp \
+  Vtest_dot_product_combinational__TraceDecls__0__Slow.cpp

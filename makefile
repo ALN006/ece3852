@@ -33,7 +33,7 @@ DESIGN_SVG  := $(TEST_DIR)/$(TOP_MODULE).svg
 
 lint_src: $(DESIGN_SV)
 	@printf "\n $(GREEN) INFO: linting design src file $(DESIGN_SV)$(NC) \n\n"
-	verilator --lint-only -Wall -I$(SRC_DIR) $(DESIGN_SV) $(PKG_FILES)
+	verilator --lint-only -Wall -I$(SRC_DIR) $(PKG_FILES) $(DESIGN_SV)
 
 lint_all_src: $(SRC_FILES)
 	@printf "\n $(GREEN) INFO: linting all design src files in $(SRC_DIR)/$(NC) \n\n"
