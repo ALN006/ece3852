@@ -1,63 +1,52 @@
 // TODO: consider using unpacked structs 
+// ASSUMPTION: let (240, 240, 240) from the top left of the screen be the origin
 package our_logic_types_pkg;
-    localparam int COORD_WIDTH = 11;
+    `include "sin_lut.svh"
+    localparam int DIST_WIDTH   = 10;
 
     // TODO: figure out which of these abstractions to actually use
-    typedef struct packed {
-        logic signed [ COORD_WIDTH - 1 : 0 ]   x;
-        logic signed [ COORD_WIDTH - 1 : 0 ]   y;        
-    } point_2d_t;
-
-    typedef struct packed {
-        logic signed [ COORD_WIDTH - 1 : 0 ]   x;
-        logic signed [ COORD_WIDTH - 1 : 0 ]   y;
-        logic signed [ COORD_WIDTH - 1 : 0 ]   z;
-    } point_3d_t;
-
-    // TODO: check syntax here
-    function automatic point_3d_t trunc_add(point_3d_t a, point_3d_t b);
-        return {COORD_WIDTH'(a.x + b.x), COORD_WIDTH'(a.y + b.y), COORD_WIDTH'(a.z + b.z) };
+    typedef struct {
+        logic signed [ DIST_WIDTH - 1 : 0 ]   x;
+        logic signed [ DIST_WIDTH - 1 : 0 ]   y;
+        logic signed [ DIST_WIDTH - 1 : 0 ]   z;
+    } cart_coord_t;
+    function automatic cart_coord_t trunc_add(cart_coord_t a, cart_coord_t b);
+        return '{x: DIST_WIDTH'(a.x + b.x), y: DIST_WIDTH'(a.y + b.y), z: DIST_WIDTH'(a.z + b.z) };
     endfunction
 
-    function automatic point_3d_t trunc_sub(point_3d_t a, point_3d_t b);
-        return {COORD_WIDTH'(a.x - b.x), COORD_WIDTH'(a.y - b.y), COORD_WIDTH'(a.z - b.z) };
+    function automatic cart_coord_t trunc_sub(cart_coord_t a, cart_coord_t b);
+        return '{x: DIST_WIDTH'(a.x - b.x), y: DIST_WIDTH'(a.y - b.y), z: DIST_WIDTH'(a.z - b.z) };
     endfunction
 
-    // TODO: check wether the bellow function meets timing
-    function automatic logic signed [ 2*COORD_WIDTH + 1 : 0 ] dot(point_3d_t a, point_3d_t b);
+    // TODO: check wether the bellow function meets timing and consider introducing a dot_t
+    function automatic logic signed [ 2*DIST_WIDTH + 1 : 0 ] dot(cart_coord_t a, cart_coord_t b);
         return a.x * b.x + a.y * b.y + a.z * b.z;
     endfunction
 
     typedef struct packed {
-        point_2d_t  v0;
-        point_2d_t  v1;
-        point_2d_t  v2;
-    } triangle_2d_t;
+        logic signed    [ DIST_WIDTH    - 1 : 0 ]   radius;
+        logic           [ ANGLE_WIDTH   - 1 : 0 ]   phi; 
+        logic           [ ANGLE_WIDTH   - 1 : 0 ]   theta;   
+    } polar_coord_t;
+
+    // TODO: make sure this meets timing
+    function automatic cart_coord_t polar_to_cart(polar_coord_t a);
+        return {
+            DIST_WIDTH'((SIN_AMP_BITS'(a.radius) * SIN_LUT[ a.phi ] * SIN_LUT [ a.theta + 8'd64 ]) >> (2*(SIN_AMP_BITS - 2))),
+            DIST_WIDTH'((SIN_AMP_BITS'(a.radius) * SIN_LUT[ a.phi ] * SIN_LUT [ a.theta ]) >> (2*(SIN_AMP_BITS - 2))),
+            DIST_WIDTH'((SIN_AMP_BITS'(a.radius) * SIN_LUT[ a.phi + 8'd64 ]) >> (SIN_AMP_BITS - 2))
+        };
+    endfunction
+
+    typedef struct packed { 
+        polar_coord_t                               front_top_left; // from the perspective of the rdius vector to it
+        logic           [ ANGLE_WIDTH   - 1 : 0 ]   phi_offset;
+        logic           [ ANGLE_WIDTH   - 1 : 0 ]   theta_offset;
+        logic           [ DIST_WIDTH    - 1 : 0 ]   depth;
+    } paddle_t;   
 
     typedef struct packed {
-        point_3d_t  v0;
-        point_3d_t  v1;
-        point_3d_t  v2;
-    } triangle_3d_t;
-
-// (V1 - V0)x((V2 - V0)x(V3 - V0)) = 0
-// V2 = V0 + height
-// V3 = V0 + width
-// v0 and v1 WILL DEFINE THE ANGLE
-    typedef struct packed { // A & B define a line along the cuboid, length and width define the other orthogonal dimensions
-        point_3d_t                          v0;
-        point_3d_t                          v1;
-        point_3d_t                          v2; // just use a third point, helps make rounding errors smaller
-        logic signed       [ COORD_WIDTH - 1 : 0 ] depth;
-    } cuboid_t; 
-
-    typedef struct packed {
-        point_2d_t                          center;
-        logic signed       [ COORD_WIDTH - 1 : 0 ] radius;
-    } circle_t;    
-
-    typedef struct packed {
-        point_3d_t                          center; // COORD_WIDTH * 3 bits (30 bits total)
-        logic signed       [ COORD_WIDTH - 1 : 0 ] radius; // COORD_WIDTH bits (10 bits total)
-    } sphere_t; // 40 bits
+        cart_coord_t                            center; 
+        logic signed    [ DIST_WIDTH - 1 : 0 ] radius; 
+    } sphere_t; 
 endpackage
