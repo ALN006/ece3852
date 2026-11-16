@@ -23,7 +23,7 @@ package our_logic_types_pkg;
         return a.x * b.x + a.y * b.y + a.z * b.z;
     endfunction
 
-    typedef struct packed {
+    typedef struct {
         logic signed    [ DIST_WIDTH    - 1 : 0 ]   radius;
         logic           [ ANGLE_WIDTH   - 1 : 0 ]   phi; 
         logic           [ ANGLE_WIDTH   - 1 : 0 ]   theta;   
@@ -31,21 +31,21 @@ package our_logic_types_pkg;
 
     // TODO: make sure this meets timing
     function automatic cart_coord_t polar_to_cart(polar_coord_t a);
-        return {
-            DIST_WIDTH'((SIN_AMP_BITS'(a.radius) * SIN_LUT[ a.phi ] * SIN_LUT [ a.theta + 8'd64 ]) >> (2*(SIN_AMP_BITS - 2))),
-            DIST_WIDTH'((SIN_AMP_BITS'(a.radius) * SIN_LUT[ a.phi ] * SIN_LUT [ a.theta ]) >> (2*(SIN_AMP_BITS - 2))),
-            DIST_WIDTH'((SIN_AMP_BITS'(a.radius) * SIN_LUT[ a.phi + 8'd64 ]) >> (SIN_AMP_BITS - 2))
+        return '{
+            x: DIST_WIDTH'((SIN_AMP_BITS'(a.radius) * SIN_LUT[ a.phi ] * SIN_LUT [ a.theta + 8'd64 ]) >> (2*(SIN_AMP_BITS - 2))),
+            y: DIST_WIDTH'((SIN_AMP_BITS'(a.radius) * SIN_LUT[ a.phi ] * SIN_LUT [ a.theta ]) >> (2*(SIN_AMP_BITS - 2))),
+            z: DIST_WIDTH'((SIN_AMP_BITS'(a.radius) * SIN_LUT[ a.phi + 8'd64 ]) >> (SIN_AMP_BITS - 2))
         };
     endfunction
 
-    typedef struct packed { 
-        polar_coord_t                               front_top_left; // from the perspective of the rdius vector to it
+    typedef struct { 
+        polar_coord_t                               v; // front_top_left from the perspective of the rdius vector to it
         logic           [ ANGLE_WIDTH   - 1 : 0 ]   phi_offset;
         logic           [ ANGLE_WIDTH   - 1 : 0 ]   theta_offset;
-        logic           [ DIST_WIDTH    - 1 : 0 ]   depth;
+        logic signed    [ DIST_WIDTH    - 1 : 0 ]   depth;
     } paddle_t;   
 
-    typedef struct packed {
+    typedef struct {
         cart_coord_t                            center; 
         logic signed    [ DIST_WIDTH - 1 : 0 ] radius; 
     } sphere_t; 
