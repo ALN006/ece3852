@@ -1,8 +1,9 @@
+// TODO: complete module rewrite to actually handle collisions
 // TODO: better names
 // TODO: better types
 // TODO: better work efficiency
 // TODO: better logic
-module collision_detector // TODO: confirm that this module meets timing and consider what to do when a module such as this doesnt meet timing (pipeline or slower clock or other)
+module collision_handler // TODO: confirm that this module meets timing and consider what to do when a module such as this doesnt meet timing (pipeline or slower clock or other)
     import our_logic_pkg::*;
     #(  parameter   int                                     PADDLE_COUNT                                                    = 2 )(
         input       paddle_t                                paddles                             [ 0 : PADDLE_COUNT - 1 ],
