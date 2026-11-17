@@ -47,15 +47,17 @@ module occlusion_handling_color_mapper (
 
     // check that our VGA coordinate is within the sphere's circle
         
-        if (((drawX_signed - demo_sphere.center.x)**2 + (drawY_signed - demo_sphere.center.y)**2) < demo_sphere.radius**2) begin
-            perim_z_coord <= $sqrt((demo_sphere.radius)**2 - (drawX_signed - demo_sphere.center.x)**2 - (drawY_signed - demo_sphere.center.y)**2);
-            absolute_z_coord <= demo_sphere.center.z - perim_z_coord;
+        if (((drawX_signed - demo_sphere.center.x)**2 + (drawY_signed - demo_sphere.center.y)**2) < demo_sphere.radius**2) begin // 2D pythagorean theorem, are we within bounds of the circle?
+            perim_z_coord <= $sqrt((demo_sphere.radius)**2 - (drawX_signed - demo_sphere.center.x)**2 - (drawY_signed - demo_sphere.center.y)**2); // 3D pythagorean theorem to determine Z-offset from the center's z-coordinate
+            absolute_z_coord <= demo_sphere.center.z - perim_z_coord; // convert that offset to a Z coordinate referenced to the general space
+            // The light bounce is in the pixel we're drawing, and the z-coordinate in absolute space
             reflect_point.x <= drawX;
             reflect_point.y <= drawY;
             reflect_point.z <= absolute_z_coord;
-            normal_vector.x <= ((drawX_signed - demo_sphere.center.x) > 0) ? (drawX_signed - demo_sphere.center.x) : (demo_sphere.center.x - drawX_signed); // NOTE: find efficient way to take magnitude
-            normal_vector.y <= ((drawY_signed - demo_sphere.center.y) > 0) ? (drawY_signed - demo_sphere.center.y) : (demo_sphere.center.y - drawY_signed); // NOTE: find efficient way to take magnitude
-            normal_vector.z <= perim_z_coord; // by convention of how it's derived, it'll be positive
+            // our normal vector runs from the center of the sphere to our point
+            normal_vector.x <= drawX_signed - demo_sphere.center.x;
+            normal_vector.y <= drawY_signed - demo_sphere.center.y;
+            normal_vector.z <=  0 - perim_z_coord; // Assuming positive Z is into the screen, we need the vector to be biased out towards the screen
             {shader_red, shader_green, shader_blue} = 12'hF;
         end else begin
             {shader_red, shader_green, shader_blue} = 12'h0;
@@ -67,6 +69,7 @@ shading_calc shader (
     .beam_origin,
     .reflect_point,
     .normal_vector,
+    .red(shader_red), .green(shader_green), .blue(shader_blue),
 
     .shaded_red(red), .shaded_green(green), .shaded_blue(blue)
 );
