@@ -1,6 +1,6 @@
 // TODO: consider using unpacked structs 
 // ASSUMPTION: let (240, 240, 240) from the top left of the screen be the origin
-package our_logic_types_pkg;
+package our_logic_pkg;
     `include "sin_lut.svh"
     localparam int DIST_WIDTH   = 10;
 
@@ -39,14 +39,14 @@ package our_logic_types_pkg;
     endfunction
 
     typedef struct { 
-        polar_coord_t                               v; // front_top_left from the perspective of the rdius vector to it
+        polar_coord_t                               v; // front_top_right from the perspective of the rdius vector to it
         logic           [ ANGLE_WIDTH   - 1 : 0 ]   phi_offset;
         logic           [ ANGLE_WIDTH   - 1 : 0 ]   theta_offset;
-        logic signed    [ DIST_WIDTH    - 1 : 0 ]   depth;
+        logic signed    [ DIST_WIDTH    - 1 : 0 ]   radius_offset;
     } paddle_t;   
 
     typedef struct {
         cart_coord_t                            center; 
-        logic signed    [ DIST_WIDTH - 1 : 0 ] radius; 
+        logic signed    [ DIST_WIDTH - 1 : 0 ]  radius; 
     } sphere_t; 
 endpackage

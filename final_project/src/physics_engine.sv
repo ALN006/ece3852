@@ -5,23 +5,23 @@
 // ASSUMPTION: paddles cant collide with each other
 module physics_engine 
     import our_logic_types_pkg::*; // abandon the * import as soon as more than 1 package is ever used because it is a slipery slop
-#(
-    parameter int                                       KEYCODES_PER_PADDLE                                         = 3, 
-    parameter int                                       KEYCODE_WIDTH                                               = 8,   
-    parameter int                                       PADDLE_COUNT                                                = 2,
-    parameter paddle_t                                  PADDLE_AT_RESTART                                           = '{ default: '1},
-    parameter sphere_t                                  BALL_AT_RESTART                                             = '{ default: '1},
-    parameter cart_coord_t                              BALL_RESTART_VELOCITY                                       = '{ default: '1},
-    parameter logic signed [ KEYCODE_WIDTH   - 1 : 0 ]  INPUT_KEYS  [ 0 : PADDLE_COUNT*KEYCODES_PER_PADDLE    - 1 ] = '{ default: '1}
-)(
-    input   logic                                       clk,
-    input   logic                                       reset,
-    input   logic                                       calc_now,
-    input   logic signed [ KEYCODE_WIDTH   - 1 : 0 ]    keycodes    [ 0 : PADDLE_COUNT*KEYCODES_PER_PADDLE  - 1 ],
-    
-    output  sphere_t                                    ball,
-    output  paddle_t                                    paddles     [ 0 : PADDLE_COUNT                      - 1 ]
-);
+    #(
+        parameter int                                       KEYCODES_PER_PADDLE                                         = 3, 
+        parameter int                                       KEYCODE_WIDTH                                               = 8,   
+        parameter int                                       PADDLE_COUNT                                                = 2,
+        parameter paddle_t                                  PADDLE_AT_RESTART                                           = '{ default: '1},
+        parameter sphere_t                                  BALL_AT_RESTART                                             = '{ default: '1},
+        parameter cart_coord_t                              BALL_RESTART_VELOCITY                                       = '{ default: '1},
+        parameter logic signed [ KEYCODE_WIDTH   - 1 : 0 ]  INPUT_KEYS  [ 0 : PADDLE_COUNT*KEYCODES_PER_PADDLE    - 1 ] = '{ default: '1}
+    )(
+        input   logic                                       clk,
+        input   logic                                       reset,
+        input   logic                                       calc_now,
+        input   logic signed [ KEYCODE_WIDTH   - 1 : 0 ]    keycodes    [ 0 : PADDLE_COUNT*KEYCODES_PER_PADDLE  - 1 ],
+        
+        output  sphere_t                                    ball,
+        output  paddle_t                                    paddles     [ 0 : PADDLE_COUNT                      - 1 ]
+    );
     logic prev_calc_now;
     cart_coord_t ball_velocity;
     always @( posedge clk ) begin 
@@ -54,7 +54,7 @@ module physics_engine
                     end
                 end
                 // TODO: write collision logic: if collision change ball velocity accordingly 
-                
+
             end
         end
     end
@@ -90,7 +90,7 @@ module physics_engine
         v[i]    = polar_to_cart(paddles[i].v);
         v1[i]   = polar_to_cart(pv1[i]);
         v2[i]   = polar_to_cart(pv2[i]);
-        v2[i]   = polar_to_cart(pv3[i]);
+        v3[i]   = polar_to_cart(pv3[i]);
 
         d1[i] =  dot(trunc_sub(v1, v), trunc_sub(ball.center, v));
         d2[i] =  dot(trunc_sub(v2, v), trunc_sub(ball.center, v));
