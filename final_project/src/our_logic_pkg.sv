@@ -50,7 +50,7 @@ package our_logic_pkg;
     localparam dist_t   PADDLE_HALF_RADIUS_OFFSET   = DIST_WIDTH'(PADDLE_RADIUS_OFFSET >>> 1);
 
     typedef struct {
-        cart_coord_t center; 
-        dist_t      radius; 
+        cart_coord_t    center; 
+        dist_t          radius; 
     } sphere_t; 
 endpackage

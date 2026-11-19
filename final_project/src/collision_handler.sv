@@ -1,6 +1,4 @@
-// TODO: complete module rewrite to actually handle collisions
-// TODO: better work efficiency
-// TODO: better logic
+// TODO: better collision logic
 // TODO: confirm that this module meets timing and consider what to do when a module such as this doesnt meet timing (pipeline or slower clock or other)
 module collision_handler
     import our_logic_pkg::*;
@@ -14,8 +12,8 @@ module collision_handler
     dot_t           upper_bound_in_theta_dir            [ 0 : PADDLE_COUNT - 1 ];
     dot_t           in_phi_dir                          [ 0 : PADDLE_COUNT - 1 ];
     dot_t           upper_bound_in_phi_dir              [ 0 : PADDLE_COUNT - 1 ];
-    dot_t           ball_distance_from_paddle_center    [ 0 : PADDLE_COUNT - 1 ];
-    cart_coord_t    outward_normal_vector               [ 0 : PADDLE_COUNT - 1 ];
+    dist_t          ball_distance_from_paddle_center    [ 0 : PADDLE_COUNT - 1 ];
+    cart_coord_t    inward_normal_vector                [ 0 : PADDLE_COUNT - 1 ];   //TODO: consider making this an output
     ball_paddle_offset_projections #(
         .PADDLE_COUNT(PADDLE_COUNT) // TODO : confirm this syntax
     ) projections (
@@ -27,51 +25,35 @@ module collision_handler
         .in_phi_dir,
         .upper_bound_in_phi_dir,
         .ball_distance_from_paddle_center,
-        .outward_normal_vector
+        .inward_normal_vector
     );
-    
     logic [ PADDLE_COUNT - 1 : 0 ]   hit;
     logic found [ 0 : PADDLE_COUNT - 1 ]; 
     always_comb begin
-        hit[0] = (
-            ($signed('0)        < in_theta_dir[0])                                                                          &&
-            (in_theta_dir[0]    < upper_bound_in_theta_dir[0])                                                              &&
-            ($signed('0)        < in_phi_dir[0])                                                                            &&
-            (in_phi_dir[0]      < upper_bound_in_phi_dir[0])                                                                &&
-            (-(ball.radius + PADDLE_HALF_RADIUS_OFFSET) < dist_t'(ball_distance_from_paddle_center[0] >> DIST_WIDTH - 2))   &&
-            ( dist_t'(ball_distance_from_paddle_center[0] >> DIST_WIDTH - 2) < (ball.radius + PADDLE_HALF_RADIUS_OFFSET))
+        next_ball_velocity = current_ball_velocity;
+        hit[0] = (( '0              < in_theta_dir[0])                                                                          
+            &&  (   in_theta_dir[0] < upper_bound_in_theta_dir[0])                                                              
+            &&  (   '0              < in_phi_dir[0])                                                                            
+            &&  (   in_phi_dir[0]   < upper_bound_in_phi_dir[0])                                                                
+            &&  (-(ball.radius + PADDLE_HALF_RADIUS_OFFSET) < ball_distance_from_paddle_center[0])  
+            &&  ( ball_distance_from_paddle_center[0] < (ball.radius + PADDLE_HALF_RADIUS_OFFSET))
         );
-        for (int i = 0; i < PADDLE_COUNT; i++) found[i] = &{hit[i:0]}; // Interesting choice, dk if synthesizer will optimize away
+        found[0] = hit[0];
         for (int i = 1; i < PADDLE_COUNT; i++) begin
-            hit[i] = (
-                ($signed('0)        < in_theta_dir[i])                                                                          &&
-                (in_theta_dir[i]    < upper_bound_in_theta_dir[i])                                                              &&
-                ($signed('0)        < in_phi_dir[i])                                                                            &&
-                (in_phi_dir[i]      < upper_bound_in_phi_dir[i])                                                                &&
-                (-(ball.radius + PADDLE_HALF_RADIUS_OFFSET) < dist_t'(ball_distance_from_paddle_center[0] >> DIST_WIDTH - 2))   &&
-                ( dist_t'(ball_distance_from_paddle_center[0] >> DIST_WIDTH - 2) < (ball.radius + PADDLE_HALF_RADIUS_OFFSET))   &&
-                ~found[i-1] // TODO: this collision resolution may not meet timing, maybe think of another way
+            hit[i] = (( '0              < in_theta_dir[i])                                                                          
+                &&  (   in_theta_dir[i] < upper_bound_in_theta_dir[i])                                                              
+                &&  (   '0              < in_phi_dir[0])                                                                            
+                &&  (   in_phi_dir[0]   < upper_bound_in_phi_dir[0])                                                                
+                &&  (-(ball.radius + PADDLE_HALF_RADIUS_OFFSET) < ball_distance_from_paddle_center[0])  
+                &&  ( ball_distance_from_paddle_center[0] < (ball.radius + PADDLE_HALF_RADIUS_OFFSET))
+                &&  ~found[i-1] // TODO: this collision resolution may not meet timing, maybe think of another way
             );
+            found[i] = hit[i] | found[i-1]; // TODO: check if this meets timing
         end
-        if (found[PADDLE_COUNT - 1] == 1'b1) begin
-            for (int i = 1; i < PADDLE_COUNT; i++) begin
-                if (hit[i] == 1'b1) 
-                    if (dist_t'(ball_distance_from_paddle_center[0] >> DIST_WIDTH - 2) > $signed(0)) begin
-                        next_ball_velocity = trunc_add(current_ball_velocity, '{
-                                x: dist_t'((2 * (outward_normal_vector[i].x ) * dot( outward_normal_vector[i] , current_ball_velocity )) >> ( 2*DIST_WIDTH - 4)),
-                                y: dist_t'((2 * (outward_normal_vector[i].y ) * dot( outward_normal_vector[i] , current_ball_velocity )) >> ( 2*DIST_WIDTH - 4)),
-                                z: dist_t'((2 * (outward_normal_vector[i].z ) * dot( outward_normal_vector[i] , current_ball_velocity )) >> ( 2*DIST_WIDTH - 4))
-                            });
-                    end else begin 
-                        next_ball_velocity = trunc_add(current_ball_velocity, '{
-                                x: dist_t'((2 * (-outward_normal_vector[i].x ) * dot( -outward_normal_vector[i] , current_ball_velocity )) >> ( 2*DIST_WIDTH - 4)),
-                                y: dist_t'((2 * (-outward_normal_vector[i].y ) * dot( -outward_normal_vector[i] , current_ball_velocity )) >> ( 2*DIST_WIDTH - 4)),
-                                z: dist_t'((2 * (-outward_normal_vector[i].z ) * dot( -outward_normal_vector[i] , current_ball_velocity )) >> ( 2*DIST_WIDTH - 4))
-                            });
-                    end
-            end
-        end else begin 
-            next_ball_velocity = current_ball_velocity;
-        end
+        for (int i = 0; i < PADDLE_COUNT; i++) if (hit[i] == 1'b1) next_ball_velocity = trunc_add(current_ball_velocity, '{
+                x: dist_t'((-2 * (inward_normal_vector[i].x ) * dot( inward_normal_vector[i] , current_ball_velocity )) >> ( 2*DIST_WIDTH - 2)),
+                y: dist_t'((-2 * (inward_normal_vector[i].y ) * dot( inward_normal_vector[i] , current_ball_velocity )) >> ( 2*DIST_WIDTH - 2)),
+                z: dist_t'((-2 * (inward_normal_vector[i].z ) * dot( inward_normal_vector[i] , current_ball_velocity )) >> ( 2*DIST_WIDTH - 2))
+            });
     end
 endmodule
