@@ -20,7 +20,7 @@ module ball_paddle_offset_projections
     always_comb for (int i = 0; i < PADDLE_COUNT; i++) begin
         paddles_in_cart[i]          = polar_to_cart(paddles[i]);
         outward_normal_vector[i]    = polar_to_cart('{
-                radius: PADDLE_RADIUS_OFFSET,
+                radius: DIST_WIDTH'(1 << (DIST_WIDTH - 2)),
                 theta:  paddles[i].theta    + PADDLE_HALF_THETA_OFFSET,
                 phi:    paddles[i].phi      + PADDLE_HALF_PHI_OFFSET
             });
@@ -47,7 +47,7 @@ module ball_paddle_offset_projections
                     })),
             outward_normal_vector[i]
         );
-        ball_offset_vector[i]       = trunc_sub(ball.center, paddles[i]);
+        ball_offset_vector[i]       = trunc_sub(ball.center, paddles_in_cart[i]);
         in_theta_dir[i]             = dot(theta_offset_vector[i],   ball_offset_vector[i]);
         upper_bound_in_theta_dir[i] = dot(theta_offset_vector[i],   theta_offset_vector[i]);
         in_phi_dir[i]               = dot(phi_offset_vector[i],     ball_offset_vector[i]);
