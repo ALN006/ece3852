@@ -11,6 +11,7 @@ module occlusion_handling_color_mapper #(
     parameter int PADDLE_COUNT          = 2
 )(
     input   logic                                   pix_clk,
+    input   logic                                   speed_clk,
     // input   logic                                   draw_now,
     // input   logic [ 3 * COLOR_BITS      - 1 : 0 ]   read_data           [ 0 : MAX_OBJS_ON_SCREEN    - 1 ],
     // input   logic [ COORD_BITS          - 1 : 0 ]   obj_coords          [ 0 : 4*MAX_OBJS_ON_SCREEN  - 1 ],
@@ -86,6 +87,7 @@ shading_calc shader (
 );
 
 sqrt square_root (
+    .clk(speed_clk),
     .square((demo_sphere.radius)**2 - (drawX_signed - demo_sphere.center.x)**2 - (drawY_signed - demo_sphere.center.y)**2),
     .result(perim_z_coord)
 );
