@@ -1,43 +1,49 @@
-// Source: https://www.geeksforgeeks.org/dsa/find-square-root-of-a-number-using-bit-manipulation/
+// Reference: https://www.geeksforgeeks.org/dsa/find-input_number-root-of-a-number-using-bit-manipulation/
+module sqrt
+    #(  parameter   int                         INPUT_WIDTH     = 32,
+        localparam  int                         SOLUTION_WIDTH  = (INPUT_WIDTH+1)/2 )(
+        input       logic [INPUT_WIDTH-1:0]     input_number,
+        input       logic                       clk,
+        input       logic                       req,
+        input       logic                       reset,
+        output      logic                       done,
+        output      logic [SOLUTION_WIDTH-1:0]  result
+    );
+    logic [ SOLUTION_WIDTH - 1 : 0 ] in_consideration; 
+    assign in_consideration = result | current_bit;
 
-module sqrt#(
-    parameter int COORD_BITS = 32,
-    localparam int SOLUTION_BITS = (COORD_BITS+1)/2
-)(
-    input logic [COORD_BITS-1:0] square,
-    input logic clk,
-    output logic [SOLUTION_BITS-1:0] result
-);
-
-
-always_ff @(posedge clk) begin
-    if (last_square != square & i < 0) begin // allow the system to self-restart when a new input is provided
-        i = SOLUTION_BITS - 1;
-    end
-    if (i >= 0) begin
-        if ((2**i + result)**2 > square) begin
-            result = result;
+    logic [ SOLUTION_WIDTH - 1 : 0 ] current_bit; 
+    always_ff @(posedge clk) begin
+        if (reset == 1'b1) begin 
+            {current_bit} <='0;
+            {done} <= '1;
         end else begin
-            result = result + 2**i;
+            current_bit <= current_bit >> 1;
+            if (done == 1'b1) begin 
+                if ( req == 1'b1 ) begin
+                    current_bit[SOLUTION_WIDTH - 1] <= 1'b1;
+                    {result, done} <= '0;
+                end else begin
+                    done <= done;
+                    result <= result;
+                    current_bit <= current_bit;
+                end
+            end else begin 
+                if (in_consideration * in_consideration > input_number) begin
+                    result <= result;
+                end else begin
+                    result <= in_consideration;
+                end
+                if (current_bit[0] == 1'b1) begin
+                    done <= 1'b1;
+                end else begin 
+                    done <= done;
+                end
+            end
         end
-        i <= i - 1;
     end
-    last_square <= square;
-end
 
-
-always_comb begin // implements a set of cascading muxes, small enough to be fine
-
-    result = '0;
-//                                      '{{{11{ir[4]}},ir[4:0]}
-    for (integer i = SOLUTION_BITS-1; i >= 0; i--) begin
-        if ((2**i + result)**2 > square) begin
-            result = result;
-        end else begin
-            result = result + 2**i;
-        end
-    end
-end
-
-
+	`ifdef FORMAL // TODO: come back and write this properly later
+		always @(*) assert(result == $sqrt(input_number));
+	`endif
 endmodule

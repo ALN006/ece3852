@@ -91,5 +91,4 @@ sqrt square_root (
     .square((demo_sphere.radius)**2 - (drawX_signed - demo_sphere.center.x)**2 - (drawY_signed - demo_sphere.center.y)**2),
     .result(perim_z_coord)
 );
-
 endmodule

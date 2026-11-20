@@ -1,3 +1,4 @@
+/* verilator lint_off UNUSEDPARAM */
 // TODO: consider using unpacked structs 
 // ASSUMPTION: let (240, 240, 240) from the top left of the screen be the origin
 package our_logic_pkg;
@@ -30,7 +31,7 @@ package our_logic_pkg;
         return a.x * b.x + a.y * b.y + a.z * b.z;
     endfunction
 
-    function automatic area_t cross(cart_2d_coord_t a, cart_2d_coord_t b);
+    function automatic area_t cross_2d(cart_2d_coord_t a, cart_2d_coord_t b);
         return a.x * b.y - a.y * b.x;
     endfunction
 
