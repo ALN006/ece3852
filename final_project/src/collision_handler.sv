@@ -1,3 +1,4 @@
+// TODO: HIGH PRIORTY, INVESTIGATE: it seems to me based physics_engine.sv that this code will yield an inifinate spped up glitch, not good
 // TODO: better collision logic
 // TODO: confirm that this module meets timing and consider what to do when a module such as this doesnt meet timing (pipeline or slower clock or other)
 module collision_handler
@@ -15,7 +16,7 @@ module collision_handler
     dist_t          ball_distance_from_paddle_center    [ 0 : PADDLE_COUNT - 1 ];
     cart_coord_t    inward_normal_vector                [ 0 : PADDLE_COUNT - 1 ];   //TODO: consider making this an output
     ball_paddle_offset_projections #(
-        .PADDLE_COUNT(PADDLE_COUNT) // TODO : confirm this syntax
+        .PADDLE_COUNT(PADDLE_COUNT)
     ) projections (
         .paddles,
         .ball,
@@ -50,6 +51,7 @@ module collision_handler
             );
             found[i] = hit[i] | found[i-1]; // TODO: check if this meets timing
         end
+        // TODO: INVESTIGATE: what does the bellow code syntjesize too, is it a chain of muxes ?
         for (int i = 0; i < PADDLE_COUNT; i++) if (hit[i] == 1'b1) next_ball_velocity = trunc_add(current_ball_velocity, '{
                 x: dist_t'((-2 * (inward_normal_vector[i].x ) * dot( inward_normal_vector[i] , current_ball_velocity )) >> ( 2*DIST_WIDTH - 2)),
                 y: dist_t'((-2 * (inward_normal_vector[i].y ) * dot( inward_normal_vector[i] , current_ball_velocity )) >> ( 2*DIST_WIDTH - 2)),
