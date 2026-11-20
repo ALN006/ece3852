@@ -6,13 +6,17 @@ package our_logic_pkg;
     typedef logic signed    [ DIST_WIDTH    - 1 : 0 ] dist_t;
     typedef logic signed    [ 2*DIST_WIDTH  + 1 : 0 ] dot_t;
     typedef logic           [ ANGLE_WIDTH   - 1 : 0 ] angle_t;
+    typedef logic signed    [ 2*DIST_WIDTH      : 0 ] area_t;
 
-    // TODO: figure out which of these abstractions to actually use
+    typedef struct {
+        dist_t  x;
+        dist_t  y;
+    } cart_2d_coord_t;
     typedef struct {
         dist_t   x;
         dist_t   y;
         dist_t   z;
-    } cart_coord_t;
+    } cart_coord_t; 
     function automatic cart_coord_t trunc_add(cart_coord_t a, cart_coord_t b);
         return '{x: DIST_WIDTH'(a.x + b.x), y: DIST_WIDTH'(a.y + b.y), z: DIST_WIDTH'(a.z + b.z) };
     endfunction
@@ -24,6 +28,10 @@ package our_logic_pkg;
     // TODO: check wether the bellow function meets timing and consider introducing a dot_t
     function automatic dot_t dot(cart_coord_t a, cart_coord_t b);
         return a.x * b.x + a.y * b.y + a.z * b.z;
+    endfunction
+
+    function automatic area_t cross(cart_2d_coord_t a, cart_2d_coord_t b);
+        return a.x * b.y - a.y * b.x;
     endfunction
 
     typedef struct {
