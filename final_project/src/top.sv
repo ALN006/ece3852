@@ -4,7 +4,10 @@
 // TODO: determine if we want to GPIO or direct AXI_slave
 module top (
     input logic     clk,
-    input logic     reset,  // TODO: figure out if this should be active low or asynchronous
+    input logic     reset_rtl_0,  // TODO: figure out if this should be active low or asynchronous
+    
+    output logic hdmi_tmds_clk_n, hdmi_tmds_clk_p,
+    output logic [2:0] hdmi_tmds_tx_n, hdmi_tmds_tx_p
     // TODO: consider taking buttons or switches 
 
     // TODO: add hex seg displays eventually 
@@ -12,18 +15,6 @@ module top (
     // TODO: consider adding LEDs 
 ); 
     // TODO: finish instantiating our logic
-    our_logic #(
-        .MAX_SIMULTAENEOUS_KEYCODES
-        .KEYCODE_WIDTH
-    ) 3d_polar_pong_logic (
-        .clk,
-        .pix_clk,
-        .draw_now,
-        .drawX, .drawY,
-        .keycodes({keycode0_gpio[7:0], keycode0_gpio[15:8], keycode0_gpio[23:16], keycode0_gpio[31:24], keycode1_gpio[0:7], keycode1_gpio[15:8]}),
-
-        .red, .green, .blue
-    );
 
     clk_wiz_0 clk_wiz (
         .reset,
@@ -35,7 +26,7 @@ module top (
 
     vga_controller vga (
         .pixel_clk(clk_25MHz),
-        .reset,
+        .reset_a(reset),
         .hs(hsync),
         .vs(vsync),
         .active_nblank(vde),
@@ -68,25 +59,43 @@ module top (
         //Differential outputs
         .TMDS_CLK_P(hdmi_tmds_clk_p),          
         .TMDS_CLK_N(hdmi_tmds_clk_n),          
-        .TMDS_DATA_P(hdmi_tmds_data_p),         
-        .TMDS_DATA_N(hdmi_tmds_data_n)          
+        .TMDS_DATA_P(hdmi_tmds_tx_p),         
+        .TMDS_DATA_N(hdmi_tmds_tx_n)          
     );
 
-    logic [31:0] keycode0_gpio, keycode1_gpio;
+//    logic [31:0] keycode0_gpio, keycode1_gpio;
 
-    mb_block mb_block_i (
-        .clk_100MHz(Clk),
-        .gpio_usb_int_tri_i(gpio_usb_int_tri_i),
-        .gpio_usb_keycode_0_tri_o(keycode0_gpio),
-        .gpio_usb_keycode_1_tri_o(keycode1_gpio),
-        .gpio_usb_rst_tri_o(gpio_usb_rst_tri_o),
-        .reset_rtl_0(~reset), //Block designs expect active low reset, all other modules are active high
-        .uart_rtl_0_rxd(uart_rtl_0_rxd),
-        .uart_rtl_0_txd(uart_rtl_0_txd),
-        .usb_spi_miso(usb_spi_miso),
-        .usb_spi_mosi(usb_spi_mosi),
-        .usb_spi_sclk(usb_spi_sclk),
-        .usb_spi_ss(usb_spi_ss)
+    logic [31:0] square;
+    occlusion_handling_color_mapper color_mapper (
+        .drawX, .drawY,
+        .pix_clk(clk_25MHz),
+        .overall_mag,
+
+        .red, .green, .blue,
+        .square
     );
     
+    logic out_valid;
+    logic [31:0] overall_mag;
+    fast_inv_sqrt fast_sqrt (
+        .clk,
+        .rst_n(~reset_rtl_0),
+        .in_valid,
+        .in_u(square),
+
+        .out_valid,
+        .out_u(overall_mag)
+    );
+
+    logic [31:0] last_square;
+    logic in_valid;
+    always_ff @(posedge clk) begin
+        if (last_square == square) begin
+            in_valid = 1'b0;
+        end else begin
+            in_valid = 1'b1;
+        end
+        last_square <= square;
+    end
+
 endmodule
