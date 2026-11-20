@@ -69,6 +69,7 @@ module top (
     occlusion_handling_color_mapper color_mapper (
         .drawX, .drawY,
         .pix_clk(clk_25MHz),
+        .speed_clk(clk_125MHz),
         .overall_mag,
 
         .red, .green, .blue,

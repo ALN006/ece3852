@@ -34,6 +34,7 @@ module shading_calc #(
         beam_vector.y = beam_origin.y - reflect_point.y;
         beam_vector.z = beam_origin.z - reflect_point.z;
         dot_product = beam_vector.x*normal_vector.x + beam_vector.y*normal_vector.y + beam_vector.z*normal_vector.z;
+        
         // approximate division, 32-bit true division in a 40ns clock period would be tricky
         if (dot_product > 0) begin
             for (int i = 15; i >= 0; i--) begin
