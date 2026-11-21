@@ -42,7 +42,8 @@ module ball_paddle_offset_projections
             dot(trunc_sub(
                     ball.center,
                     polar_to_cart('{ //TODO: CONSIDER: this need not be the center of our frustum, its an approximation that breaks with bigger angles
-                            radius: paddles[i].radius   + PADDLE_HALF_RADIUS_OFFSET,
+                            // DIST_WIDTH'((SIN_AMP_BITS'(2*paddles[i].radius) * SIN_LUT[ PADDLE_HALF_THETA_OFFSET ] * SIN_LUT [ PADDLE_HALF_THETA_OFFSET >> 1 ]) >> (2*(SIN_AMP_BITS - 2)))
+                            radius: paddles[i].radius   + PADDLE_HALF_RADIUS_OFFSET - 2*paddles[i].radius*,
                             theta:  paddles[i].theta    + PADDLE_HALF_THETA_OFFSET,
                             phi:    paddles[i].phi      + PADDLE_HALF_PHI_OFFSET
                         })),

@@ -32,6 +32,7 @@ module physics_engine
                 ball.center <= trunc_add(ball.center, ball_velocity);
                 ball_velocity <= next_ball_velocity;
                 // TODO: strongly consider making this part its own module, i dont imagine this will work rn, go to OH about what to do for this
+                // I'm afraid I don't understand the intended behavior of the keycode passing...may re-write this, clarify tomorrow
                 for (int i = 0; i < PADDLE_COUNT; i++) begin 
                     if (keycodes[KEYCODES_PER_PADDLE*i] == INPUT_KEYS[KEYCODES_PER_PADDLE*i ]) begin
                         paddles[i].radius <= paddles[i].radius + DIST_WIDTH'(1);
