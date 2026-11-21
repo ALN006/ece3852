@@ -12,7 +12,7 @@ module physics_engine
         parameter sphere_t                                  BALL_AT_RESTART                                             = '{ default: '1},
         parameter cart_coord_t                              BALL_RESTART_VELOCITY                                       = '{ default: '1},
         parameter logic signed [ KEYCODE_WIDTH   - 1 : 0 ]  INPUT_KEYS  [ 0 : PADDLE_COUNT*KEYCODES_PER_PADDLE    - 1 ] = '{ default: '1}  )(
-        input   logic                                       clk,
+        input   logic                                       clk,    // TODO: dont make this a frame clock but pass a new frame input
         input   logic                                       reset,
         input   logic                                       calc_now,
         input   logic signed [ KEYCODE_WIDTH   - 1 : 0 ]    keycodes    [ 0 : PADDLE_COUNT*KEYCODES_PER_PADDLE  - 1 ],

@@ -1,4 +1,4 @@
-// TODO: HIGH PRIORTY, INVESTIGATE: it seems to me based physics_engine.sv that this code will yield an inifinate spped up glitch, not good
+// TODO: HIGH PRIORTY, INVESTIGATE: it seems to me based on physics_engine.sv that this code will yield an inifinate speed up glitch, not good
 // TODO: better collision logic
 // TODO: confirm that this module meets timing and consider what to do when a module such as this doesnt meet timing (pipeline or slower clock or other)
 module collision_handler
@@ -14,7 +14,7 @@ module collision_handler
     dot_t           in_phi_dir                          [ 0 : PADDLE_COUNT - 1 ];
     dot_t           upper_bound_in_phi_dir              [ 0 : PADDLE_COUNT - 1 ];
     dist_t          ball_distance_from_paddle_center    [ 0 : PADDLE_COUNT - 1 ];
-    cart_coord_t    inward_normal_vector                [ 0 : PADDLE_COUNT - 1 ];   //TODO: consider making this an output
+    cart_coord_t    inward_normal_vector                [ 0 : PADDLE_COUNT - 1 ];   //TODO: CONSIDER: making this an output
     ball_paddle_offset_projections #(
         .PADDLE_COUNT(PADDLE_COUNT)
     ) projections (

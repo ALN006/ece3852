@@ -3,11 +3,13 @@
 // ASSUMPTION: let (240, 240, 240) from the top left of the screen be the origin
 package our_logic_pkg;
     `include "sin_lut.svh"
-    localparam int DIST_WIDTH   = 10;
-    typedef logic signed    [ DIST_WIDTH    - 1 : 0 ] dist_t;
-    typedef logic signed    [ 2*DIST_WIDTH  + 1 : 0 ] dot_t;
-    typedef logic           [ ANGLE_WIDTH   - 1 : 0 ] angle_t;
-    typedef logic signed    [ 2*DIST_WIDTH      : 0 ] area_t;
+    localparam  int                                         DIST_WIDTH  = 10;
+    typedef     logic signed    [ DIST_WIDTH    - 1 : 0 ]   dist_t;
+    typedef     logic signed    [ 2*DIST_WIDTH  + 1 : 0 ]   dot_t;
+    typedef     logic           [ ANGLE_WIDTH   - 1 : 0 ]   angle_t;
+    typedef     logic signed    [ 2*DIST_WIDTH      : 0 ]   det_t;
+    localparam  angle_t                                     HALF_PI     = angle_t'(1 << ( ANGLE_WIDTH-1 -2 ));
+    localparam  angle_t                                     PI          = angle_t'(1 << ( ANGLE_WIDTH-1 -1 ));
 
     typedef struct {
         dist_t  x;
@@ -31,10 +33,14 @@ package our_logic_pkg;
         return a.x * b.x + a.y * b.y + a.z * b.z;
     endfunction
 
-    function automatic area_t cross_2d(cart_2d_coord_t a, cart_2d_coord_t b);
+    function automatic det_t det_2d(cart_2d_coord_t a, cart_2d_coord_t b);
         return a.x * b.y - a.y * b.x;
     endfunction
-
+    
+    typedef struct {
+        dist_t  radius;
+        angle_t theta;   
+    } polar_2d_coord_t;
     typedef struct {
         dist_t  radius;
         angle_t phi; 
@@ -44,9 +50,9 @@ package our_logic_pkg;
     // TODO: make sure this meets timing
     function automatic cart_coord_t polar_to_cart(polar_coord_t a);
         return '{
-            x: DIST_WIDTH'((SIN_AMP_BITS'(a.radius) * SIN_LUT[ a.phi ] * SIN_LUT [ a.theta + 8'd64 ]) >> (2*(SIN_AMP_BITS - 2))),
-            y: DIST_WIDTH'((SIN_AMP_BITS'(a.radius) * SIN_LUT[ a.phi ] * SIN_LUT [ a.theta ]) >> (2*(SIN_AMP_BITS - 2))),
-            z: DIST_WIDTH'((SIN_AMP_BITS'(a.radius) * SIN_LUT[ a.phi + 8'd64 ]) >> (SIN_AMP_BITS - 2))
+            x: DIST_WIDTH'((SIN_AMP_BITS'(a.radius) * SIN_LUT[ a.phi ] * SIN_LUT [ a.theta + HALF_PI ]) >>> (2*(SIN_AMP_BITS - 2))),
+            y: DIST_WIDTH'((SIN_AMP_BITS'(a.radius) * SIN_LUT[ a.phi ] * SIN_LUT [ a.theta ]) >>> (2*(SIN_AMP_BITS - 2))),
+            z: DIST_WIDTH'((SIN_AMP_BITS'(a.radius) * SIN_LUT[ a.phi + HALF_PI ]) >>> (SIN_AMP_BITS - 2))
         };
     endfunction
 
