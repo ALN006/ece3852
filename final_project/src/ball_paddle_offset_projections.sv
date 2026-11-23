@@ -38,13 +38,15 @@ module ball_paddle_offset_projections
                 }),
             paddles_in_cart[i]
         );
+        PADDLE_THETA_RADIUS_FIX = DIST_WIDTH'((SIN_AMP_BITS'(2*paddles[i].radius) * SIN_LUT[ PADDLE_HALF_THETA_OFFSET ] * SIN_LUT [ PADDLE_HALF_THETA_OFFSET >> 1 ]) >> (2*(SIN_AMP_BITS - 2)));
+        PADDLE_PHI_RADIUS_FIX = DIST_WIDTH'((SIN_AMP_BITS'(2*paddles[i].radius) * SIN_LUT[ PADDLE_HALF_PHI_OFFSET ] * SIN_LUT [ PADDLE_HALF_PHI_OFFSET >> 1 ]) >> (2*(SIN_AMP_BITS - 2)));
         ball_distance_from_paddle_center[i] = dist_t'(
             dot(
                 trunc_sub(
                     ball.center,
                     polar_to_cart('{ //TODO: CONSIDER: this need not be the center of our frustum, its an approximation that breaks with bigger angles
                             // DIST_WIDTH'((SIN_AMP_BITS'(2*paddles[i].radius) * SIN_LUT[ PADDLE_HALF_THETA_OFFSET ] * SIN_LUT [ PADDLE_HALF_THETA_OFFSET >> 1 ]) >> (2*(SIN_AMP_BITS - 2)))
-                            radius: paddles[i].radius   + PADDLE_HALF_RADIUS_OFFSET - 2*paddles[i].radius*,
+                            radius: paddles[i].radius   + PADDLE_HALF_RADIUS_OFFSET - PADDLE_THETA_RADIUS_FIX - PADDLE_PHI_RADIUS_FIX,
                             theta:  paddles[i].theta    + PADDLE_HALF_THETA_OFFSET,
                             phi:    paddles[i].phi      + PADDLE_HALF_PHI_OFFSET
                         })),

@@ -24,6 +24,8 @@ module top (
         .clk_out1(clk_25MHz), .clk_out2(clk_125MHz)
     ); 
 
+    logic hsync, vsync, vde;
+    logic [9:0] drawX, drawY;
     vga_controller vga (
         .pixel_clk(clk_25MHz),
         .reset_a(reset),
@@ -65,38 +67,16 @@ module top (
 
 //    logic [31:0] keycode0_gpio, keycode1_gpio;
 
-    logic [31:0] square;
-    occlusion_handling_color_mapper color_mapper (
-        .drawX, .drawY,
-        .pix_clk(clk_25MHz),
-        .speed_clk(clk_125MHz),
-        .overall_mag,
-
-        .red, .green, .blue,
-        .square
-    );
-    
-    logic out_valid;
-    logic [31:0] overall_mag;
-    fast_inv_sqrt fast_sqrt (
+    logic [3:0] red, green, blue; // TODO: get `color_bits defined throughout our modules
+    our_logic ours (
         .clk,
-        .rst_n(~reset_rtl_0),
-        .in_valid,
-        .in_u(square),
+        .pix_clk(clk_25MHz),
+        .frame_clk(vsync),
+        .draw_now, // TODO: figure out what this needs
+        .drawX, .drawY,
+        .keycodes // TODO: set up the structure to pull these from MicroBlaze GPIOs akin to Lab 6
 
-        .out_valid,
-        .out_u(overall_mag)
+        .red, .green, .blue
     );
-
-    logic [31:0] last_square;
-    logic in_valid;
-    always_ff @(posedge clk) begin
-        if (last_square == square) begin
-            in_valid = 1'b0;
-        end else begin
-            in_valid = 1'b1;
-        end
-        last_square <= square;
-    end
 
 endmodule

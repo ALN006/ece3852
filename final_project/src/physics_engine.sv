@@ -13,6 +13,7 @@ module physics_engine
         parameter cart_coord_t                              BALL_RESTART_VELOCITY                                       = '{ default: '1},
         parameter logic signed [ KEYCODE_WIDTH   - 1 : 0 ]  INPUT_KEYS  [ 0 : PADDLE_COUNT*KEYCODES_PER_PADDLE    - 1 ] = '{ default: '1}  )(
         input   logic                                       clk,    // TODO: dont make this a frame clock but pass a new frame input
+        input   logic                                       frame_clk,
         input   logic                                       reset,
         input   logic                                       calc_now,
         input   logic signed [ KEYCODE_WIDTH   - 1 : 0 ]    keycodes    [ 0 : PADDLE_COUNT*KEYCODES_PER_PADDLE  - 1 ],
@@ -21,7 +22,7 @@ module physics_engine
     );
     logic prev_calc_now;
     cart_coord_t ball_velocity;
-    always @( posedge clk ) begin 
+    always @( posedge frame_clk ) begin 
         prev_calc_now <= calc_now;
         if (reset == 1'b1) begin 
             ball            <= BALL_AT_RESTART;

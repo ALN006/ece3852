@@ -7,14 +7,14 @@ module collision_handler
         input       polar_coord_t   paddles                 [ 0 : PADDLE_COUNT - 1 ],
         input       sphere_t        ball,
         input       cart_coord_t    current_ball_velocity,
-        output      cart_coord_t    next_ball_velocity
+        output      cart_coord_t    next_ball_velocity,
+        output      cart_coord_t    inward_normal_vector    [ 0 : PADDLE_COUNT - 1 ];   //TODO: make sure switching this an output was a good idea
     );
     dot_t           in_theta_dir                        [ 0 : PADDLE_COUNT - 1 ];
     dot_t           upper_bound_in_theta_dir            [ 0 : PADDLE_COUNT - 1 ];
     dot_t           in_phi_dir                          [ 0 : PADDLE_COUNT - 1 ];
     dot_t           upper_bound_in_phi_dir              [ 0 : PADDLE_COUNT - 1 ];
     dist_t          ball_distance_from_paddle_center    [ 0 : PADDLE_COUNT - 1 ];
-    cart_coord_t    inward_normal_vector                [ 0 : PADDLE_COUNT - 1 ];   //TODO: CONSIDER: making this an output
     ball_paddle_offset_projections #(
         .PADDLE_COUNT(PADDLE_COUNT)
     ) projections (
