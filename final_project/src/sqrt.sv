@@ -18,7 +18,6 @@ module sqrt
             {current_bit} <='0;
             {done} <= '1;
         end else begin
-            current_bit <= current_bit >> 1;
             if (done == 1'b1) begin 
                 if ( req == 1'b1 ) begin
                     current_bit[SOLUTION_WIDTH - 1] <= 1'b1;
@@ -29,6 +28,7 @@ module sqrt
                     current_bit <= current_bit;
                 end
             end else begin 
+                current_bit <= { 1'b0, current_bit[ SOLUTION_WIDTH - 1 : 1 ]};
                 if (in_consideration * in_consideration > input_number) begin
                     result <= result;
                 end else begin
