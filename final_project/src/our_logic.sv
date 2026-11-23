@@ -4,11 +4,12 @@ module our_logic #(
 )(
     input   logic                               clk,
     input   logic                               pix_clk,
+    input   logic                               frame_clk,
     input   logic                               draw_now,
-    input   logic [ `coord_bits     - 1 : 0 ]   drawX, drawY,
+    input   logic [ `coord_bits     - 1 : 0 ]   drawX, drawY, // Is this not a standardized 10 bits from the VGA controller?
     input   logic [ KEYCODE_WIDTH   - 1 : 0 ]   keycodes        [ 0 : MAX_SIMULTAENEOUS_KEYCODES    - 1],
 
-    output  logic [ `color_bits     - 1 : 0 ]   red, green, blue
+    output  logic [ `color_bits     - 1 : 0 ]   red, green, blue // TODO: actually define `color_bits properly
 );
     logic [ `address_bits   - 1 : 0 ] read_addresses    [ 0 : `max_objs_on_screen - 1 ];
     occlusion_handling_color_mapper #(
@@ -32,10 +33,11 @@ module our_logic #(
     physics_engine # (
         .ADDRESS_BITS(`address_bits),
         .COLOR_BITS(`color_bits),
-        .COORD_BITS(`coord_bihts),
+        .COORD_BITS(`coord_bits),
         .MAX_OBJS_ON_SCREEN(`max_objs_on_screen)  
     ) frame_gen_logic (   // TODO: implement everything but occlusion handling here 
         .clk,
+        .frame_clk,
         .draw_now,
         .keycodes,
         
