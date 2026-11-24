@@ -1,18 +1,26 @@
 module light_vector 
     import our_logic_pkg::*;
-    #(  parameter   polar_2d_coord_t    xy_lower_bound  = '{ radius: (1 << DIST_WIDTH - 1), theta: '0 },
-        parameter   polar_2d_coord_t    xy_upper_bound  = '{ radius: (1 << DIST_WIDTH - 1), theta: PI },
-        parameter   polar_2d_coord_t    zx_lower_bound  = '{ radius: (1 << DIST_WIDTH - 1), theta: '0 },
-        parameter   polar_2d_coord_t    zx_upper_bound  = '{ radius: (1 << DIST_WIDTH - 1), theta: PI } 
-        localparam  integer             xy_cycles       = $clog2(xy_upper_bound.theta),
-        localparam  integer             zx_cycles       = $clog2(xy_upper_bound.theta)  )(
+    #(  parameter   dist_t              unit_radius         = (1 << DIST_WIDTH - 1);
+        parameter   angle_t             theta_lower_bound   = '0,
+        parameter   angle_t             theta_upper_bound   = PI,
+        parameter   angle_t             phi_lower_bound     = '0,
+        parameter   polar_2d_coord_t    phi_upper_bound     = PI,
+        localparam  integer             xy_cycles           = $clog2(theta_upper_bound),
+        localparam  integer             zx_cycles           = $clog2(phi_upper_bound)  )(
         input       logic               clk,
         input       cart_coord_t        beam_origin,
         input       cart_coord_t        surface_point,
         input       logic               req,
+        input       logic               reset,
         output      logic               done,
-        output      cart_coord_t        light_unit_vector
+        output      polar_coord_t       light_unit_vector
     );
+    assign done = phi_found & theta_found;
+    assign light_unit_vector = '{
+        radius: unit_radius,
+        theta:  theta,
+        phi:    phi,
+    };
     cart_coord_t    point_offset_beam_origin;
     cart_2d_coord_t point_offset_beam_origin_xy;
     cart_2d_coord_t point_offset_beam_origin_zx;
@@ -23,17 +31,40 @@ module light_vector
             y: point_offset_beam_origin.y
         };
         point_offset_beam_origin_zx = '{
-            z: point_offset_beam_origin.z,
-            x: point_offset_beam_origin.x
+            x: point_offset_beam_origin.z,
+            y: point_offset_beam_origin.x
         };
     end
-    polar_2d_coord_t            curr_xy_lower;
-    polar_2d_coord_t            curr_xy;
-    polar_2d_coord_t            curr_xy_upper;
-    logic [xy_cycles - 1 : 0 ]  xy_cycle;
-    polar_2d_coord_t            curr_zx_lower;
-    polar_2d_coord_t            curr_zx_upper;
-    polar_2d_coord_t            curr_zx;
-    logic [xy_cycles - 1 : 0 ]  zx_cycle;
-    // TODO: MAKE: a binary search module and instantiate 2 of them 
+
+    logic   theta_found;
+    angle_t theta;
+    binary_light_search #(
+        .unit_radius(unit_radius),
+        .lower_bound_angle(theta_lower_bound),
+        .upper_bound_angle(theta_upper_bound)
+    ) search_theta (
+        .clk,
+        .target(point_offset_beam_origin_xy),
+        .req,
+        .reset,
+
+        .done(theta_found),
+        .light_unit_vector(theta)
+    );
+
+    logic   phi_found;
+    angle_t phi;
+    binary_light_search #(
+        .unit_radius(unit_radius),
+        .lower_bound_angle(phi_lower_bound),
+        .upper_bound_angle(phi_upper_bound)
+    ) search_phi (
+        .clk,
+        .target(point_offset_beam_origin_zx),
+        .req,
+        .reset,
+
+        .done(phi_found),
+        .light_unit_vector(phi)
+    );
 endmodule
