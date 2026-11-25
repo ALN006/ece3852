@@ -1,21 +1,24 @@
-module our_logic #(
-    parameter int MAX_SIMULTAENEOUS_KEYCODES    = 6,
-    parameter int KEYCODE_WIDTH                 = 8 
-)(
-    input   logic                               clk,
-    input   logic                               pix_clk,
-    input   logic                               frame_clk,
-    input   logic                               draw_now,
-    input   logic [ `coord_bits     - 1 : 0 ]   drawX, drawY, // Is this not a standardized 10 bits from the VGA controller?
-    input   logic [ KEYCODE_WIDTH   - 1 : 0 ]   keycodes        [ 0 : MAX_SIMULTAENEOUS_KEYCODES    - 1],
-
-    output  logic [ `color_bits     - 1 : 0 ]   red, green, blue // TODO: actually define `color_bits properly
-);
-    logic [ `address_bits   - 1 : 0 ] read_addresses    [ 0 : `max_objs_on_screen - 1 ];
+module our_logic 
+    import our_logic_pkg::*;
+    #(  parameter   int                                         KEYCODES_PER_PADDLE                                                     = 3,
+        parameter   int                                         KEYCODE_WIDTH                                                           = 8,
+        parameter   logic signed [ KEYCODE_WIDTH   - 1 : 0 ]    INPUT_KEYS              [ 0 : PADDLE_COUNT*KEYCODES_PER_PADDLE    - 1 ] = '{ default: '1}
+        parameter   int                                         COLOR_WIDTH                                                             = 10,
+        parameter   int                                         PADDLE_COUNT                                                            = 2,
+        parameter   polar_coord_t                               PADDLE_AT_RESTART                                                       = '{ default: '1},
+        parameter   sphere_t                                    BALL_AT_RESTART                                                         = '{ default: '1},     
+        parameter   cart_coord_t                                BALL_RESTART_VELOCITY                                                   = '{ default: '1},  )(
+        input       logic                                       clk,
+        input       logic                                       pix_clk,
+        input       logic                                       reset,
+        input       logic [ DIST_WIDTH      - 1 : 0 ]           drawX, drawY,
+        input       logic [ KEYCODE_WIDTH   - 1 : 0 ]           keycodes                [ 0 : PADDLE_COUNT*KEYCODES_PER_PADDLE    - 1],
+        output      logic [ COLOR_WIDTH     - 1 : 0 ]           red, green, blue
+    );
     occlusion_handling_color_mapper #(
         .ADDRESS_BITS(`address_bits),
-        .COLOR_BITS(`color_bits),
-        .COORD_BITS(`coord_bits),
+        .COLOR_BITS(COLOR_WIDTH),
+        .COORD_BITS(DIST_WIDTH),
         .MAX_OBJS_ON_SCREEN(`max_objs_on_screen)  
     ) draw_logic (   // TODO: implement this to handle occlusion
         .pix_clk,           // TODO: consider passing in faster clock
@@ -27,22 +30,23 @@ module our_logic #(
         .read_addresses,
         .red, .green, .blue 
     ); 
-    logic [ `address_bits       - 1 : 0 ] write_addresses   [ 0 : `max_objs_on_screen - 1];
-    logic [ (3 * `color_bits)   - 1 : 0 ] write_data        [ 0 : `max_objs_on_screen - 1]; // rgb color
-    logic [ `coord_bits         - 1 : 0 ] obj_coords        [ 0 : (4 * `max_objs_on_screen) - 1 ]; // 3d + span
+    logic           frame_tick; // TODO: drive based on drawX drawY
+    sphere_t        ball;
+    polar_coord_t   paddles [ 0 : PADDLE_COUNT - 1 ];
     physics_engine # (
-        .ADDRESS_BITS(`address_bits),
-        .COLOR_BITS(`color_bits),
-        .COORD_BITS(`coord_bits),
-        .MAX_OBJS_ON_SCREEN(`max_objs_on_screen)  
+        .KEYCODES_PER_PADDLE(KEYCODES_PER_PADDLE),
+        .KEYCODE_WIDTH(KEYCODE_WIDTH),
+        .PADDLE_COUNT(PADDLE_COUNT),
+        .PADDLE_AT_RESTART(PADDLE_AT_RESTART),
+        .BALL_AT_RESTART(BALL_AT_RESTART),
+        .INPUT_KEYS(INPUT_KEYS)  
     ) frame_gen_logic (   // TODO: implement everything but occlusion handling here 
         .clk,
-        .frame_clk,
-        .draw_now,
+        .frame_tick,
+        .reset,
         .keycodes,
         
-        .write_addresses,
-        .write_data,
-        .obj_coords
+        .ball,
+        .paddles
     );
 endmodule
