@@ -33,7 +33,7 @@ module binary_light_search
                 end
             end else begin
                 cycle <= { 1'b0, cycle[ cycles - 1 : 1 ] };
-                if (cycle[0] == 1'b1) done <= 1'b1;
+                if (cycle[0] == 1'b1) done <= 1'b1; // is this not redundant with the line 42-44?
                 if (det_2d(light_unit_vector, target) > '0) begin 
                     curr_upper <= curr.angle;
                 end else begin 
