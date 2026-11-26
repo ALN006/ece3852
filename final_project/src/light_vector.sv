@@ -49,7 +49,7 @@ module light_vector
         .reset,
 
         .done(theta_found),
-        .light_unit_vector(theta)
+        .angle(theta)
     );
 
     logic   phi_found;
@@ -65,6 +65,6 @@ module light_vector
         .reset,
 
         .done(phi_found),
-        .light_unit_vector(phi)
+        .angle(phi)
     );
 endmodule
