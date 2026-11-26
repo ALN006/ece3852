@@ -12,7 +12,7 @@ module sparse_object_color_mapper
         output      logic [COLOR_WIDTH-1:0] red, green, blue
     );
 
-    logic req;
+    logic req; // why ?
     always_ff @(posedge clk) begin
         if (frame_tick) begin
             req <= 1'b1;

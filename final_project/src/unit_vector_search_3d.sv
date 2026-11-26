@@ -1,25 +1,20 @@
 module unit_vector_search_3d 
     import geometry_pkg::*;
-    #(  parameter   dist_t              unit_radius         = (1 << DIST_WIDTH - 1);
-        parameter   angle_t             theta_lower_bound   = '0,
-        parameter   angle_t             theta_upper_bound   = PI,
-        parameter   angle_t             phi_lower_bound     = '0,
-        parameter   polar_2d_coord_t    phi_upper_bound     = PI,
-        localparam  integer             xy_cycles           = $clog2(theta_upper_bound),
-        localparam  integer             zx_cycles           = $clog2(phi_upper_bound)  )(
+    #(  parameter   dist_t              UNIT_RADIUS         = (1 << DIST_WIDTH - 1);
+        parameter   angle_t             THETA_LOWER_BOUND   = '0,
+        parameter   angle_t             THETA_UPPER_BOUND   = PI,
+        parameter   angle_t             PHI_LOWER_BOUND     = '0,
+        parameter   polar_2d_coord_t    PHI_UPPER_BOUND     = PI        )(
         input       logic               clk,
         input       cart_coord_t        origin,
         input       cart_coord_t        destination,
-        input       logic               req,
         input       logic               reset,
-        output      logic               done,
         output      polar_coord_t       unit_vector
     );
-    assign done = phi_found & theta_found;
     assign unit_vector = '{
-        radius: unit_radius,
-        theta:  theta_vector,
-        phi:    phi_vector,
+        radius: UNIT_RADIUS,
+        theta:  theta_vector.theta,
+        phi:    phi_vector.theta,
     };
     cart_coord_t    point_offset_origin;
     cart_2d_coord_t point_offset_origin_xy;
@@ -36,35 +31,28 @@ module unit_vector_search_3d
         };
     end
 
-    logic               theta_found;
     polar_2d_coord_t    theta_vector;
     unit_vector_search_2d #(
-        .unit_radius(unit_radius),
-        .lower_bound_angle(theta_lower_bound),
-        .upper_bound_angle(theta_upper_bound)
+        .UNIT_RADIUS(UNIT_RADIUS),
+        .LOWER_BOUND_ANGLE(THETA_LOWER_BOUND),
+        .UPPER_BOUND_ANGLE(THETA_UPPER_BOUND)
     ) search_theta (
         .clk,
         .target(point_offset_origin_xy),
-        .req,
         .reset,
 
-        .done(theta_found),
         .unit_vector(theta_vector)
     );
-
-    logic               phi_found;
     polar_2d_coord_t    phi_vector;
     unit_vector_search_2d #(
-        .unit_radius(unit_radius),
-        .lower_bound_angle(phi_lower_bound),
-        .upper_bound_angle(phi_upper_bound)
+        .UNIT_RADIUS(UNIT_RADIUS),
+        .LOWER_BOUND_ANGLE(PHI_LOWER_BOUND),
+        .UPPER_BOUND_ANGLE(PHI_UPPER_BOUND)
     ) search_phi (
         .clk,
         .target(point_offset_origin_zx),
-        .req,
         .reset,
 
-        .done(phi_found),
         .unit_vector(phi_vector)
     );
 endmodule
