@@ -1,19 +1,16 @@
-import our_logic_pkg::*;
-
-module sparse_color_mapper #(
-    parameter int COLOR_WIDTH = 4
-    )(
-    input dist_t drawX, drawY,
-    input polar_coord_t paddles [0:PADDLE_COUNT-1],
-    input cart_coord_t [7:0] paddles_2d [0:PADDLE_COUNT-1],
-    input sphere_t ball,
-    input logic clk,
-    input logic frame_tick,
-    input logic reset,
-    
-    output logic is_object,
-    output logic [COLOR_WIDTH-1:0] red, green, blue
-);
+module sparse_object_color_mapper 
+    import geometry_pkg::*;
+    #(  parameter   int COLOR_WIDTH = 4                     )(
+        input       dist_t                  drawX, drawY,
+        input       polar_coord_t           paddles [0:PADDLE_COUNT-1],
+        input       cart_coord_t [7:0]      paddles_2d [0:PADDLE_COUNT-1],
+        input       sphere_t                ball,
+        input       logic                   clk,
+        input       logic                   frame_tick,
+        input       logic                   reset,
+        output      logic                   is_object,
+        output      logic [COLOR_WIDTH-1:0] red, green, blue
+    );
 
     logic req;
     always_ff @(posedge clk) begin
@@ -24,11 +21,20 @@ module sparse_color_mapper #(
         end
     end
 
+    ball_colors occlusion_agnostic_ball_colors (
+        .drawX, .drawY,
+        .ball,
+        .clk,
+
+        .valid,
+        .red, .green, .blue
+    );
+
     cart_coord_t beam_origin;
     cart_coord_t surface_point [(PADDLE_COUNT*6)-1:0];
     polar_coord_t normal_unit_vector [(PADDLE_COUNT*6)-1:0];
     always_comb begin
-        beam_origin = {0, 0, 20};
+        beam_origin = {0, 0, 20};   // TODO: FIX: at minimum this is a sysntax error
         // comment names for each surface point derived from the vertices which enclose it
         for (int i = 0; i < PADDLE_COUNT; i++) begin
             surface_point[0 + i*6] = polar_to_cart({paddles[i].radius + PADDLE_HALF_RADIUS_OFFSET, paddles[i].phi + PADDLE_HALF_PHI_OFFSET, paddles[i].theta}); // for face 1357

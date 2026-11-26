@@ -1,8 +1,9 @@
 module occlusion_handling_color_mapper 
-    import our_logic_pkg::*;
-    #(  parameter   int                                         COLOR_WIDTH     = 4,
-        parameter   int                                         PADDLE_COUNT    = 2,
-        parameter   cart_coord_t                                LIGHT_ORIGIN    = '{ default: '1}   )(
+    import geometry_pkg::*;
+    #(  parameter   int                                         COLOR_WIDTH         = 4,
+        parameter   int                                         PADDLE_COUNT        = 2,
+        parameter   cart_coord_t                                LIGHT_ORIGIN        = '{ default: '1},
+        parameter   int                                         LOG_EYE_DISTANCE    = 10   )( // ASSUPTION: the xy possition is the same as that of the ball
         input       logic                                       clk,
         input       logic                                       pix_clk,    // TODO: determine what this is neccesary for
         input       dist_t                                      drawX, drawY,
@@ -10,7 +11,6 @@ module occlusion_handling_color_mapper
         input       polar_coord_t                               paddles             [ 0 : PADDLE_COUNT - 1 ],
         input       logic                                       frame_tick,
         input       logic                                       reset,
-
         output      logic           [ COLOR_WIDTH   - 1 : 0 ]   red, green, blue
     );
     cart_coord_t [7:0] paddles_2d [0:PADDLE_COUNT-1];
@@ -19,7 +19,7 @@ module occlusion_handling_color_mapper
 
         .paddles_2d
     );
-    sparse_color_mapper draw_objects (  // TODO: nick please handle the paddle drawing and occlusion here, I can help with the sphere drawing
+    sparse_object_color_mapper draw_objects (  // TODO: nick please handle the paddle drawing and occlusion here, I can help with the sphere drawing
         .drawX, .drawY,
         .paddles,
         .paddles_2d,

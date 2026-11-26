@@ -1,10 +1,9 @@
 /* verilator lint_off UNUSEDPARAM */
-// TODO: consider using unpacked structs 
 // ASSUMPTION: let (240, 240, 240) from the top left of the screen be the origin
-package our_logic_pkg;
+package geometry_pkg;
     `include "sin_lut.svh"
     localparam  int                                         DIST_WIDTH  = 10;
-    typedef     logic signed    [ DIST_WIDTH    - 1 : 0 ]   dist_t;
+    typedef     logic signed    [ DIST_WIDTH    - 1 : 0 ]   dist_t;     // typically but not neccesarily in pixels
     typedef     logic signed    [ 2*DIST_WIDTH  + 1 : 0 ]   dot_t;
     typedef     logic           [ ANGLE_WIDTH   - 1 : 0 ]   angle_t;
     typedef     logic signed    [ 2*DIST_WIDTH      : 0 ]   det_t;
