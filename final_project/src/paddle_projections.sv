@@ -3,9 +3,9 @@ import our_logic_pkg::*;
 module paddle_projections #(
     parameter int PADDLE_COUNT    = 2,
     )(
-    input polar_coord_t paddles [0:PADDLE_COUNT-1];
+    input polar_coord_t paddles [0:PADDLE_COUNT-1],
 
-    output cart_coord_t [7:0] paddles_2d [0:PADDLE_COUNT-1]; // each paddle for projection made up of 8 cartesian coordinates
+    output cart_coord_t [7:0] paddles_2d [0:PADDLE_COUNT-1] // each paddle for projection made up of 8 cartesian coordinates
 );
 
     // define the vertices, follows convention I wrote in my iPad

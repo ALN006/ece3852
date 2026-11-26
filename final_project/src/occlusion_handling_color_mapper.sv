@@ -7,9 +7,13 @@ module occlusion_handling_color_mapper
         input       logic                                       pix_clk,    // TODO: determine what this is neccesary for
         input       dist_t                                      drawX, drawY,
         input       sphere_t                                    ball,
-        input       polar_coord_t                               paddles             [ 0 : PADDLE_COUNT - 1 ]
+        input       polar_coord_t                               paddles             [ 0 : PADDLE_COUNT - 1 ],
+        input       logic                                       frame_tick,
+        input       logic                                       reset,
+
         output      logic           [ COLOR_WIDTH   - 1 : 0 ]   red, green, blue
     );
+    cart_coord_t [7:0] paddles_2d [0:PADDLE_COUNT-1];
     paddle_projections paddles_on_screen_area ( // TODO: nick kindly give me this module
         .paddles,
 
@@ -20,8 +24,11 @@ module occlusion_handling_color_mapper
         .paddles,
         .paddles_2d,
         .ball,
+        .clk,
+        .frame_tick,
+        .reset,
 
-        .is_object
+        .is_object // I'm taking this to mean "there is an object displayed in this pixel"
         .red, .green, .blue
     );
     always_ff @(posedge clk ) begin : draw_background

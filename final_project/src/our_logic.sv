@@ -27,6 +27,8 @@ module our_logic
         .ball,
         .paddles,
         .drawX, .drawY,
+        .frame_tick,
+        .reset,
 
         .red, .green, .blue 
     ); 
