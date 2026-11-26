@@ -5,16 +5,26 @@ import our_logic_pkg::*; // TODO: remeber to have a conversation about not doing
 
 module shading_calc #(
     parameter int COLOR_BITS            = 4,
-    parameter int COORD_BITS            = 14
+    parameter int COORD_BITS            = 10
 )(
-    input logic ambient_hue,
-    input our_logic_pkg::cart_coord_t beam_origin,
-    input our_logic_pkg::cart_coord_t reflect_point,
-    input our_logic_pkg::cart_coord_t normal_vector, // Use the xyz of cart_coord to pass vector data
+    input polar_coord_t light_unit_vector,
+    input polar_coord_t normal_vector,
     input logic [COLOR_BITS - 1:0] red, green, blue,
 
     output logic [COLOR_BITS - 1:0] shaded_red, shaded_green, shaded_blue
 );
+
+    always_comb begin
+
+    end
+
+
+
+
+
+
+
+
 
     integer dot_product;
     logic signed [31:0] normalized_dot_product;
@@ -24,7 +34,6 @@ module shading_calc #(
     logic [31:0] red_shader_made, green_shader_made, blue_shader_made;
 
     our_logic_pkg::cart_coord_t beam_vector;
-    assign normal_mag = ((normal_vector.x)**2 + (normal_vector.y)**2 + (normal_vector.z)**2);
 
     always_comb begin
         waiting_for_shift = 1'b1;
