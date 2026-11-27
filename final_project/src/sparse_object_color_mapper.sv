@@ -75,7 +75,11 @@ module sparse_object_color_mapper
         end
     end
 
-    polar_coord_t polar_light_unit_vector [0:(PADDLE_COUNT*6)-1] ;
+    polar_coord_t polar_light_unit_vector [0:(PADDLE_COUNT*6)-1];
+    logic [COLOR_BITS-1:0] shaded_red [0:(PADDLE_COUNT*6)-1];
+    logic [COLOR_BITS-1:0] shaded_green [0:(PADDLE_COUNT*6)-1];
+    logic [COLOR_BITS-1:0] shaded_blue [0:(PADDLE_COUNT*6)-1];
+
     generate // generate for loop structure inspired by the following: https://stackoverflow.com/questions/33899691/instantiate-modules-in-generate-for-loop-in-verilog
         for (genvar i = 0; i < (6 << $clog2(PADDLE_COUNT)); i++) begin : face_vector_calcs
             unit_vector_search_3d #(
@@ -90,13 +94,13 @@ module sparse_object_color_mapper
             );
 
             shading_calc #(
-
+                .COLOR_WIDTH
             ) shading_calcs (
                 .light_unit_vector(cart_light_unit_vector[i]),
                 .normal_unit_vector(cart_normal_inward_unit_vector[i]),
-                .red, .green, .blue, // TODO: set a value to send to these
+                .red(4'hF), .green(4'hF), .blue(4'hF), // TODO: decide if we want to control paddle color. Setting to grayscale for now
 
-                .shaded_red, .shaded_green, .shaded_blue // TODO: set up the signals to accept these
+                .shaded_red(shaded_red[i]), .shaded_green(shaded_green[i]), .shaded_blue(shaded_blue[i])
             );
         end 
     endgenerate
