@@ -1,5 +1,6 @@
-/* verilator lint_off MULTIDRIVEN */ // TODO: confirm that our whole unpacked struct paradigm is ok
-module unit_vector_search_2d
+// TODO: so this whole radius passing thing is kinda stupid, in an ideal world what we call UNIT_RADIUS here should be SIN(PI/2) always
+// TODO: in an ideal world SIN(PI/2) should fit as a dist_t so we dont have to worry about ts again
+module unit_vector_search_2d // NOTE: it is neccessary to assert reset to find a new direction
     import geometry_pkg::*;
     #(  parameter   dist_t              UNIT_RADIUS         = (1 << DIST_WIDTH - 1), // this first parameter is like precision control
         parameter   angle_t             LOWER_BOUND_ANGLE   = '0,
@@ -9,23 +10,25 @@ module unit_vector_search_2d
         input       logic               reset,
         output      polar_2d_coord_t    unit_vector
     );
-    angle_t                 curr_lower;
-    polar_2d_coord_t        curr;
-    angle_t                 curr_upper;
+    angle_t                 lower;
+    polar_2d_coord_t        mid;
+    angle_t                 upper;
     cart_2d_coord_t         unit_vector_cart;
-    assign curr.radius      = UNIT_RADIUS;
-    assign unit_vector_cart = polar_to_cart_2d(curr);
-    assign unit_vector      = curr;
+    assign mid             = '{
+        radius: UNIT_RADIUS,
+        theta: ((lower + upper) >> 1)
+    };
+    assign unit_vector_cart = polar_to_cart_2d(mid);
+    assign unit_vector      = mid;
     always_ff @(posedge clk) begin 
-        curr.theta <= ((curr_upper + curr_lower) >> 1);
         if (reset == 1'b1) begin 
-            curr_lower <= LOWER_BOUND_ANGLE;
-            curr_upper <= UPPER_BOUND_ANGLE;
+            lower <= LOWER_BOUND_ANGLE;
+            upper <= UPPER_BOUND_ANGLE;
         end else begin 
             if (det_2d(unit_vector_cart, target) > '0) begin 
-                curr_upper <= curr.theta;
+                lower <= mid.theta;
             end else begin 
-                curr_lower <= curr.theta;
+                upper <= mid.theta;
             end
         end
     end 

@@ -49,15 +49,15 @@ package geometry_pkg;
     // TODO: make sure this meets timing
     function automatic cart_2d_coord_t polar_to_cart_2d(polar_2d_coord_t a);
         return '{
-            x: dist_t'((SIN_AMP_BITS'(a.radius) * SIN_LUT [ a.theta + HALF_PI ]) >>> (1*(SIN_AMP_BITS - 2))),
-            y: dist_t'((SIN_AMP_BITS'(a.radius) * SIN_LUT [ a.theta ]) >>> (1*(SIN_AMP_BITS - 2)))
+            x: dist_t'((SIN_WIDTH'(a.radius) * SIN_LUT [ a.theta + HALF_PI ]) >>> SIN_SHIFT),
+            y: dist_t'((SIN_WIDTH'(a.radius) * SIN_LUT [ a.theta ]) >>> SIN_SHIFT)
         };
     endfunction
     function automatic cart_coord_t polar_to_cart(polar_coord_t a);
         return '{
-            x: DIST_WIDTH'((SIN_AMP_BITS'(a.radius) * SIN_LUT[ a.phi ] * SIN_LUT [ a.theta + HALF_PI ]) >>> (2*(SIN_AMP_BITS - 2))),
-            y: DIST_WIDTH'((SIN_AMP_BITS'(a.radius) * SIN_LUT[ a.phi ] * SIN_LUT [ a.theta ]) >>> (2*(SIN_AMP_BITS - 2))),
-            z: DIST_WIDTH'((SIN_AMP_BITS'(a.radius) * SIN_LUT[ a.phi + HALF_PI ]) >>> (SIN_AMP_BITS - 2))
+            x: DIST_WIDTH'((SIN_WIDTH'(a.radius) * SIN_LUT[ a.phi ] * SIN_LUT [ a.theta + HALF_PI ]) >>> (2*SIN_SHIFT)),
+            y: DIST_WIDTH'((SIN_WIDTH'(a.radius) * SIN_LUT[ a.phi ] * SIN_LUT [ a.theta ]) >>> (2*SIN_SHIFT)),
+            z: DIST_WIDTH'((SIN_WIDTH'(a.radius) * SIN_LUT[ a.phi + HALF_PI ]) >>> SIN_SHIFT)
         };
     endfunction
 

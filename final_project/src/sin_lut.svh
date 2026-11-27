@@ -2,9 +2,10 @@
 /* verilator lint_off UNUSEDPARAM */
 // 256 entries = one full turn, value = round(sin(2*pi*i/256) * 16384)
 // cos(i) == SIN_LUT[(i + 64) % 256]
-localparam int ANGLE_WIDTH    = 8;
-localparam int SIN_AMP_BITS   = 16;
-localparam int SIN_ONE        = 16384;
+localparam int ANGLE_WIDTH  = 8;
+localparam int SIN_WIDTH    = 16;
+localparam int SIN_SHIFT    = 14;
+localparam int SIN_ONE      = 16384;
 localparam logic signed [15:0] SIN_LUT [0:255] = '{
     16'sd0, 16'sd402, 16'sd804, 16'sd1205, 16'sd1606, 16'sd2006, 16'sd2404, 16'sd2801,
     16'sd3196, 16'sd3590, 16'sd3981, 16'sd4370, 16'sd4756, 16'sd5139, 16'sd5520, 16'sd5897,
