@@ -32,7 +32,7 @@ module sparse_object_color_mapper
 
     cart_coord_t beam_origin;
     cart_coord_t surface_point [(PADDLE_COUNT*6)-1:0];
-    polar_coord_t normal_unit_vector [(PADDLE_COUNT*6)-1:0];
+    polar_coord_t normal_inward_unit_vector [(PADDLE_COUNT*6)-1:0];
     always_comb begin
         beam_origin = {0, 0, 20};   // TODO: FIX: at minimum this is a sysntax error
         // comment names for each surface point derived from the vertices which enclose it
@@ -45,23 +45,36 @@ module sparse_object_color_mapper
             surface_point[5 + i*6] = polar_to_cart({paddles[i].radius + PADDLE_HALF_RADIUS_OFFSET, paddles[i].phi + PADDLE_HALF_PHI_OFFSET, paddles[i].theta + PADDLE_HALF_THETA_OFFSET});
         
         
-            normal_unit_vector[0 + i*6] = '{
-                radius:    (1 << DIST_WIDTH - 1), 
-                phi:       paddles[i].phi + PADDLE_HALF_PHI_OFFSET, // for face 1357
-                theta:     ((paddles[i].theta + ANGLE_WIDTH'(270) + PADDLE_HALF_THETA_OFFSET) >= ANGLE_WIDTH'(360)) ? (paddles[i].theta + ANGLE_WIDTH'(270) + PADDLE_HALF_THETA_OFFSET - ANGLE_WIDTH'(360)) : (paddles[i].theta + ANGLE_WIDTH'(270) + PADDLE_HALF_THETA_OFFSET)
+            normal_inward_unit_vector[0 + i*6] = '{
+                radius:    (1 << DIST_WIDTH - 1), // for face 1357
+                phi:       ((paddles[i].phi + PADDLE_HALF_PHI_OFFSET) >= ANGLE_WIDTH'(360)) ? (paddles[i].phi + PADDLE_HALF_PHI_OFFSET - ANGLE_WIDTH'(360)) : (paddles[i].phi + PADDLE_HALF_PHI_OFFSET), 
+                theta:     ((paddles[i].theta + ANGLE_WIDTH'(90)) >= ANGLE_WIDTH'(360)) ? (paddles[i].theta + ANGLE_WIDTH'(90) - ANGLE_WIDTH'(360)) : (paddles[i].theta + ANGLE_WIDTH'(90))
             };
-            normal_unit_vector[1 + i*6] = '{
+            normal_inward_unit_vector[1 + i*6] = '{
                 radius:    (1 << DIST_WIDTH - 1), // for face 1256
-                phi:       ((paddles[i].phi + ANGLE_WIDTH'(270) + PADDLE_HALF_PHI_OFFSET) >= ANGLE_WIDTH'(360)) ? (paddles[i].theta + ANGLE_WIDTH'(270) + PADDLE_HALF_PHI_OFFSET - ANGLE_WIDTH'(360)) : (paddles[i].theta + ANGLE_WIDTH'(270) + PADDLE_HALF_PHI_OFFSET),
-                theta:     paddles[i].phi + PADDLE_HALF_PHI_OFFSET
+                phi:       ((paddles[i].phi + ANGLE_WIDTH'(90)) >= ANGLE_WIDTH'(360)) ? (paddles[i].phi + ANGLE_WIDTH'(90) - ANGLE_WIDTH'(360)) : (paddles[i].phi + ANGLE_WIDTH'(90)),
+                theta:     ((paddles[i].theta + PADDLE_HALF_THETA_OFFSET) >= ANGLE_WIDTH'(360)) ? (paddles[i].theta + PADDLE_HALF_THETA_OFFSET - ANGLE_WIDTH'(360)) : (paddles[i].theta + PADDLE_HALF_THETA_OFFSET)
+            };
+            normal_unit_vector[2 + i*6] = '{
+                radius:    (1 << DIST_WIDTH - 1), // for face 2468
+                phi:       ((paddles[i].phi + PADDLE_HALF_PHI_OFFSET) >= ANGLE_WIDTH'(360)) ? (paddles[i].phi + PADDLE_HALF_PHI_OFFSET - ANGLE_WIDTH'(360)) : (paddles[i].phi + PADDLE_HALF_PHI_OFFSET), 
+                theta:     ((paddles[i].theta + ANGLE_WIDTH'(270)) >= ANGLE_WIDTH'(360)) ? (paddles[i].theta + ANGLE_WIDTH'(270) - ANGLE_WIDTH'(360)) : (paddles[i].theta + ANGLE_WIDTH'(270))
             };
             normal_unit_vector[3 + i*6] = '{
-                radius:    (1 << DIST_WIDTH - 1), 
-                phi:       paddles[i].phi + PADDLE_HALF_PHI_OFFSET, // for face 2468
-                theta:     ((paddles[i].theta + ANGLE_WIDTH'(90) + PADDLE_HALF_THETA_OFFSET) >= ANGLE_WIDTH'(360)) ? (paddles[i].theta + ANGLE_WIDTH'(90) + PADDLE_HALF_THETA_OFFSET - ANGLE_WIDTH'(360)) : (paddles[i].theta + ANGLE_WIDTH'(90) + PADDLE_HALF_THETA_OFFSET)
+                radius:    (1 << DIST_WIDTH - 1), // for face 3478
+                phi:       ((paddles[i].phi + ANGLE_WIDTH'(90)) >= ANGLE_WIDTH'(360)) ? (paddles[i].phi + ANGLE_WIDTH'(90) - ANGLE_WIDTH'(360)) : (paddles[i].phi + ANGLE_WIDTH'(90)),
+                theta:     ((paddles[i].theta + PADDLE_HALF_THETA_OFFSET) >= ANGLE_WIDTH'(360)) ? (paddles[i].theta + PADDLE_HALF_THETA_OFFSET - ANGLE_WIDTH'(360)) : (paddles[i].theta + PADDLE_HALF_THETA_OFFSET)
             };
-            normal_unit_vector[4 + i*6] = ;
-            normal_unit_vector[5 + i*6] = ;
+            normal_unit_vector[4 + i*6] = '{
+                radius:    (1 << DIST_WIDTH - 1), // for face 1234
+                phi:       ((paddles[i].phi + PADDLE_HALF_PHI_OFFSET) >= ANGLE_WIDTH'(360)) ? (paddles[i].phi + PADDLE_HALF_PHI_OFFSET - ANGLE_WIDTH'(360)) : (paddles[i].phi + PADDLE_HALF_PHI_OFFSET), 
+                theta:     ((paddles[i].theta + PADDLE_HALF_THETA_OFFSET) >= ANGLE_WIDTH'(360)) ? (paddles[i].theta + PADDLE_HALF_THETA_OFFSET - ANGLE_WIDTH'(360)) : (paddles[i].theta + PADDLE_HALF_THETA_OFFSET)
+            };
+            normal_unit_vector[5 + i*6] = '{
+                radius:    (1 << DIST_WIDTH - 1), // for face 1234
+                phi:       ((paddles[i].phi + PADDLE_HALF_PHI_OFFSET + ANGLE_WIDTH'(180)) >= ANGLE_WIDTH'(360)) ? (paddles[i].phi + PADDLE_HALF_PHI_OFFSET + ANGLE_WIDTH'(180) - ANGLE_WIDTH'(360)) : (paddles[i].phi + PADDLE_HALF_PHI_OFFSET + ANGLE_WIDTH'(180)), 
+                theta:     ((paddles[i].theta + PADDLE_HALF_THETA_OFFSET + ANGLE_WIDTH'(180)) >= ANGLE_WIDTH'(360)) ? (paddles[i].theta + PADDLE_HALF_THETA_OFFSET + ANGLE_WIDTH'(180) - ANGLE_WIDTH'(360)) : (paddles[i].theta + PADDLE_HALF_THETA_OFFSET + ANGLE_WIDTH'(180))
+            };
         end
     end
 
