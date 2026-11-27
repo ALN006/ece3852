@@ -5,12 +5,12 @@
     rom storing sin(theta) * MAX_POSSITIVE_POWER_OF_2_DISTANCE (for easy "division" via bitshifts)
 """ """
   USAGE: gen_distances_def_svh.py [DIST_WIDTH] [ANGLE_WIDTH] > [distances_def_svh_file]
-    DIST_WIDTH:   number of bits in a distance (current default 11)
+    DIST_WIDTH:   number of bits in a distance (current default 12)
     ANGLE_WIDTH:  number of bits in an angle (current default 8)
 """
 import math, sys
-DIST_WIDTH                        = int(sys.argv[1]) if len(sys.argv) > 1 else 8
-ANGLE_WIDTH                       = int(sys.argv[2]) if len(sys.argv) > 2 else 16
+DIST_WIDTH                        = int(sys.argv[1]) if len(sys.argv) > 1 else 12
+ANGLE_WIDTH                       = int(sys.argv[2]) if len(sys.argv) > 2 else 8
 N_ANGLES                          = 1 << ANGLE_WIDTH
 MAX_POSSITIVE_POWER_OF_2_DISTANCE = 1 << (DIST_WIDTH - 2)
 

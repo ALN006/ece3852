@@ -3,6 +3,7 @@ module ball_colors
     import geometry_pkg::*;
     #(  parameter   int                     LOG_EYE_DISTANCE                        = 10,
         parameter   int                     COLOR_WIDTH                             = 4,
+        parameter   dist_t                  UNIT_DIST                               = (1 << UNIT_SHIFT),
         parameter   angle_t                 UNIT_VECTOR_SEARCH_ANGLE_LOWER_BOUND    = '0,
         parameter   angle_t                 UNIT_VECTOR_SEARCH_ANGLE_UPPER_BOUND    = PI,
         parameter   cart_coord_t            LIGHT_ORIGIN                            = '{ default: '1 },
@@ -35,8 +36,7 @@ module ball_colors
     always_ff @(posedge clk) valid <= (surface_x_wrt_eye <= ball.radius) && (surface_y_wrt_eye <= ball.radius);
 
     polar_2d_coord_t light_unit_vector, normal_unit_vector;
-    unit_vector_search_3d #(
-        .UNIT_RADIUS((1 << (DIST_WIDTH - 1))),
+    dir_search_3d #(
         .THETA_LOWER_BOUND(UNIT_VECTOR_SEARCH_ANGLE_LOWER_BOUND),
         .THETA_UPPER_BOUND(UNIT_VECTOR_SEARCH_ANGLE_UPPER_BOUND),
         .PHI_LOWER_BOUND(UNIT_VECTOR_SEARCH_ANGLE_LOWER_BOUND),
