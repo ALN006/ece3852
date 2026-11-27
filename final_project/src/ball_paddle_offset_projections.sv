@@ -2,7 +2,7 @@
 // TODO: HIGH PRIORITY: check if this module works correctly
 // TODO: LOW PRIORITY: consider work efficiency of this module
 module ball_paddle_offset_projections
-    import our_logic_pkg::*;
+    import geometry_pkg::*;
     #(  parameter   int             PADDLE_COUNT                                                    = 2 )(   
         input       polar_coord_t   paddles                             [ 0 : PADDLE_COUNT - 1 ],
         input       sphere_t        ball                                                        ,
