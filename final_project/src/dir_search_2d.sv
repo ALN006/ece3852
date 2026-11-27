@@ -7,19 +7,18 @@ module dir_search_2d // NOTE: it is neccessary to assert reset to find a new dir
         input       logic               reset,
         output      angle_t             direction
     );
-    angle_t upper, mid, lower;
-    assign mid = ((lower + upper) >> 1);
+    angle_t upper, lower;
+    assign direction = ((lower + upper) >> 1);
     always_ff @(posedge clk) begin 
         if (reset == 1'b1) begin 
             lower <= LOWER_BOUND_ANGLE;
             upper <= UPPER_BOUND_ANGLE;
         end else begin 
-            if (det_2d('{ x: cos(mid), y: sin(mid)}, target) > '0) begin 
-                lower <= mid;
+            if (det_2d('{ x: cos(direction), y: sin(direction)}, target) > '0) begin 
+                lower <= direction;
             end else begin 
-                upper <= mid;
+                upper <= direction;
             end
         end
     end 
-    assign direction = mid;
 endmodule

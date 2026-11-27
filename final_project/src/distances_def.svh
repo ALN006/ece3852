@@ -274,3 +274,9 @@ endfunction
 function automatic dist_t cos(angle_t angle);
   return SIN_LUT[ angle + HALF_PI ];
 endfunction
+function automatic dist_t sinp(angle_t angle, dist_t distance);
+  return (distance * sin(angle)) >>> UNIT_SHIFT;
+endfunction
+function automatic dist_t cosp(angle_t angle, dist_t distance);
+  return (distance * cos(angle)) >>> UNIT_SHIFT;
+endfunction

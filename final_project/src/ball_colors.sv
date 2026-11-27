@@ -1,3 +1,4 @@
+// TODO: module probably has major timing problems, go ahead and fix that
 module ball_colors 
     import geometry_pkg::*;
     #(  parameter   int                     LOG_EYE_DISTANCE                        = 10,

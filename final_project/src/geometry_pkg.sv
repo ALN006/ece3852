@@ -36,9 +36,9 @@ package geometry_pkg;
 
     function automatic cart_coord_t polar_to_cart(polar_coord_t a);
         return '{
-            x: DIST_WIDTH'((a.radius * sin(a.phi) * cos(a.theta + HALF_PI)) >>> (2*UNIT_SHIFT)),
-            y: DIST_WIDTH'((a.radius * sin(a.phi) * sin(a.theta)) >>> (2*UNIT_SHIFT)),
-            z: DIST_WIDTH'((a.radius * cos(a.phi)) >>> UNIT_SHIFT)
+            x: cosp(.angle(a.theta), .distance(sinp( .angle(a.phi), .distance(a.radius)))),
+            y: sinp(.angle(a.theta), .distance(sinp( .angle(a.phi), .distance(a.radius)))),
+            z: cosp(.angle(a.phi), .distance(a.radius))
         };
     endfunction
 

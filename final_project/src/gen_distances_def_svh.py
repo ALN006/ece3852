@@ -8,9 +8,7 @@
     DIST_WIDTH:   number of bits in a distance (current default 11)
     ANGLE_WIDTH:  number of bits in an angle (current default 8)
 """
-
 import math, sys
-
 DIST_WIDTH                        = int(sys.argv[1]) if len(sys.argv) > 1 else 8
 ANGLE_WIDTH                       = int(sys.argv[2]) if len(sys.argv) > 2 else 16
 N_ANGLES                          = 1 << ANGLE_WIDTH
@@ -44,4 +42,10 @@ print(f"  return SIN_LUT[ angle ];")
 print(f"endfunction")
 print(f"function automatic dist_t cos(angle_t angle);")
 print(f"  return SIN_LUT[ angle + HALF_PI ];")
+print(f"endfunction")
+print(f"function automatic dist_t sinp(angle_t angle, dist_t dist);")
+print(f"  return (dist * sin(angle)) >>> UNIT_SHIFT;")
+print(f"endfunction")
+print(f"function automatic dist_t cosp(angle_t angle, dist_t dist);")
+print(f"  return (dist * cos(angle)) >>> UNIT_SHIFT;")
 print(f"endfunction")

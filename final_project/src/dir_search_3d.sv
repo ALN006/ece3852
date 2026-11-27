@@ -1,7 +1,6 @@
-module unit_vector_search_3d 
+module dir_search_3d // NOTE: it is neccessary to assert reset to find a new direction
     import geometry_pkg::*;
-    #(  parameter   dist_t              UNIT_RADIUS         = (1 << DIST_WIDTH - 1),
-        parameter   angle_t             THETA_LOWER_BOUND   = '0,
+    #(  parameter   angle_t             THETA_LOWER_BOUND   = '0,
         parameter   angle_t             THETA_UPPER_BOUND   = PI,
         parameter   angle_t             PHI_LOWER_BOUND     = '0,
         parameter   angle_t             PHI_UPPER_BOUND     = PI        )(
@@ -9,13 +8,9 @@ module unit_vector_search_3d
         input       cart_coord_t        origin,
         input       cart_coord_t        destination,
         input       logic               reset,
-        output      polar_coord_t       unit_vector
+        output      angle_t             theta,
+        output      angle_t             phi
     );
-    assign unit_vector = '{
-        radius: UNIT_RADIUS,
-        theta:  theta_vector.theta,
-        phi:    phi_vector.theta
-    };
     cart_coord_t    point_offset_origin;
     cart_2d_coord_t point_offset_origin_xy;
     cart_2d_coord_t point_offset_origin_zx;
@@ -30,29 +25,22 @@ module unit_vector_search_3d
             y: point_offset_origin.x
         };
     end
-
-    polar_2d_coord_t    theta_vector;
-    unit_vector_search_2d #(
-        .UNIT_RADIUS(UNIT_RADIUS),
+    dir_search_2d #(
         .LOWER_BOUND_ANGLE(THETA_LOWER_BOUND),
-        .UPPER_BOUND_ANGLE(THETA_UPPER_BOUND)
+        .UPPER_BOUND_ANGLE(THETA_UPPER_BOUND)       
     ) search_theta (
-        .clk,
+        .clk, .reset,
         .target(point_offset_origin_xy),
-        .reset,
 
-        .unit_vector(theta_vector)
+        .direction(theta)
     );
-    polar_2d_coord_t    phi_vector;
-    unit_vector_search_2d #(
-        .UNIT_RADIUS(UNIT_RADIUS),
+    dir_search_2d #(
         .LOWER_BOUND_ANGLE(PHI_LOWER_BOUND),
-        .UPPER_BOUND_ANGLE(PHI_UPPER_BOUND)
+        .UPPER_BOUND_ANGLE(PHI_UPPER_BOUND)        
     ) search_phi (
-        .clk,
+        .clk, .reset,
         .target(point_offset_origin_zx),
-        .reset,
 
-        .unit_vector(phi_vector)
+        .direction(phi)
     );
 endmodule
