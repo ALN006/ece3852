@@ -18,7 +18,7 @@ module sparse_object_color_mapper
         .clk,
 
         .valid,
-        .red, .green, .blue
+        .brightness
     );
 
     cart_coord_t origin;

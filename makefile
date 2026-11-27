@@ -40,7 +40,7 @@ lint_all_src: $(SRC_FILES)
 	verilator --lint-only -Wall -I$(SRC_DIR) $(SRC_FILES)
 
 # Yosys's built-in frontend can't parse packages/imports, so convert with sv2v first
-flatten: lint_src $(FLAT_V)
+flatten: $(FLAT_V)
 $(FLAT_V): $(SRC_FILES)
 	@printf "\n $(GREEN) INFO: flattening $(TOP_MODULE) with sv2v into $(FLAT_V)$(NC) \n\n"
 	@mkdir -p $(BUILD_DIR)

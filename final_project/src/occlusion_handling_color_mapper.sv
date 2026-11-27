@@ -28,7 +28,7 @@ module occlusion_handling_color_mapper
         .frame_tick,
         .reset,
 
-        .is_object // I'm taking this to mean "there is an object displayed in this pixel"
+        .is_object, // I'm taking this to mean "there is an object displayed in this pixel"
         .red, .green, .blue
     );
     always_ff @(posedge clk ) begin : draw_background

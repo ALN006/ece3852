@@ -12,11 +12,10 @@ module ball_colors
         output      logic                   valid,
         output      dot_t                   brightness
     );
-    assign brightness = dot(polar_to_cart(light_unit_vector), polar_to_cart(normal_unit_vector));
 
     dist_t future_drawX, future_drawY, drawX_plus_LATENCY_plus_1;
     assign drawX_plus_LATENCY_plus_1 = dist_t'(drawX + LATENCY + 1);
-    always_ff (@posedge clk) if (drawX + LATENCY < 640) begin  
+    always_ff @(posedge clk) if (drawX + LATENCY < 640) begin  
         future_drawX <= drawX_plus_LATENCY_plus_1; 
     end else begin 
         future_drawX <= drawX_plus_LATENCY_plus_1 - dist_t'(639);
@@ -32,7 +31,7 @@ module ball_colors
     dist_t surface_y;           assign surface_y            = surface_y_wrt_eye + ball.y;
     dist_t surface_z;           assign surface_z            = dist_t'(ball.center.z - dist_t'(ball.radius >> 1));
 
-    always_ff (@posedge clk) valid <= (surface_x_wrt_eye <= ball.radius) && (surface_y_wrt_eye <= ball.radius);
+    always_ff @(posedge clk) valid <= (surface_x_wrt_eye <= ball.radius) && (surface_y_wrt_eye <= ball.radius);
 
     polar_2d_coord_t light_unit_vector, normal_unit_vector;
     unit_vector_search_3d #(
@@ -42,7 +41,7 @@ module ball_colors
         .PHI_LOWER_BOUND(UNIT_VECTOR_SEARCH_ANGLE_LOWER_BOUND),
         .PHI_UPPER_BOUND(UNIT_VECTOR_SEARCH_ANGLE_UPPER_BOUND)          ) find_normal_and_light_vector[1:0] (
         .clk,
-        .origin(LIGHT_ORIGIN, ball.center),
+        .origin({LIGHT_ORIGIN, ball.center}),
         .destination('{
                 x: surface_x,
                 y: surface_y,
@@ -50,6 +49,7 @@ module ball_colors
             }),
         .reset,
 
-        .unit_vector(light_unit_vector, normal_unit_vector)
+        .unit_vector({light_unit_vector, normal_unit_vector})
     );
+    assign brightness = dot(polar_to_cart(light_unit_vector), polar_to_cart(normal_unit_vector));
 endmodule

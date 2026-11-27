@@ -74,7 +74,7 @@ module top (
         .frame_clk(vsync),
         .draw_now, // TODO: figure out what this needs
         .drawX, .drawY,
-        .keycodes // TODO: set up the structure to pull these from MicroBlaze GPIOs akin to Lab 6
+        .keycodes, // TODO: set up the structure to pull these from MicroBlaze GPIOs akin to Lab 6
 
         .red, .green, .blue
     );
