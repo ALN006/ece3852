@@ -4,6 +4,8 @@ module ball_colors
     #(  parameter   int                     LOG_EYE_DISTANCE                        = 10,
         parameter   int                     COLOR_WIDTH                             = 4,
         parameter   dist_t                  UNIT_DIST                               = (1 << UNIT_SHIFT),
+        parameter   dist_t                  MAX_DRAWX                               = dist_t'(1024),
+        parameter   dist_t                  MAX_DRAWY                               = dist_t'(1024),
         parameter   angle_t                 UNIT_VECTOR_SEARCH_ANGLE_LOWER_BOUND    = '0,
         parameter   angle_t                 UNIT_VECTOR_SEARCH_ANGLE_UPPER_BOUND    = PI,
         parameter   cart_coord_t            LIGHT_ORIGIN                            = '{ default: '1 },
@@ -15,17 +17,17 @@ module ball_colors
         output      dot_t                   brightness
     );
 
-    dist_t future_drawX, future_drawY, drawX_plus_LATENCY_plus_1;
-    assign drawX_plus_LATENCY_plus_1 = dist_t'(drawX + LATENCY + 1);
-    always_ff @(posedge clk) if (drawX + LATENCY < 640) begin  
-        future_drawX <= drawX_plus_LATENCY_plus_1; 
-    end else begin 
-        future_drawX <= drawX_plus_LATENCY_plus_1 - dist_t'(639);
-        future_drawY <= drawY + 1;
-    end
+    dist_t future_drawX, future_drawY;
+    forward_index_2d #(
+        .INDEX_1D(dist_t),
+        .LOOKAHEAD(LATENCY),
+        .BOUND1(MAX_DRAWX), .BOUND2(MAX_DRAWY)              ) future_draw_coords (
+        .x(drawX), .y(drawY),
+        .fwd_x(future_drawX), .fwd_y(future_drawY)
+    );
 
-    dist_t drawX_wrt_eye;       assign drawX_wrt_eye        = future_drawX - ball.x; 
-    dist_t drawY_wrt_eye;       assign drawY_wrt_eye        = future_drawY - ball.y;
+    dist_t drawX_wrt_eye;       assign drawX_wrt_eye        = future_drawX - ball.center.x; 
+    dist_t drawY_wrt_eye;       assign drawY_wrt_eye        = future_drawY - ball.center.y;
     dist_t surface_x_wrt_eye;   assign surface_x_wrt_eye    = dist_t'((surface_z_wrt_eye * drawX_wrt_eye) >> LOG_EYE_DISTANCE); // unsigned shift on purpose, to save on comparisons
     dist_t surface_y_wrt_eye;   assign surface_y_wrt_eye    = dist_t'((surface_z_wrt_eye * drawY_wrt_eye) >> LOG_EYE_DISTANCE);
     dist_t surface_z_wrt_eye;   assign surface_z_wrt_eye    = dist_t'((ball.center.z + dist_t'(240) + dist_t'(1 << LOG_EYE_DISTANCE) - dist_t'(ball.radius >> 1)));
