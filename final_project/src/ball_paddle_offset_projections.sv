@@ -38,6 +38,7 @@ module ball_paddle_offset_projections
                 }),
             paddles_in_cart[i]
         );
+        // TODO: the 2 lines bellow look super unmotivated and ugly, change that
         PADDLE_THETA_RADIUS_FIX = DIST_WIDTH'((SIN_AMP_BITS'(2*paddles[i].radius) * SIN_LUT[ PADDLE_HALF_THETA_OFFSET ] * SIN_LUT [ PADDLE_HALF_THETA_OFFSET >> 1 ]) >> (2*(SIN_AMP_BITS - 2)));
         PADDLE_PHI_RADIUS_FIX = DIST_WIDTH'((SIN_AMP_BITS'(2*paddles[i].radius) * SIN_LUT[ PADDLE_HALF_PHI_OFFSET ] * SIN_LUT [ PADDLE_HALF_PHI_OFFSET >> 1 ]) >> (2*(SIN_AMP_BITS - 2)));
         ball_distance_from_paddle_center[i] = dist_t'(
