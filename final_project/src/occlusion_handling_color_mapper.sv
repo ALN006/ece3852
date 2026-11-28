@@ -15,6 +15,9 @@ module occlusion_handling_color_mapper
     );
     cart_coord_t [7:0] paddles_2d [0:PADDLE_COUNT-1];
     paddle_projections paddles_on_screen_area ( // TODO: nick kindly give me this module
+        .clk,
+        .reset,
+        .frame_tick,
         .paddles,
 
         .paddles_2d

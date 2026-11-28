@@ -1,4 +1,4 @@
-import our_logic_pkg::*; // TODO: remeber to have a conversation about not doing this with nick
+import geometry_pkg::*; // TODO: remeber to have a conversation about not doing this with nick
 
 // take in the 100% lit up color, then desaturate as needed depending on light reflections
 // TODO: pedantically ask nick to define desaturation, and use the dot product module
