@@ -2,15 +2,16 @@
 // ASSUMPTION: let (240, 240, 240) from the top left of the screen be the origin
 package geometry_pkg;
     `include "distances_def.svh"
-    typedef struct packed {
+    typedef struct packed { // TODO: go ask prof cheng what packed means anyway
         dist_t  x;
         dist_t  y;
-    } cart_2d_coord_t;
+    } cart_coord_2d_t;
     typedef struct packed {
         dist_t   x;
         dist_t   y;
         dist_t   z;
-    } cart_coord_t; 
+    } cart_coord_t;
+
     function automatic cart_coord_t trunc_add(cart_coord_t a, cart_coord_t b);
         return '{x: DIST_WIDTH'(a.x + b.x), y: DIST_WIDTH'(a.y + b.y), z: DIST_WIDTH'(a.z + b.z) };
     endfunction
@@ -19,12 +20,20 @@ package geometry_pkg;
         return '{x: DIST_WIDTH'(a.x - b.x), y: DIST_WIDTH'(a.y - b.y), z: DIST_WIDTH'(a.z - b.z) };
     endfunction
 
+    function automatic cart_coord_2d_t trunc_add_2d(cart_coord_2d_t a, cart_coord_2d_t b);
+        return '{x: DIST_WIDTH'(a.x + b.x), y: DIST_WIDTH'(a.y + b.y)};
+    endfunction
+
+    function automatic cart_coord_2d_t trunc_sub_2d(cart_coord_2d_t a, cart_coord_2d_t b);
+        return '{x: DIST_WIDTH'(a.x - b.x), y: DIST_WIDTH'(a.y - b.y)};
+    endfunction
+
     // TODO: check wether the bellow function meets timing and consider introducing a dot_t
     function automatic dot_t dot(cart_coord_t a, cart_coord_t b);
         return a.x * b.x + a.y * b.y + a.z * b.z;
     endfunction
 
-    function automatic det_t det_2d(cart_2d_coord_t a, cart_2d_coord_t b);
+    function automatic det_t det_2d(cart_coord_2d_t a, cart_coord_2d_t b);
         return a.x * b.y - a.y * b.x;
     endfunction
     

@@ -17,15 +17,6 @@ module ball_colors
         output      dot_t                   brightness
     );
 
-    dist_t future_drawX, future_drawY;
-    forward_index_2d #(
-        .INDEX_1D(dist_t),
-        .LOOKAHEAD(LATENCY),
-        .BOUND1(MAX_DRAWX), .BOUND2(MAX_DRAWY)              ) future_draw_coords (
-        .x(drawX), .y(drawY),
-        .fwd_x(future_drawX), .fwd_y(future_drawY)
-    );
-
     dist_t drawX_wrt_eye;       assign drawX_wrt_eye        = future_drawX - ball.center.x; 
     dist_t drawY_wrt_eye;       assign drawY_wrt_eye        = future_drawY - ball.center.y;
     dist_t surface_x_wrt_eye;   assign surface_x_wrt_eye    = dist_t'((surface_z_wrt_eye * drawX_wrt_eye) >> LOG_EYE_DISTANCE); // unsigned shift on purpose, to save on comparisons
