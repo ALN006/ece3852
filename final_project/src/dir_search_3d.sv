@@ -1,4 +1,4 @@
-module dir_search_3d // NOTE: it is neccessary to assert reset to find a new direction
+module dir_search_3d
     import geometry_pkg::*;
     #(  parameter   angle_t             THETA_LOWER_BOUND   = '0,
         parameter   angle_t             THETA_UPPER_BOUND   = PI,
@@ -7,13 +7,13 @@ module dir_search_3d // NOTE: it is neccessary to assert reset to find a new dir
         input       logic               clk,
         input       cart_coord_t        origin,
         input       cart_coord_t        destination,
-        input       logic               reset,
+        input       logic               restart,
         output      angle_t             theta,
         output      angle_t             phi
     );
     cart_coord_t    point_offset_origin;
-    cart_2d_coord_t point_offset_origin_xy;
-    cart_2d_coord_t point_offset_origin_zx;
+    cart_coord_2d_t point_offset_origin_xy;
+    cart_coord_2d_t point_offset_origin_zx;
     always_comb begin : origin_offset_vectors
         point_offset_origin    = trunc_sub( destination, origin );
         point_offset_origin_xy = '{
@@ -29,7 +29,7 @@ module dir_search_3d // NOTE: it is neccessary to assert reset to find a new dir
         .LOWER_BOUND_ANGLE(THETA_LOWER_BOUND),
         .UPPER_BOUND_ANGLE(THETA_UPPER_BOUND)       
     ) search_theta (
-        .clk, .reset,
+        .clk, .restart,
         .target(point_offset_origin_xy),
 
         .direction(theta)
@@ -38,7 +38,7 @@ module dir_search_3d // NOTE: it is neccessary to assert reset to find a new dir
         .LOWER_BOUND_ANGLE(PHI_LOWER_BOUND),
         .UPPER_BOUND_ANGLE(PHI_UPPER_BOUND)        
     ) search_phi (
-        .clk, .reset,
+        .clk, .restart,
         .target(point_offset_origin_zx),
 
         .direction(phi)
