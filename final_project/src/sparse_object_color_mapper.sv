@@ -35,7 +35,7 @@ module sparse_object_color_mapper
             surface_point[2 + i*6] = polar_to_cart({paddles[i].radius + PADDLE_HALF_RADIUS_OFFSET, paddles[i].phi + PADDLE_HALF_PHI_OFFSET, paddles[i].theta + PADDLE_THETA_OFFSET}); // for face 2468
             surface_point[3 + i*6] = polar_to_cart({paddles[i].radius + PADDLE_HALF_RADIUS_OFFSET, paddles[i].phi + PADDLE_PHI_OFFSET, paddles[i].theta + PADDLE_HALF_THETA_OFFSET}); // for face 3478
             surface_point[4 + i*6] = polar_to_cart({paddles[i].radius, paddles[i].phi + PADDLE_HALF_PHI_OFFSET, paddles[i].theta + PADDLE_HALF_THETA_OFFSET}); // for face 1234
-            surface_point[5 + i*6] = polar_to_cart({paddles[i].radius + PADDLE_HALF_RADIUS_OFFSET, paddles[i].phi + PADDLE_HALF_PHI_OFFSET, paddles[i].theta + PADDLE_HALF_THETA_OFFSET});
+            surface_point[5 + i*6] = polar_to_cart({paddles[i].radius + PADDLE_RADIUS_OFFSET, paddles[i].phi + PADDLE_HALF_PHI_OFFSET, paddles[i].theta + PADDLE_HALF_THETA_OFFSET}); // for face 5678
         
         
             normal_inward_unit_vector[0 + i*6] = '{
