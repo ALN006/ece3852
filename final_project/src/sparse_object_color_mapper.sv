@@ -1,21 +1,32 @@
 module sparse_object_color_mapper 
     import geometry_pkg::*;
-    #(  parameter   int COLOR_WIDTH = 4                     )(
-        input       dist_t                  drawX, drawY,
-        input       polar_coord_t           paddles [0:PADDLE_COUNT-1],
-        input       cart_coord_t [7:0]      paddles_2d [0:PADDLE_COUNT-1],
-        input       sphere_t                ball,
+    #(  parameter   int                     COLOR_WIDTH                     = 4, 
+        parameter   int                     LOG_EYE_DISTANCE                = 10,
+        parameter   int                     LOG_MAX_BRIGHTNESS_SQRT         = UNIT_SHIFT, 
+        parameter   cart_coord_t            LIGHT_ORIGIN                    = '{ default: '1 },
+        parameter   dist_t                  MAX_DRAWX                       = dist_t'(1024),
+        parameter   dist_t                  MAX_DRAWX                       = dist_t'(1024),
+        parameter   int                     PIXELS_SET_PER_CLK              = 4                 )(
         input       logic                   clk,
+        input       polar_coord_t           paddles [0:PADDLE_COUNT-1],
+        input       cart_coord_t [7:0]      paddles_2d [0:PADDLE_COUNT-1],  // TODO: this needs to be either changed completely 
+        input       sphere_t                ball,
+        input       cart_coord_2d_t         draw,
         input       logic                   frame_tick,
         input       logic                   reset,
         output      logic                   is_object,
         output      logic [COLOR_WIDTH-1:0] red, green, blue
     );
 
-    ball_colors occlusion_agnostic_ball_colors (
-        .drawX, .drawY,
-        .ball,
+    ball_surface_brightness #(
+        .LOG_EYE_DISTANCE(LOG_EYE_DISTANCE),
+        .LOG_MAX_BRIGHTNESS_SQRT(LOG_MAX_BRIGHTNESS_SQRT),
+        .MAX_DRAWX(MAX_DRAWX), .MAX_DRAWY(MAX_DRAWY),
+        .LIGHT_ORIGIN(LIGHT_ORIGIN),
+        .PIXELS_SET_PER_CLK(PIXELS_SET_PER_CLK)                 ) occlusion_agnostic_ball_brightness (
         .clk,
+        .draw,
+        .ball,
 
         .valid,
         .brightness

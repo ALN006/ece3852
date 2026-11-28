@@ -2,11 +2,11 @@
 module ball_surface_brightness
     import geometry_pkg::*;
     #(  parameter   int                     LOG_EYE_DISTANCE                        = 10,
-        parameter   dist_t                  MAX_BRIGHTNESS_SQRT                     = (1 << UNIT_SHIFT), // sqrt of max brightness
+        parameter   int                     LOG_MAX_BRIGHTNESS_SQRT                 = UNIT_SHIFT, // sqrt of max brightness
         parameter   dist_t                  MAX_DRAWX                               = dist_t'(1024),
         parameter   dist_t                  MAX_DRAWY                               = dist_t'(1024),
-        parameter   angle_t                 UNIT_VECTOR_SEARCH_ANGLE_LOWER_BOUND    = '0,
-        parameter   angle_t                 UNIT_VECTOR_SEARCH_ANGLE_UPPER_BOUND    = PI,
+        localparam  angle_t                 UNIT_VECTOR_SEARCH_ANGLE_LOWER_BOUND    = '0,
+        localparam  angle_t                 UNIT_VECTOR_SEARCH_ANGLE_UPPER_BOUND    = PI,
         parameter   cart_coord_t            LIGHT_ORIGIN                            = '{ default: '1 },
         parameter   int                     PIXELS_SET_PER_CLK                      = 4,
         localparam  int                     LATENCY                                 = $clog2(UNIT_VECTOR_SEARCH_ANGLE_UPPER_BOUND)  + 3,
@@ -33,8 +33,10 @@ module ball_surface_brightness
     cart_coord_t light_vec, normal_vec;
     always_ff @( posedge clk ) begin 
         lane <= (lane < LANE_SEL_VAR_WIDTH'(LATENCY)) ? lane + 1 : '0;
-        light_vec <= polar_to_cart('{ radius: MAX_BRIGHTNESS_SQRT, theta: light_theta[lane], phi: light_phi[lane]});
-        normal_vec <= polar_to_cart('{ radius: MAX_BRIGHTNESS_SQRT, theta: normal_theta[lane], phi: normal_phi[lane]});
+
+        light_vec <= polar_to_cart('{ radius: 1 << LOG_MAX_BRIGHTNESS_SQRT, theta: light_theta[lane], phi: light_phi[lane]});
+        normal_vec <= polar_to_cart('{ radius: 1 << LOG_MAX_BRIGHTNESS_SQRT, theta: normal_theta[lane], phi: normal_phi[lane]});
+
         brightness <= dot(light_vec, normal_vec);
     end
 
